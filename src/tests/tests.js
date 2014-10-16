@@ -18,6 +18,15 @@ describe('validateCff', () => {
     expect(x).to.have.length(1)
       .and.to.contain.an.item.with.property('msg', 'CFF is not a valid JSON object');
   });
+  it('should require valid sourceId, sourceDescription and lines', () => {
+    const inputs = [{}];
+    const x = processInputs(inputs);
+    expect(Array.isArray(x)).to.be.true;
+    expect(x).to.have.length(3)
+      .and.to.contain.an.item.with.property('msg', 'sourceId missing or invalid')
+      .and.to.contain.an.item.with.property('msg', 'sourceDescription missing or invalid')
+      .and.to.contain.an.item.with.property('msg', 'lines missing or invalid');
+  });
 });
 
 /*jshint ignore:end*/

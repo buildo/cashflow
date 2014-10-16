@@ -1,7 +1,7 @@
 'use strict';
 
 // const Immutable = require('immutable');
-const validateCFF = require('./src/validator/CFFValidator.js');
+const validateCFF = require('./src/validators/CFFValidator.js');
 
 const validateAll = (inputs, validator) => {
   return inputs.reduce(

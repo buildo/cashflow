@@ -3,13 +3,15 @@
 const Immutable = require('immutable');
 
 const validateCFF = (cff) => {
+
   const validatorBlocks = Immutable.fromJS([
     [
       {
         condition: (cff) => (typeof cff === 'object' && !Array.isArray(cff)),
         msg: 'CFF is not a valid JSON object'
       }
-    ],[
+    ],
+    [
       {
         condition: (cff) => (typeof cff.sourceId === 'string'),
         msg: 'sourceId missing or invalid'
@@ -20,7 +22,7 @@ const validateCFF = (cff) => {
       },
       {
         condition: (cff) => (Array.isArray(cff.lines)),
-        msg: 'lines is missing or invalid'
+        msg: 'lines missing or invalid'
       }
     ]
   ]);
@@ -29,7 +31,12 @@ const validateCFF = (cff) => {
     return validatorBlock.reduce(
       (errors, validator) => {
         if (!validator.get('condition')(cff)) {
-          errors.push({msg: validator.get('msg')});
+          errors.push(
+            {
+              msg: validator.get('msg'),
+              sourceId: cff.sourceId
+            }
+          );
         }
         return errors;
       },[]
@@ -41,7 +48,7 @@ const validateCFF = (cff) => {
   };
 
   const firstValidatorBlockWithErrors = (cff) =>
-    Immutable.Sequence(validatorBlocks).filter((vb) => throwsErrors(vb, cff)).first();
+    Immutable.Sequence(validatorBlocks).find((vb) => throwsErrors(vb, cff));
 
   return getBlockErrors(firstValidatorBlockWithErrors(cff), cff);
 };
