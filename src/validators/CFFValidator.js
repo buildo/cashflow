@@ -6,17 +6,21 @@ const validateCFF = (cff) => {
   const validatorBlocks = Immutable.fromJS([
     [
       {
-        condition: (cff) => (typeof cff !== 'object' || !Array.isArray(cff)),
+        condition: (cff) => (typeof cff === 'object' && !Array.isArray(cff)),
         msg: 'CFF is not a valid JSON object'
       }
     ],[
       {
-        condition: (cff) => (typeof cff.sourceId !== 'string'),
+        condition: (cff) => (typeof cff.sourceId === 'string'),
         msg: 'sourceId missing or invalid'
       },
       {
-        condition: (cff) => (typeof cff.sourceDescription !== 'string'),
+        condition: (cff) => (typeof cff.sourceDescription === 'string'),
         msg: 'sourceDescription missing or invalid'
+      },
+      {
+        condition: (cff) => (Array.isArray(cff.lines)),
+        msg: 'lines is missing or invalid'
       }
     ]
   ]);
@@ -24,7 +28,7 @@ const validateCFF = (cff) => {
   const getBlockErrors = (validatorBlock, cff) => {
     return validatorBlock.reduce(
       (errors, validator) => {
-        if (validator.get('condition')(cff)) {
+        if (!validator.get('condition')(cff)) {
           errors.push({msg: validator.get('msg')});
         }
         return errors;
