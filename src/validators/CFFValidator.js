@@ -34,7 +34,7 @@ const validateCFF = (cff) => {
           errors.push(
             {
               msg: validator.get('msg'),
-              sourceId: cff.sourceId
+              sourceId: typeof cff.sourceId === 'undefined' ? 'UNKNOWN_SOURCE_ID' : cff.sourceId 
             }
           );
         }

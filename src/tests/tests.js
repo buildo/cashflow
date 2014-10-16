@@ -17,6 +17,7 @@ describe('validateCff', () => {
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(1)
       .and.to.contain.an.item.with.property('msg', 'CFF is not a valid JSON object');
+    expect(x).to.all.have.property('sourceId', 'UNKNOWN_SOURCE_ID');
   });
   it('should require valid sourceId, sourceDescription and lines', () => {
     const inputs = [{}];
