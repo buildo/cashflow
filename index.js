@@ -2,6 +2,7 @@
 
 // const Immutable = require('immutable');
 const validateCFF = require('./src/validators/CFFValidator.js');
+const mergeCFFs = require('./src/modules/merge.js');
 
 const validateAll = (inputs, validator) => {
   return inputs.reduce(
@@ -12,6 +13,11 @@ const validateAll = (inputs, validator) => {
 
 const processInputs = (inputCFFs, heuristics) => validateAll(inputCFFs, validateCFF);
 
+const mergeInputs = (inputCFFs, heuristics) => mergeCFFs(inputCFFs);
+
+
+
 module.exports = {
   processInputs: processInputs,
+  mergeInputs: mergeInputs
 };
