@@ -15,13 +15,23 @@ const mergeLines = (lines) => {
   return groupedLinesMap.toVector();
 };
 
-const mergeCFFs = (imutableCFFs) => {
-  const groupedLines = imutableCFFs.map((x) => x.get('lines')).flatten();
+const mergeSourceDescriptions = (immutableCFFs) => {
+  return immutableCFFs.reduce((acc, x, index) => {
+        return index === immutableCFFs.length - 1 ?
+          acc + x.get('sourceDescription') : 
+          acc + x.get('sourceDescription') + ', ';
+        },
+        'merge of: '
+  );
+};
+
+const mergeCFFs = (immutableCFFs) => {
+  const groupedLines = immutableCFFs.map((x) => x.get('lines')).flatten();
   const mergedLines = mergeLines(groupedLines);
   return Immutable.fromJS(
     {
       sourceId: 'MERGE_MODULE',
-      sourceDescription: 'merge of: fatture in cloud, manual, bperbank',
+      sourceDescription: mergeSourceDescriptions(immutableCFFs),
       lines: mergedLines
     }
   );

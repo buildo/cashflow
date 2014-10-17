@@ -52,7 +52,7 @@ describe('mergeCFFs', () => {
     const cffs = [
       { 
         sourceId: '12345',
-        sourceDescription: '12345',
+        sourceDescription: 'desc1',
         lines: [
           {
             id: '123',
@@ -61,7 +61,7 @@ describe('mergeCFFs', () => {
       },
       {
         sourceId: '12345',
-        sourceDescription: '12345',
+        sourceDescription: 'desc2',
         lines: [
           {
             id: '123',
@@ -72,6 +72,7 @@ describe('mergeCFFs', () => {
 
     const x = processInputs(cffs).toJS();
     expect(typeof x === 'object').to.be.true;
+    expect(x).to.have.property('sourceDescription', 'merge of: desc1, desc2');
     expect(x).to.have.property('lines');
     expect(x).to.have.property('sourceId', 'MERGE_MODULE');
     expect(x).to.have.property('sourceDescription');
@@ -81,7 +82,7 @@ describe('mergeCFFs', () => {
     const cffs = [
       {
         sourceId: '12345',
-        sourceDescription: '12345',
+        sourceDescription: 'desc1',
         priority: 5,
         lines: [
           {
@@ -93,7 +94,7 @@ describe('mergeCFFs', () => {
       },
       {
         sourceId: '12345',
-        sourceDescription: '12345',
+        sourceDescription: 'desc2',
         lines: [
           {
             id: '123',
