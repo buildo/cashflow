@@ -15,7 +15,6 @@ const processInputs = indexJS.processInputs;
 const mergeInputs = require('../modules/merge.js');
 const validateAll = require('../validators/CFFValidator.js');
 
-
 describe('validateCff', () => {
   it('should reject invalid object', () => {
     const inputs = ['string'];
@@ -32,7 +31,7 @@ describe('validateCff', () => {
     expect(x).to.have.length(3)
       .and.to.contain.an.item.with.property('msg', 'sourceId missing or invalid')
       .and.to.contain.an.item.with.property('msg', 'sourceDescription missing or invalid')
-      .and.to.contain.an.item.with.property('msg', 'lines missing or invalid')
+      .and.to.contain.an.item.with.property('msg', 'lines missing or not Array')
       .and.to.all.have.property('sourceId', 'UNKNOWN_SOURCE_ID');
   });
   it('should return errors with sourceId', () => {
@@ -56,6 +55,7 @@ describe('mergeCFFs', () => {
         lines: [
           {
             id: '123',
+            amount: {}
           }
         ]
       },
@@ -65,6 +65,7 @@ describe('mergeCFFs', () => {
         lines: [
           {
             id: '123',
+            amount: {}
           }
         ]
       }
@@ -88,6 +89,7 @@ describe('mergeCFFs', () => {
           {
             id: '123',
             x: 5,
+            amount: {},
             y: 7
           }
         ]
@@ -99,6 +101,7 @@ describe('mergeCFFs', () => {
           {
             id: '123',
             z: 9,
+            amount: {},
             y: 3
           }
         ]

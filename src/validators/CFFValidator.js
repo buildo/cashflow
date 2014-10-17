@@ -22,7 +22,17 @@ const validateCFF = (cff) => {
       },
       {
         condition: (cff) => (cff.get('lines') instanceof Immutable.Vector),
-        msg: 'lines missing or invalid'
+        msg: 'lines missing or not Array'
+      }
+    ]),
+    Immutable.fromJS([
+      {
+        condition: (cff) => {
+          return typeof cff.get('lines').find(
+              (line) => !(line.get('amount') instanceof Immutable.Map)
+            ) === 'undefined';
+        },
+        msg: 'lines must contain object amount'
       }
     ])
   );
