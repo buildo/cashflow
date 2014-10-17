@@ -141,7 +141,37 @@ describe('validateConsistency', () => {
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(1)
       .and.to.contain.an.item.with.property('id', '123')
-      .and.to.contain.an.item.with.property('msg', 'Amount is inconsistent');
+      .and.to.contain.an.item.with.property('msg', 'amount is inconsistent');
+  });
+});
+
+describe('insertDefaultValues', () => {
+  it('should create property uncertainty set to 0 inside expctedAmount', () => {
+    const mergedCFF = [
+      {
+        sourceId: 'MERGE_MODULE',
+        sourceDescription: 'merge of: desc1, desc2',
+        priority: 5,
+        lines: [
+          {
+            id: '123',
+            x: 5,
+            expectedAmount: {
+              net: 12,
+              vat: 3,
+              gross: 14,
+              vatPercentage: 0.2
+            },
+            y: 7
+          }
+        ]
+      }
+    ]; 
+    const x = processInputs(mergedCFF).toJS().lines;
+    expect(Array.isArray(x)).to.be.true;
+    expect(x).to.have.length(1);
+    expect(x[0]).to.have.property('expectedAmount');
+    expect(x[0].expectedAmount).to.have.property('uncertainty', 0);
   });
 });
 
