@@ -7,22 +7,21 @@ const validateCFFConsistency = (cff) => {
       {
         condition: (line) => {
           const amount = line.get('amount');
-          const length = amount.toVector().length;
-          if (length > 2) {
-            const net = amount.get('net');
-            const gross = amount.get('gross');
-            const vat = amount.get('vat');
-            const vatPercentage = amount.get('vatPercentage');
-            switch (length) {
-              case 3:
-                return (net === gross - vat) || (vat === gross - gross * vatPercentage);
-              case 4:
-                return (net === gross - vat) && (vat === gross - gross * vatPercentage);
-            }
+          if (line.get('enabled') === false || typeof amount === 'undefined' || amount.toVector().length <= 2){
+            return true;
           }
-          return true;
+          const net = amount.get('net');
+          const gross = amount.get('gross');
+          const vat = amount.get('vat');
+          const vatPercentage = amount.get('vatPercentage');
+          switch (amount.toVector().length) {
+            case 3:
+              return (net === gross - vat) || (vat === gross - gross * vatPercentage);
+            case 4:
+              return (net === gross - vat) && (vat === gross - gross * vatPercentage);
+          }
         },
-        msg: 'Amount is inconsistent'
+        msg: 'amount is inconsistent'
       }
     ]);
 

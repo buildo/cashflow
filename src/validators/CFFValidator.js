@@ -28,11 +28,14 @@ const validateCFF = (cff) => {
     Immutable.fromJS([
       {
         condition: (cff) => {
-          return typeof cff.get('lines').find(
-              (line) => !(line.get('amount') instanceof Immutable.Map)
-            ) === 'undefined';
+          const lineHasNoAmount = (line) => {
+            return !(line.get('amount') instanceof Immutable.Map) &&
+              !(line.get('expectedAmount') instanceof Immutable.Map);
+          };
+          const firstLineWithNoAmount = cff.get('lines').find((line) => lineHasNoAmount(line));
+          return typeof firstLineWithNoAmount === 'undefined';
         },
-        msg: 'lines must contain object amount'
+        msg: 'lines must contain object amount or expectedAmount'
       }
     ])
   );
