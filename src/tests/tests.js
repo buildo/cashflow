@@ -3,19 +3,23 @@
 /*globals describe, it */
 /*jshint ignore:start*/
 
+const Immutable = require('immutable');
+
+
 const assert = require('assert');
 const chai = require('chai');
 chai.use(require('chai-things'));
 const expect = chai.expect;
 const indexJS = require('../../index.js');
 const processInputs = indexJS.processInputs;
-const mergeInputs = indexJS.mergeInputs;
+const mergeInputs = require('../modules/merge.js');
+const validateAll = require('../validators/CFFValidator.js');
 
 
 describe('validateCff', () => {
   it('should reject invalid object', () => {
     const inputs = ['string'];
-    const x = processInputs(inputs);
+    const x = processInputs(inputs).toJS();
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(1)
       .and.to.contain.an.item.with.property('msg', 'CFF is not a valid JSON object');
@@ -23,7 +27,7 @@ describe('validateCff', () => {
   });
   it('should require valid sourceId, sourceDescription and lines', () => {
     const inputs = [{}];
-    const x = processInputs(inputs);
+    const x = processInputs(inputs).toJS();
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(3)
       .and.to.contain.an.item.with.property('msg', 'sourceId missing or invalid')
@@ -35,7 +39,7 @@ describe('validateCff', () => {
     const inputs = [
       {sourceId: '12345'}
     ];
-    const x = processInputs(inputs);
+    const x = processInputs(inputs).toJS();
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length.at.least(1)
       .and.to.all.have.property('sourceId', '12345');
@@ -46,23 +50,27 @@ describe('validateCff', () => {
 describe('mergeCFFs', () => {
   it('should return new object with sourceId, sourceDescription and lines', () => {
     const cffs = [
-      {
+      { 
+        sourceId: '12345',
+        sourceDescription: '12345',
         lines: [
           {
-            sourceId: '123',
+            id: '123',
           }
         ]
       },
       {
+        sourceId: '12345',
+        sourceDescription: '12345',
         lines: [
           {
-            sourceId: '123',
+            id: '123',
           }
         ]
       }
     ];
 
-    const x = mergeInputs(cffs);
+    const x = processInputs(cffs).toJS();
     expect(typeof x === 'object').to.be.true;
     expect(x).to.have.property('lines');
     expect(x).to.have.property('sourceId', 'MERGE_MODULE');
@@ -72,18 +80,22 @@ describe('mergeCFFs', () => {
   it('should return new object with merged lines', () => {
     const cffs = [
       {
+        sourceId: '12345',
+        sourceDescription: '12345',
         lines: [
           {
-            sourceId: '123',
+            id: '123',
             x: 5,
             y: 7
           }
         ]
       },
       {
+        sourceId: '12345',
+        sourceDescription: '12345',
         lines: [
           {
-            sourceId: '123',
+            id: '123',
             z: 9,
             y: 3
           }
@@ -91,7 +103,7 @@ describe('mergeCFFs', () => {
       }
     ];
 
-    const x = mergeInputs(cffs).lines;
+    const x = processInputs(cffs).get('lines').toJS();
     expect(x).to.contain.an.item.with.property('x', 5)
       .and.to.contain.an.item.with.property('y', 3)
       .and.to.contain.an.item.with.property('z', 9);
