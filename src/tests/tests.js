@@ -82,6 +82,7 @@ describe('mergeCFFs', () => {
       {
         sourceId: '12345',
         sourceDescription: '12345',
+        priority: 5,
         lines: [
           {
             id: '123',
@@ -105,7 +106,7 @@ describe('mergeCFFs', () => {
 
     const x = processInputs(cffs).get('lines').toJS();
     expect(x).to.contain.an.item.with.property('x', 5)
-      .and.to.contain.an.item.with.property('y', 3)
+      .and.to.contain.an.item.with.property('y', 7)
       .and.to.contain.an.item.with.property('z', 9);
   });
 
