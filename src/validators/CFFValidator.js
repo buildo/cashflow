@@ -24,19 +24,6 @@ const validateCFF = (cff) => {
         condition: (cff) => (cff.get('lines') instanceof Immutable.Vector),
         msg: 'lines missing or not Array'
       }
-    ]),
-    Immutable.fromJS([
-      {
-        condition: (cff) => {
-          const lineHasNoAmount = (line) => {
-            return !(line.get('amount') instanceof Immutable.Map) &&
-              !(line.get('expectedAmount') instanceof Immutable.Map);
-          };
-          const firstLineWithNoAmount = cff.get('lines').find((line) => lineHasNoAmount(line));
-          return typeof firstLineWithNoAmount === 'undefined';
-        },
-        msg: 'lines must contain object amount or expectedAmount'
-      }
     ])
   );
 
