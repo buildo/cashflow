@@ -6,6 +6,7 @@ const mergeCFFs = require('./src/modules/merge.js');
 const sortByPriority = require('./src/modules/prioritySort.js');
 const validateCFFConsistency = require('./src/validators/consistencyValidator.js');
 const insertDefaultValues = require('./src/modules/defaultValues.js');
+const insertImplicitValues = require('./src/modules/implicitValues.js');
 
 
 const validateAll = (inputs, validator) => {
@@ -49,6 +50,24 @@ const processInputs = (inputCFFs, heuristics) => {
 
   // insert default values if missing
   const defaultCFF = insertDefaultValues(mergedCFF);
+
+  // insert implicitValues
+  const implicitCFF = insertImplicitValues(defaultCFF);
+
+  // CFF must still be valid...
+
+  errors = validateCFF(mergedCFF);
+  if (errors.length > 0) {
+    return errors;
+  }
+
+  // ...and consistent!
+  errors = validateCFFConsistency(mergedCFF);
+  if (errors.length > 0) {
+    return errors;
+  }
+
+
 
 
 
