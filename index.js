@@ -55,7 +55,6 @@ const processInputs = (inputCFFs, heuristics) => {
   const implicitCFF = insertImplicitValues(defaultCFF);
 
   // CFF must still be valid...
-
   errors = validateCFF(mergedCFF);
   if (errors.length > 0) {
     return errors;
@@ -67,14 +66,7 @@ const processInputs = (inputCFFs, heuristics) => {
     return errors;
   }
 
-
-
-
-
-
-  return defaultCFF;
-  
-
+  return implicitCFF;
 };
 
 module.exports = {

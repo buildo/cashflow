@@ -120,7 +120,7 @@ describe('validateConsistency', () => {
     const mergedCFF = [
       {
         sourceId: 'MERGE_MODULE',
-        sourceDescription: 'merge of: desc1, desc2',
+        sourceDescription: 'desc1',
         priority: 5,
         lines: [
           {
@@ -150,7 +150,7 @@ describe('insertDefaultValues', () => {
     const mergedCFF = [
       {
         sourceId: 'MERGE_MODULE',
-        sourceDescription: 'merge of: desc1, desc2',
+        sourceDescription: 'desc1',
         priority: 5,
         lines: [
           {
@@ -159,7 +159,7 @@ describe('insertDefaultValues', () => {
             expectedAmount: {
               net: 12,
               vat: 3,
-              gross: 14,
+              gross: 15,
               vatPercentage: 0.2
             },
             y: 7

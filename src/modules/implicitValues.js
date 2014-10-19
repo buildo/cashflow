@@ -7,34 +7,32 @@ const updateExpectedAmount = (expectedAmount) => {
 };
 
 const updateAmount = (amount) => {
+  if (amount.toVector().length < 2) {
+    return amount;
+  }
+  
   const net = amount.get('net');
   const gross = amount.get('gross');
   const vat = amount.get('vat');
   const vatPercentage = amount.get('vatPercentage');
 
-  const equations = {
-    net : Immutable.fromJS([gross - vat, gross - gross * vatPercentage, vat / vatPercentage - vat]);
-    gross : Immutable.fromJS([net + vat, net / (1 - vatPercentage), vat / vatPercentage]);
-    vat : Immutable.fromJS([gross - net, gross * vatPercentage, net / (1 - vatPercentage) - net]);
-    vatPercentage : Immutable.fromJS([vat / gross, (gross - net) / gross, vat / (net + vat)]);
-  };
-
-  const keys = ['net', 'gross', 'vat', 'vatPercentage'];
-
-  return keys.reduce((acc, key) => {
-      const keyValue = typeof amount.get(key) === 'undefined' ? 
-        equations['key'].find((x) => typeof x !== 'undefined') : amount.get(key);
-      return acc.set(key, keyValue);
-    },
-    Immutable.fromJS({})
+  const newAmount = Immutable.fromJS(
+    {
+      net : [net, gross - vat, gross - gross * vatPercentage, vat / vatPercentage - vat],
+      gross : [gross, net + vat, net / (1 - vatPercentage), vat / vatPercentage],
+      vat : [vat, gross - net, gross * vatPercentage, net / (1 - vatPercentage) - net],
+      vatPercentage : [vatPercentage, vat / gross, (gross - net) / gross, vat / (net + vat)]
+    }
   );
+
+  return newAmount.map((value) => value.find((x) => typeof x !== 'undefined')).toMap();
 };
 
 const getLinesWithImplicitValues = (lines, updateAmount, updateExpectedAmount) => {
   return lines.reduce((acc, line) => {
       // has amount?
       const amount = line.get('amount');
-      if (amount instanceof Immutable.Map && typeof amount.toVector().length >= 2) {
+      if (amount instanceof Immutable.Map) {
         return acc.push(line.set('amount', updateAmount(amount)));
       }
 
@@ -52,7 +50,7 @@ const getLinesWithImplicitValues = (lines, updateAmount, updateExpectedAmount) =
 };
 
 const insertImplicitValues = (cff) => {
-  const newLines = getLinesWithDefaultValues(cff.get('lines'), updateAmount, updateExpectedAmount);
+  const newLines = getLinesWithImplicitValues(cff.get('lines'), updateAmount, updateExpectedAmount);
   return cff.set('lines', newLines);
 };
 
