@@ -3,14 +3,16 @@
 const Immutable = require('immutable');
 
 const completeValues = (valuesMap) => {
-  if (valuesMap.toVector().length < 2) {
-    return valuesMap;
+  const filteredValues = valuesMap.filter((value) => typeof value !== 'undefined').toMap();
+
+  if (filteredValues.length < 2) {
+    return filteredValues;
   }
   
-  const net = valuesMap.get('net');
-  const gross = valuesMap.get('gross');
-  const vat = valuesMap.get('vat');
-  const vatPercentage = valuesMap.get('vatPercentage');
+  const net = filteredValues.get('net');
+  const gross = filteredValues.get('gross');
+  const vat = filteredValues.get('vat');
+  const vatPercentage = filteredValues.get('vatPercentage');
 
   const newAmount = Immutable.fromJS(
     {

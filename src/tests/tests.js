@@ -193,14 +193,21 @@ describe('insertImplicitValues', () => {
             amount: {
               vat: 3,
               gross: 15
-            },
+            }
+          },
+          {
+            id: 'anotherUniqueId',
+            expectedAmount: {
+              vat: [3, 5],
+              gross: 15
+            }
           }
         ]
       }
     ]; 
     const x = processInputs(mergedCFF).toJS().lines;
     expect(Array.isArray(x)).to.be.true;
-    expect(x).to.have.length(1);
+    expect(x).to.have.length(2);
     expect(x[0]).to.have.property('amount');
     expect(x[0].amount).to.have.property('net', 12);
     expect(x[0].amount).to.have.property('gross', 15);
