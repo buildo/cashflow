@@ -10,8 +10,23 @@ module.exports = (grunt) ->
           'index.js'
         ]
         tasks: [
-          'newer:jshint:all',
+          'newer:jshint:dist',
+          'newer:jshint:test',
           'newer:es6transpiler',
+        ]
+      testPrepare:
+        files: [
+          'src/**/*.spec.js'
+        ]
+        tasks: [
+          'testPrepare'
+        ]
+      test:
+        files: [
+          'test/**/*.js'
+        ]
+        tasks: [
+          'simplemocha:test'
         ]
     jshint:
       options:
@@ -69,12 +84,12 @@ module.exports = (grunt) ->
         }]
     simplemocha:
       # options:
-        # globals: ['should']
-        # timeout: 3000
-        # ignoreLeaks: false
-        # grep: '*-test'
-        # ui: 'bdd'
-        # reporter: 'tap'
+      #   globals: ['should']
+      #   timeout: 3000
+      #   ignoreLeaks: false
+      #   grep: '*-test'
+      #   ui: 'bdd'
+      #   reporter: 'tap'
       test:
         src: [
           'test/**/*.js'
@@ -86,15 +101,23 @@ module.exports = (grunt) ->
     'es6transpiler:dist'
   ]
 
+  grunt.registerTask 'testPrepare', [
+    'jshint:test',
+    'clean:test',
+    'es6transpiler:test'
+  ]
+
   grunt.registerTask 'test', [
+    'testPrepare',
+    'watch',
+    'es6transpiler:test'
+  ]
+
+  grunt.registerTask 'default', [
     'jshint:test',
     'clean:test',
     'es6transpiler:test',
     'simplemocha:test',
-    'clean:testgrunt'
-  ]
-
-  grunt.registerTask 'default', [
-    'test',
+    'clean:test',
     'build'
   ]
