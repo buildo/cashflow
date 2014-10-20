@@ -2,19 +2,15 @@
 
 const Immutable = require('immutable');
 
-const updateExpectedAmount = (expectedAmount) => {
-  return expectedAmount;
-};
-
-const updateAmount = (amount) => {
-  if (amount.toVector().length < 2) {
-    return amount;
+const completeValues = (valuesMap) => {
+  if (valuesMap.toVector().length < 2) {
+    return valuesMap;
   }
   
-  const net = amount.get('net');
-  const gross = amount.get('gross');
-  const vat = amount.get('vat');
-  const vatPercentage = amount.get('vatPercentage');
+  const net = valuesMap.get('net');
+  const gross = valuesMap.get('gross');
+  const vat = valuesMap.get('vat');
+  const vatPercentage = valuesMap.get('vatPercentage');
 
   const newAmount = Immutable.fromJS(
     {
@@ -28,18 +24,48 @@ const updateAmount = (amount) => {
   return newAmount.map((value) => value.find((x) => typeof x !== 'undefined')).toMap();
 };
 
-const getLinesWithImplicitValues = (lines, updateAmount, updateExpectedAmount) => {
+const completeExpectedAmount = (expectedAmount, completeValues) => {
+  const net = expectedAmount.get('net');
+  const gross = expectedAmount.get('gross');
+  const vat = expectedAmount.get('vat');
+  const vatPercentage = expectedAmount.get('vatPercentage');
+
+  const leftValues = Immutable.fromJS(
+    {
+      net: net instanceof Immutable.Vector ? net.get(0) : net,
+      gross: gross instanceof Immutable.Vector ? gross.get(0) : gross,
+      vat: vat instanceof Immutable.Vector ? vat.get(0) : vat,
+      vatPercentage: vatPercentage instanceof Immutable.Vector ? vatPercentage.get(0) : vatPercentage
+    }
+  );
+
+  const rightValues = Immutable.fromJS(
+    {
+      net: net instanceof Immutable.Vector ? net.get(1) : net,
+      gross: gross instanceof Immutable.Vector ? gross.get(1) : gross,
+      vat: vat instanceof Immutable.Vector ? vat.get(1) : vat,
+      vatPercentage: vatPercentage instanceof Immutable.Vector ? vatPercentage.get(1) : vatPercentage
+    }
+  );
+
+  const completeLeft = completeValues(leftValues);
+  const completeRight = completeValues(rightValues);
+
+  return completeLeft.map((value, key) => Immutable.fromJS([value, completeRight.get(key)])).toMap();
+};
+
+const getLinesWithImplicitValues = (lines, completeValues, completeExpectedAmount) => {
   return lines.reduce((acc, line) => {
       // has amount?
       const amount = line.get('amount');
       if (amount instanceof Immutable.Map) {
-        return acc.push(line.set('amount', updateAmount(amount)));
+        return acc.push(line.set('amount', completeValues(amount)));
       }
 
       // has expectedAmount?
       const expectedAmount = line.get('expectedAmount');
       if (expectedAmount instanceof Immutable.Map) {
-        return acc.push(line.set('expectedAmount', updateExpectedAmount(expectedAmount)));
+        return acc.push(line.set('expectedAmount', completeExpectedAmount(expectedAmount, completeValues)));
       }
 
       // default
@@ -50,7 +76,7 @@ const getLinesWithImplicitValues = (lines, updateAmount, updateExpectedAmount) =
 };
 
 const insertImplicitValues = (cff) => {
-  const newLines = getLinesWithImplicitValues(cff.get('lines'), updateAmount, updateExpectedAmount);
+  const newLines = getLinesWithImplicitValues(cff.get('lines'), completeValues, completeExpectedAmount);
   return cff.set('lines', newLines);
 };
 
