@@ -72,11 +72,9 @@ describe('mergeCFFs', () => {
     ];
 
     const x = processInputs(cffs).toJS();
-    expect(x).to.be.an(Object);
     expect(x).to.have.property('sourceDescription', 'merge of: desc1, desc2');
     expect(x).to.have.property('lines');
     expect(x).to.have.property('sourceId', 'MERGE_MODULE');
-    expect(x).to.have.property('sourceDescription');
   });
 
   it('should return new object with merged lines', () => {

@@ -35,7 +35,7 @@ const validateCFF = (cff) => {
             Immutable.fromJS(
               {
                 msg: validator.get('msg'),
-                sourceId: (cff instanceof Immutable.Map && typeof cff.get('sourceId') !== 'undefined') ? 
+                sourceId: (cff instanceof Immutable.Map && cff.has('sourceId')) ? 
                   cff.get('sourceId') : 'UNKNOWN_SOURCE_ID'
               }
             )

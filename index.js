@@ -9,12 +9,12 @@ const insertDefaultValues = require('./src/modules/defaultValues.js');
 const insertImplicitValues = require('./src/modules/implicitValues.js');
 
 
-const validateAll = (inputs, validator) => {
-  return inputs.reduce(
-    (acc, input) => {
-      return acc.concat(validator(input));
+const validateAll = (cffs, validator) => {
+  return cffs.reduce(
+    (acc, cff) => {
+      return acc.concat(validator(cff));
     },
-    Immutable.fromJS([])
+    Immutable.Vector()
   );
 };
 

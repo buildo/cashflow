@@ -59,15 +59,14 @@ const completeExpectedAmount = (expectedAmount, completeValues) => {
 const getLinesWithImplicitValues = (lines, completeValues, completeExpectedAmount) => {
   return lines.reduce((acc, line) => {
       // has amount?
-      const amount = line.get('amount');
-      if (amount instanceof Immutable.Map) {
-        return acc.push(line.set('amount', completeValues(amount)));
+      if (line.has('amount')) {
+        return acc.push(line.set('amount', completeValues(line.get('amount'))));
       }
 
       // has expectedAmount?
-      const expectedAmount = line.get('expectedAmount');
-      if (expectedAmount instanceof Immutable.Map) {
-        return acc.push(line.set('expectedAmount', completeExpectedAmount(expectedAmount, completeValues)));
+      if (line.has('expectedAmount')) {
+        return acc.push(line.set('expectedAmount',
+          completeExpectedAmount(line.get('expectedAmount'), completeValues)));
       }
 
       // default

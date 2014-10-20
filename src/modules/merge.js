@@ -8,9 +8,8 @@ const mergeCFFs = (immutableCFFs) => {
     const groupedLinesMap = lines.reduce(
       (acc, line) => {
         const lineID = line.get('id');
-        const mergedFrom = typeof acc.get(lineID) === 'undefined' ? [] : acc.get(lineID).get('mergedFrom');
-        mergedFrom.push(line.get('parentID'));
-        const newLine = line.set('mergedFrom', mergedFrom).remove('parentID');
+        const mergedFrom = acc.has(lineID) ? acc.get(lineID).get('mergedFrom') : Immutable.Vector();
+        const newLine = line.set('mergedFrom', mergedFrom.push(line.get('parentID'))).remove('parentID');
         return acc.mergeDeep(Immutable.Map().set(lineID, newLine));
       },
       Immutable.Map()

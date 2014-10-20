@@ -4,7 +4,7 @@ const Immutable = require('immutable');
 
 const getLinesWithDefaultValues = (lines) => {
   return lines.reduce((acc, line) => {
-      const enabled = typeof line.get('enabled') === 'undefined' ? true : line.get('enabled');
+      const enabled = line.has('enabled') ? line.get('enabled') : true;
       return acc.push(line.set('enabled', enabled));
     },
     Immutable.Vector()
