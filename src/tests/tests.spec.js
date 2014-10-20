@@ -1,7 +1,7 @@
 'use strict';
 
 /*globals describe, it */
-/*jshint ignore:start*/
+/*jshint expr: true*/
 
 const Immutable = require('immutable');
 
@@ -49,7 +49,7 @@ describe('validateCff', () => {
 describe('mergeCFFs', () => {
   it('should return new object with sourceId, sourceDescription and lines', () => {
     const cffs = [
-      { 
+      {
         sourceId: '12345',
         sourceDescription: 'desc1',
         lines: [
@@ -72,7 +72,7 @@ describe('mergeCFFs', () => {
     ];
 
     const x = processInputs(cffs).toJS();
-    expect(typeof x === 'object').to.be.true;
+    expect(x).to.be.an(Object);
     expect(x).to.have.property('sourceDescription', 'merge of: desc1, desc2');
     expect(x).to.have.property('lines');
     expect(x).to.have.property('sourceId', 'MERGE_MODULE');
@@ -144,7 +144,7 @@ describe('insertDefaultValues', () => {
           }
         ]
       }
-    ]; 
+    ];
     const x = processInputs(mergedCFF).toJS().lines;
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(1);
@@ -178,7 +178,7 @@ describe('validateConsistency', () => {
           }
         ]
       }
-    ]; 
+    ];
     const x = processInputs(mergedCFF).toJS();
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(2)
@@ -212,7 +212,7 @@ describe('insertImplicitValues', () => {
           }
         ]
       }
-    ]; 
+    ];
     const x = processInputs(mergedCFF).toJS().lines;
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(2);
@@ -223,5 +223,3 @@ describe('insertImplicitValues', () => {
     expect(x[0].amount).to.have.property('vatPercentage', 0.2);
   });
 });
-
-/*jshint ignore:end*/

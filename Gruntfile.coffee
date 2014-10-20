@@ -17,9 +17,12 @@ module.exports = (grunt) ->
       options:
         jshintrc: '.jshintrc',
         reporter: require('jshint-stylish')
-      all: [
+      dist: [
         'src/**/*.js',
         'index.js'
+      ]
+      test: [
+        'src/**/*.spec.js'
       ]
     clean:
       dist:
@@ -29,27 +32,69 @@ module.exports = (grunt) ->
             'dist/*'
           ]
         }]
+      test:
+        files: [{
+          dot: true,
+          src: [
+            'test/*'
+          ]
+        }]
     es6transpiler:
-      # options:
-      #   globals:
-      all:
+      dist:
         files: [{
           expand: true
           cwd: '.'
           dest: 'dist'
           src: [
             'src/**/*.js',
+            '!src/**/*.spec.js',
             'index.js'
           ]
           ext: '.js'
         }]
+      test:
+        options:
+          globals:
+            it: false
+            describe: false
+        files: [{
+          expand: true
+          cwd: '.'
+          dest: 'test'
+          src: [
+            'src/**/*.js',
+            'index.js'
+          ]
+          ext: '.js'
+        }]
+    simplemocha:
+      # options:
+        # globals: ['should']
+        # timeout: 3000
+        # ignoreLeaks: false
+        # grep: '*-test'
+        # ui: 'bdd'
+        # reporter: 'tap'
+      test:
+        src: [
+          'test/**/*.js'
+        ]
 
   grunt.registerTask 'build', [
+    'jshint:dist',
     'clean:dist',
-    'es6transpiler'
+    'es6transpiler:dist'
+  ]
+
+  grunt.registerTask 'test', [
+    'jshint:test',
+    'clean:test',
+    'es6transpiler:test',
+    'simplemocha:test',
+    'clean:testgrunt'
   ]
 
   grunt.registerTask 'default', [
-    'jshint',
+    'test',
     'build'
   ]
