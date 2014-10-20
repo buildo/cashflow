@@ -115,38 +115,8 @@ describe('mergeCFFs', () => {
   });
 });
 
-describe('validateConsistency', () => {
-  it('should reject inconsistent object', () => {
-    const mergedCFF = [
-      {
-        sourceId: 'MERGE_MODULE',
-        sourceDescription: 'desc1',
-        priority: 5,
-        lines: [
-          {
-            id: '123',
-            x: 5,
-            amount: {
-              net: 12,
-              vat: 3,
-              gross: 14,
-              vatPercentage: 0.2
-            },
-            y: 7
-          }
-        ]
-      }
-    ]; 
-    const x = processInputs(mergedCFF).toJS();
-    expect(Array.isArray(x)).to.be.true;
-    expect(x).to.have.length(1)
-      .and.to.contain.an.item.with.property('id', '123')
-      .and.to.contain.an.item.with.property('msg', 'amount is inconsistent');
-  });
-});
-
 describe('insertDefaultValues', () => {
-  it('should create property uncertainty set to 0 inside expctedAmount', () => {
+  it('should create property enabled set to true', () => {
     const mergedCFF = [
       {
         sourceId: 'MERGE_MODULE',
@@ -170,8 +140,43 @@ describe('insertDefaultValues', () => {
     const x = processInputs(mergedCFF).toJS().lines;
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(1);
-    expect(x[0]).to.have.property('expectedAmount');
-    expect(x[0].expectedAmount).to.have.property('uncertainty', 0);
+    expect(x[0]).to.have.property('enabled', true);
+  });
+});
+
+describe('validateConsistency', () => {
+  it('should reject inconsistent object', () => {
+    const mergedCFF = [
+      {
+        sourceId: 'MERGE_MODULE',
+        sourceDescription: 'desc1',
+        priority: 5,
+        lines: [
+          {
+            id: '123',
+            x: 5,
+            amount: {
+              net: 12,
+              vat: 3,
+              gross: 14,
+              vatPercentage: 0.2
+            },
+            expectedAmount: {
+              net: [12, 14],
+              vat: 3,
+              gross: [14, 17]
+            },
+            y: 7
+          }
+        ]
+      }
+    ]; 
+    const x = processInputs(mergedCFF).toJS();
+    expect(Array.isArray(x)).to.be.true;
+    expect(x).to.have.length(2)
+      .and.to.contain.an.item.with.property('id', '123')
+      .and.to.contain.an.item.with.property('msg', 'amount is inconsistent')
+      .and.to.contain.an.item.with.property('msg', 'expectedAmount is inconsistent');
   });
 });
 

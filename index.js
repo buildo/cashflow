@@ -42,14 +42,14 @@ const processInputs = (inputCFFs, heuristics) => {
     return errors;
   }
 
+  // insert default values if missing
+  const defaultCFF = insertDefaultValues(mergedCFF);
+
   // validate consistency
-  errors = validateCFFConsistency(mergedCFF);
+  errors = validateCFFConsistency(defaultCFF);
   if (errors.length > 0) {
     return errors;
   }
-
-  // insert default values if missing
-  const defaultCFF = insertDefaultValues(mergedCFF);
 
   // insert implicitValues
   const implicitCFF = insertImplicitValues(defaultCFF);
