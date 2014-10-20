@@ -71,7 +71,7 @@ const getLinesWithImplicitValues = (lines, completeValues, completeExpectedAmoun
       // default
       return acc;
     },
-    Immutable.fromJS([])
+    Immutable.Vector()
   );
 };
 

@@ -7,7 +7,7 @@ const getLinesWithDefaultValues = (lines) => {
       const enabled = typeof line.get('enabled') === 'undefined' ? true : line.get('enabled');
       return acc.push(line.set('enabled', enabled));
     },
-    Immutable.fromJS([])
+    Immutable.Vector()
   );
 };
 

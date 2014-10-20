@@ -181,7 +181,7 @@ describe('validateConsistency', () => {
 });
 
 describe('insertImplicitValues', () => {
-  it('should create property uncertainty set to 0 inside expctedAmount', () => {
+  it('should complete implicit values inside amount and expctedAmount', () => {
     const mergedCFF = [
       {
         sourceId: 'MERGE_MODULE',

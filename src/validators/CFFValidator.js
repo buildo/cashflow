@@ -42,7 +42,7 @@ const validateCFF = (cff) => {
           );
         }
         return errors;
-      },Immutable.fromJS([])
+      },Immutable.Vector()
     );
   };
 
@@ -56,7 +56,7 @@ const validateCFF = (cff) => {
   const firstValidatorBlockWithErrors = getFirstValidatorBlockWithErrors(cff);
 
   return typeof firstValidatorBlockWithErrors === 'undefined' ?
-    Immutable.fromJS([]) : getBlockErrors(firstValidatorBlockWithErrors, cff);
+    Immutable.Vector() : getBlockErrors(firstValidatorBlockWithErrors, cff);
 };
 
 module.exports = validateCFF;

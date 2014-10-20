@@ -4,10 +4,10 @@ const Immutable = require('immutable');
 
 const validateValuesMap = (valuesMap) => {
   const filteredValues = valuesMap.filter((value) => typeof value !== 'undefined').toMap();
-
   if (filteredValues.length <= 2){
     return true;
   }
+  
   const net = filteredValues.get('net');
   const gross = filteredValues.get('gross');
   const vat = filteredValues.get('vat');
@@ -81,7 +81,7 @@ const validateLine = (line, validators, validateValuesMap) => {
       }
       return errors;
     },
-    Immutable.fromJS([])
+    Immutable.Vector()
   );
 };
 
@@ -90,7 +90,7 @@ const validateLines = (cff, validateLine, validators, validateValuesMap) => {
     (errors, line) => {
       return errors.concat(validateLine(line, validators, validateValuesMap));
     },
-    Immutable.fromJS([])
+    Immutable.Vector()
   );
 
   return errors.toVector();

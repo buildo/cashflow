@@ -18,9 +18,6 @@ const validateAll = (inputs, validator) => {
   );
 };
 
-const mergeInputs = (inputs) => mergeCFFs(inputs);
-
-
 const processInputs = (inputCFFs, heuristics) => {
   const immutableCFFs = Immutable.fromJS(inputCFFs);
 
@@ -34,7 +31,7 @@ const processInputs = (inputCFFs, heuristics) => {
   const sortedCFFs = sortByPriority(immutableCFFs);
 
   // merge CFFs into one
-  const mergedCFF = mergeInputs(sortedCFFs);
+  const mergedCFF = mergeCFFs(sortedCFFs);
 
   // mergedCFF must still be valid
   errors = validateCFF(mergedCFF);
