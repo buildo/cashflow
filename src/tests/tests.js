@@ -82,7 +82,7 @@ describe('mergeCFFs', () => {
   it('should return new object with merged lines', () => {
     const cffs = [
       {
-        sourceId: '12345',
+        sourceId: 'first',
         sourceDescription: 'desc1',
         priority: 5,
         lines: [
@@ -95,7 +95,7 @@ describe('mergeCFFs', () => {
         ]
       },
       {
-        sourceId: '12345',
+        sourceId: 'second',
         sourceDescription: 'desc2',
         lines: [
           {
@@ -103,15 +103,23 @@ describe('mergeCFFs', () => {
             z: 9,
             amount: {},
             y: 3
+          },
+          {
+            id: '987',
+            z: 5,
+            expectedAmount: {},
+            y: 5
           }
         ]
       }
     ];
 
     const x = processInputs(cffs).get('lines').toJS();
-    expect(x).to.contain.an.item.with.property('x', 5)
+    expect(x).to.contain.an.item.with.property('id', '123')
       .and.to.contain.an.item.with.property('y', 7)
       .and.to.contain.an.item.with.property('z', 9);
+    expect(x).to.contain.an.item.with.property('id', '987');
+    expect(x[0].mergedFrom).to.have.length(2);
   });
 });
 

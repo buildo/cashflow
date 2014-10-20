@@ -3,15 +3,17 @@
 const Immutable = require('immutable');
 
 const mergeCFFs = (immutableCFFs) => {
+
   const mergeLines = (lines) => {
     const groupedLinesMap = lines.reduce(
       (acc, line) => {
-        const mergedFrom = typeof acc.get('id') === 'undefined' ? [] : acc.get('id').get('mergedFrom');
-        mergedFrom.push(line.get('id'));
-        const newLine = line.set('mergedFrom', mergedFrom);
-        return acc.mergeDeep({id: newLine});
+        const lineID = line.get('id');
+        const mergedFrom = typeof acc.get(lineID) === 'undefined' ? [] : acc.get(lineID).get('mergedFrom');
+        mergedFrom.push(line.get('parentID'));
+        const newLine = line.set('mergedFrom', mergedFrom).remove('parentID');
+        return acc.mergeDeep(Immutable.Map().set(lineID, newLine));
       },
-      Immutable.fromJS({})
+      Immutable.Map()
     );
     return groupedLinesMap.toVector();
   };
@@ -26,7 +28,11 @@ const mergeCFFs = (immutableCFFs) => {
     );
   };
 
-  const groupedLines = immutableCFFs.map((x) => x.get('lines')).flatten();
+  const groupedLines = immutableCFFs.map((cff) => {
+      // save parentID inside each line
+      return cff.get('lines').map((line) => line.set('parentID', cff.get('sourceId')));
+    }).flatten();
+
   const mergedLines = mergeLines(groupedLines);
   
   return Immutable.fromJS(
