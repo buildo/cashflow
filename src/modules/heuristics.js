@@ -2,20 +2,17 @@
 
 const Immutable = require('immutable');
 
-const rules = [
-  {
-    match: (line) => true,
-    edit: (line) => line
-  }
-];
-
 const applyRulesToLines = (lines, rules) => {
   return lines.map((line) => {
     const matchedRules = rules.filter((rule) => rule.match(line));
-    return matchedRules.reduce((acc, rule) => rule.edit(acc), line);
+    return matchedRules.length > 0 ?
+      matchedRules.reduce((acc, rule) => rule.edit(acc), line) : line;
   });
 };
 
-const applyHeuristics = (cff, heuristics) => applyRulesToLines(cff.get('lines'), rules);
+const applyHeuristicRulesToCFF = (cff, rules) => {
+  const editedLines = applyRulesToLines(cff.get('lines'), rules || []);
+  return cff.set('lines', editedLines);
+};
 
-module.exports = applyHeuristics;
+module.exports = applyHeuristicRulesToCFF;
