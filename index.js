@@ -7,7 +7,7 @@ const sortByPriority = require('./src/modules/prioritySort.js');
 const validateCFFConsistency = require('./src/validators/consistencyValidator.js');
 const insertDefaultValues = require('./src/modules/defaultValues.js');
 const insertImplicitValues = require('./src/modules/implicitValues.js');
-
+const applyHeuristics = require('./src/modules/heuristics.js');
 
 const validateAll = (cffs, validator) => {
   return cffs.reduce(
@@ -63,7 +63,10 @@ const processInputs = (inputCFFs, heuristics) => {
     return errors;
   }
 
-  return implicitCFF;
+  // apply heuristic rules
+  const heuristicCFF = applyHeuristics(implicitCFF, heuristics);
+
+  return heuristicCFF;
 };
 
 module.exports = {
