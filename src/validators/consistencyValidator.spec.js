@@ -18,8 +18,8 @@ describe('validateConsistency', () => {
       priority: 5,
       lines: [
         {
-          id: '123',
-          enabled: true,
+          id: 'cloud',
+          enabled: false,
           mergedFrom: ['first','second'],
           amount: {
             net: 12,
@@ -44,7 +44,7 @@ describe('validateConsistency', () => {
     const x = validateCFFConsistency(immutableMergedCFF).toJS();
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(3)
-      .and.to.contain.an.item.with.property('id', '123')
+      .and.to.contain.an.item.with.property('id', 'cloud')
       .and.to.contain.an.item.with.property('msg', 'amount is inconsistent')
       .and.to.contain.an.item.with.property('msg', 'expectedAmount is inconsistent')
       .and.to.contain.an.item.with.property('msg', 'one or more intervals have inconsistent sides');

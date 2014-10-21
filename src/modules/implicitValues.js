@@ -8,7 +8,7 @@ const completeValues = (valuesMap) => {
   if (filteredValues.length < 2) {
     return filteredValues;
   }
-  
+
   const net = filteredValues.get('net');
   const gross = filteredValues.get('gross');
   const vat = filteredValues.get('vat');

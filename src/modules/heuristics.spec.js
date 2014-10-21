@@ -35,7 +35,7 @@ const implicitCFF = {
     {
       id: 'client2',
       enabled: true,
-      mergedFrom: ['second'],        
+      mergedFrom: ['second'],
       expectedAmount: {
         net: [12, 10],
         vat: [3, 5],
@@ -76,7 +76,7 @@ describe('applyHeuristics', () => {
         edit: (line) => line.set('mergedFrom', line.get('mergedFrom').get(0))
       }
     ];
-    
+
     const lines = applyHeuristicRules(immutableImplicitCFF, rules).toJS().lines;
     const client1 = lines[0];
     const client2 = lines[1];

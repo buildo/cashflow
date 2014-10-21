@@ -7,7 +7,7 @@ const validateValuesMap = (valuesMap) => {
   if (filteredValues.length <= 2){
     return true;
   }
-  
+
   const net = filteredValues.get('net');
   const gross = filteredValues.get('gross');
   const vat = filteredValues.get('vat');
@@ -72,7 +72,7 @@ const validators = Immutable.fromJS([
         const intervalValidator = (interval) => !(interval instanceof Immutable.Vector) || interval.get(1) > interval.get(0);
 
         return line.every((property) => {
-          return property instanceof Immutable.Map ? 
+          return property instanceof Immutable.Map ?
             property.every(intervalValidator) : true;
         });
       },
