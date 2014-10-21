@@ -80,7 +80,6 @@ module.exports = (grunt) ->
             'src/**/*.js',
             'index.js'
           ]
-          ext: '.js'
         }]
     simplemocha:
       # options:
