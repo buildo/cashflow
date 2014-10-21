@@ -18,7 +18,7 @@ const validateAll = (cffs, validator) => {
   );
 };
 
-const processInputs = (inputCFFs, heuristics) => {
+const processInputs = (inputCFFs, startValue, heuristics) => {
   const immutableCFFs = Immutable.fromJS(inputCFFs);
 
   // CFFs must be valid
