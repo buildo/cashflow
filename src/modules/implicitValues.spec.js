@@ -19,6 +19,7 @@ describe('insertImplicitValues', () => {
       lines: [
         {
           id: 'uniqueID',
+          enabled: true,
           mergedFrom: ['first','second'],
           amount: {
             vat: 3,
@@ -27,6 +28,7 @@ describe('insertImplicitValues', () => {
         },
         {
           id: 'anotherUniqueId',
+          enabled: true,
           mergedFrom: ['second'],        
           expectedAmount: {
             vat: [3, 5],
