@@ -31,15 +31,31 @@ describe('validateCff', () => {
   });
 
   it('should require valid sourceId, sourceDescription and lines', () => {
-    const cffs = [{}];
+    const cffs = [
+      {
+        priority: 'a'
+      }
+    ];
     const immutableCFFs = Immutable.fromJS(cffs);
     const x = validateAll(immutableCFFs, validateCFF).toJS();
     expect(Array.isArray(x)).to.be.true;
-    expect(x).to.have.length(3)
+    expect(x).to.have.length(4)
       .and.to.contain.an.item.with.property('msg', 'sourceId missing or invalid')
       .and.to.contain.an.item.with.property('msg', 'sourceDescription missing or invalid')
       .and.to.contain.an.item.with.property('msg', 'lines missing or not Array')
+      .and.to.contain.an.item.with.property('msg', 'priority is invalid')
       .and.to.all.have.property('sourceId', 'UNKNOWN_SOURCE_ID');
+  });
+
+  it('should return errors with sourceId', () => {
+    const cffs = [
+      {sourceId: '12345'}
+    ];
+    const immutableCFFs = Immutable.fromJS(cffs);
+    const x = validateAll(immutableCFFs, validateCFF).toJS();
+    expect(Array.isArray(x)).to.be.true;
+    expect(x).to.have.length.at.least(1)
+      .and.to.all.have.property('sourceId', '12345');
   });
 
   it('should return errors with sourceId', () => {

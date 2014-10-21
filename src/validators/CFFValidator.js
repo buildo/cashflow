@@ -21,6 +21,10 @@ const validateCFF = (cff) => {
         msg: 'sourceDescription missing or invalid'
       },
       {
+        condition: (cff) => (!cff.has('priority') || typeof cff.get('priority') === 'number'),
+        msg: 'priority is invalid'
+      },
+      {
         condition: (cff) => (cff.get('lines') instanceof Immutable.Vector),
         msg: 'lines missing or not Array'
       }
