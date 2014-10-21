@@ -25,7 +25,7 @@ const validators = Immutable.fromJS([
     {
       condition: (line, validateValuesMap) => {
         const amount = line.get('amount');
-        if(!line.get('enabled') || !(amount instanceof Immutable.Map)){
+        if(!(amount instanceof Immutable.Map)){
           return true;
         }
 
@@ -36,7 +36,7 @@ const validators = Immutable.fromJS([
     {
       condition: (line, validateValuesMap) => {
         const expectedAmount = line.get('expectedAmount');
-        if(!line.get('enabled') || !(expectedAmount instanceof Immutable.Map)){
+        if(!(expectedAmount instanceof Immutable.Map)){
           return true;
         }
 
