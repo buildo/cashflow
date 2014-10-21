@@ -66,6 +66,17 @@ const validators = Immutable.fromJS([
         return validateValuesMap(leftValues) && validateValuesMap(rightValues);
       },
       msg: 'expectedAmount is inconsistent'
+    },
+    {
+      condition: (line) => {
+        const intervalValidator = (interval) => !(interval instanceof Immutable.Vector) || interval.get(1) > interval.get(0);
+
+        return line.every((property) => {
+          return property instanceof Immutable.Map ? 
+            property.every(intervalValidator) : true;
+        });
+      },
+      msg: 'one or more intervals have inconsistent sides'
     }
   ]);
 

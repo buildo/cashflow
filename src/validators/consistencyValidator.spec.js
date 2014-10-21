@@ -32,15 +32,22 @@ describe('validateConsistency', () => {
             vat: 3,
             gross: [15, 16]
           },
+          invoice: {
+            expectedDate: ['2012-03-01', '2012-01-06'],
+            date: '2012-01-01',
+            number: 17
+          }
         }
       ]
     };
     const immutableMergedCFF = Immutable.fromJS(mergedCFF);
     const x = validateCFFConsistency(immutableMergedCFF).toJS();
     expect(Array.isArray(x)).to.be.true;
-    expect(x).to.have.length(2)
+    expect(x).to.have.length(3)
       .and.to.contain.an.item.with.property('id', '123')
       .and.to.contain.an.item.with.property('msg', 'amount is inconsistent')
-      .and.to.contain.an.item.with.property('msg', 'expectedAmount is inconsistent');
+      .and.to.contain.an.item.with.property('msg', 'expectedAmount is inconsistent')
+      .and.to.contain.an.item.with.property('msg', 'one or more intervals have inconsistent sides');
   });
+
 });
