@@ -20,21 +20,21 @@ const mergeCFFs = (immutableCFFs) => {
 
   const mergeSourceDescriptions = (immutableCFFs) => {
     return immutableCFFs.reduce((acc, x, index) => {
-          return index === immutableCFFs.length - 1 ?
-            acc + x.get('sourceDescription') : 
-            acc + x.get('sourceDescription') + ', ';
-          },
-          'merge of: '
+      return index === immutableCFFs.length - 1 ?
+        acc + x.get('sourceDescription') : 
+        acc + x.get('sourceDescription') + ', ';
+      },
+      'merge of: '
     );
   };
 
-  const groupedLines = immutableCFFs.map((cff) => {
-      // save parentID inside each line
-      return cff.get('lines').map((line) => line.set('parentID', cff.get('sourceId')));
-    }).flatten();
+  const groupedLines = immutableCFFs.flatMap((cff) => {
+    // save parentID inside each line
+    return cff.get('lines').map((line) => line.set('parentID', cff.get('sourceId')));
+  });
 
   const mergedLines = mergeLines(groupedLines);
-  
+
   return Immutable.fromJS(
     {
       sourceId: 'MERGE_MODULE',
