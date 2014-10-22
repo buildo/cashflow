@@ -19,14 +19,7 @@ const mergeCFFs = (immutableCFFs) => {
   };
 
   const mergeSourceDescriptions = (immutableCFFs) => {
-    // return 'merge of: ' + immutableCFFs.map( cff => cff.get('sourceDescription') ).join(', ')
-    return immutableCFFs.reduce((acc, x, index) => {
-      return index === immutableCFFs.length - 1 ?
-        acc + x.get('sourceDescription') : 
-        acc + x.get('sourceDescription') + ', ';
-      },
-      'merge of: '
-    );
+    return 'merge of: ' + immutableCFFs.map( cff => cff.get('sourceDescription') ).join(', ');
   };
 
   const groupedLines = immutableCFFs.flatMap((cff) => {

@@ -50,14 +50,7 @@ const validateCFF = (cff) => {
     );
   };
 
-  // use one line syntax if
-  // a) function is pure
-  // b) function is still readable written on a single line
-  //
-  // const throwsErrors = (validatorBlock, cff) => getBlockErrors(validatorBlock, cff).length > 0;
-  const throwsErrors = (validatorBlock, cff) => {
-    return getBlockErrors(validatorBlock, cff).length > 0;
-  };
+  const throwsErrors = (validatorBlock, cff) => getBlockErrors(validatorBlock, cff).length > 0;
 
   const getFirstValidatorBlockWithErrors = (cff) =>
     validatorBlocks.find((validatorBlock) => throwsErrors(validatorBlock, cff));

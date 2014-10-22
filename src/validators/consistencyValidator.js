@@ -98,10 +98,7 @@ const validateLine = (line, validators, validateValuesMap) => {
 
 const validateLines = (cff, validateLine, validators, validateValuesMap) => {
   const errors = cff.get('lines').reduce(
-    // (errors, line) => errors.concat(validateLine(line, validators, validateValuesMap)),
-    (errors, line) => {
-      return errors.concat(validateLine(line, validators, validateValuesMap));
-    },
+    (errors, line) => errors.concat(validateLine(line, validators, validateValuesMap)),
     Immutable.Vector()
   );
 
