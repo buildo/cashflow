@@ -43,11 +43,10 @@ describe('validateConsistency', () => {
     const immutableMergedCFF = Immutable.fromJS(mergedCFF);
     const x = validateCFFConsistency(immutableMergedCFF).toJS();
     expect(Array.isArray(x)).to.be.true;
-    expect(x).to.have.length(3)
+    expect(x).to.have.length(2)
       .and.to.contain.an.item.with.property('id', 'cloud')
       .and.to.contain.an.item.with.property('msg', 'amount is inconsistent')
-      .and.to.contain.an.item.with.property('msg', 'expectedAmount is inconsistent')
-      .and.to.contain.an.item.with.property('msg', 'one or more intervals have inconsistent sides');
+      .and.to.contain.an.item.with.property('msg', 'expectedAmount is inconsistent');
   });
 
 });

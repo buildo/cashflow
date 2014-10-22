@@ -45,38 +45,19 @@ const validators = Immutable.fromJS([
         const vat = expectedAmount.get('vat');
         const vatPercentage = expectedAmount.get('vatPercentage');
 
-        const leftValues = Immutable.fromJS(
-          {
-            net: net instanceof Immutable.Vector ? net.get(0) : net,
-            gross: gross instanceof Immutable.Vector ? gross.get(0) : gross,
-            vat: vat instanceof Immutable.Vector ? vat.get(0) : vat,
-            vatPercentage: vatPercentage instanceof Immutable.Vector ? vatPercentage.get(0) : vatPercentage
-          }
-        );
-
-        const rightValues = Immutable.fromJS(
-          {
-            net: net instanceof Immutable.Vector ? net.get(1) : net,
-            gross: gross instanceof Immutable.Vector ? gross.get(1) : gross,
-            vat: vat instanceof Immutable.Vector ? vat.get(1) : vat,
-            vatPercentage: vatPercentage instanceof Immutable.Vector ? vatPercentage.get(1) : vatPercentage
-          }
-        );
-
-        return validateValuesMap(leftValues) && validateValuesMap(rightValues);
-      },
-      msg: 'expectedAmount is inconsistent'
-    },
-    {
-      condition: (line) => {
-        const intervalValidator = (interval) => !(interval instanceof Immutable.Vector) || interval.get(1) > interval.get(0);
-
-        return line.every((property) => {
-          return property instanceof Immutable.Map ?
-            property.every(intervalValidator) : true;
+        return [0, 1].every((index) => {
+          const columnValues = Immutable.Map(
+            {
+              net: net instanceof Immutable.Vector ? net.get(index) : net,
+              gross: gross instanceof Immutable.Vector ? gross.get(index) : gross,
+              vat: vat instanceof Immutable.Vector ? vat.get(index) : vat,
+              vatPercentage: vatPercentage instanceof Immutable.Vector ? vatPercentage.get(index) : vatPercentage
+            }
+          );
+          return validateValuesMap(columnValues);
         });
       },
-      msg: 'one or more intervals have inconsistent sides'
+      msg: 'expectedAmount is inconsistent'
     }
   ]);
 
