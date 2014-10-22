@@ -54,7 +54,9 @@ describe('applyHeuristics', () => {
   it('should return unchanged lines', () => {
     // const rules = undefined;
 
-    const lines = applyHeuristicRules(immutableImplicitCFF).toJS().lines;
+    const output = applyHeuristicRules(immutableImplicitCFF).toJS();
+    const cff = output.cff;
+    const lines = cff.lines;
     const client1 = lines[0];
     const client2 = lines[1];
 
@@ -77,7 +79,9 @@ describe('applyHeuristics', () => {
       }
     ];
 
-    const lines = applyHeuristicRules(immutableImplicitCFF, rules).toJS().lines;
+    const output = applyHeuristicRules(immutableImplicitCFF, rules).toJS();
+    const cff = output.cff;
+    const lines = cff.lines;
     const client1 = lines[0];
     const client2 = lines[1];
 

@@ -27,13 +27,17 @@ const mergeCFFs = (immutableCFFs) => {
     return cff.get('lines').map((line) => line.set('parentID', cff.get('sourceId')));
   });
 
-  const mergedLines = mergeLines(groupedLines);
-
-  return Immutable.fromJS(
+  const mergedCFF = Immutable.Map(
     {
       sourceId: 'MERGE_MODULE',
       sourceDescription: mergeSourceDescriptions(immutableCFFs),
-      lines: mergedLines
+      lines: mergeLines(groupedLines)
+    }
+  );
+
+  return Immutable.Map(
+    {
+      cff: mergedCFF
     }
   );
 };

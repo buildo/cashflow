@@ -9,7 +9,11 @@ const comparator = (a, b) => {
 };
 
 const sortByPriorityAscending = (immutableCFFs) => {
-  return immutableCFFs.sort(comparator);
+  return Immutable.Map(
+    {
+      cffs: immutableCFFs.sort(comparator)
+    }
+  );
 };
 
 module.exports = sortByPriorityAscending;

@@ -11,7 +11,11 @@ const applyRulesToLines = (lines, rules) => {
 
 const applyHeuristicRulesToCFF = (cff, rules) => {
   const editedLines = applyRulesToLines(cff.get('lines'), rules || []);
-  return cff.set('lines', editedLines);
+  return Immutable.Map(
+    {
+      cff: cff.set('lines', editedLines)
+    }
+  );
 };
 
 module.exports = applyHeuristicRulesToCFF;

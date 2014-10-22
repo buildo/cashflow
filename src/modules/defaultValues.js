@@ -12,8 +12,11 @@ const getLinesWithDefaultValues = (lines) => {
 };
 
 const insertDefaultValues = (cff) => {
-  const newLines = getLinesWithDefaultValues(cff.get('lines'));
-  return cff.set('lines', newLines);
+  return Immutable.Map(
+    {
+      cff: cff.set('lines', getLinesWithDefaultValues(cff.get('lines')))
+    }
+  );
 };
 
 module.exports = insertDefaultValues;

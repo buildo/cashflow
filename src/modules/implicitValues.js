@@ -32,7 +32,7 @@ const completeExpectedAmount = (expectedAmount, completeValues) => {
   const vat = expectedAmount.get('vat');
   const vatPercentage = expectedAmount.get('vatPercentage');
 
-  const leftValues = Immutable.fromJS(
+  const leftValues = Immutable.Map(
     {
       net: net instanceof Immutable.Vector ? net.get(0) : net,
       gross: gross instanceof Immutable.Vector ? gross.get(0) : gross,
@@ -41,7 +41,7 @@ const completeExpectedAmount = (expectedAmount, completeValues) => {
     }
   );
 
-  const rightValues = Immutable.fromJS(
+  const rightValues = Immutable.Map(
     {
       net: net instanceof Immutable.Vector ? net.get(1) : net,
       gross: gross instanceof Immutable.Vector ? gross.get(1) : gross,
@@ -53,7 +53,7 @@ const completeExpectedAmount = (expectedAmount, completeValues) => {
   const completeLeft = completeValues(leftValues);
   const completeRight = completeValues(rightValues);
 
-  return completeLeft.map((value, key) => Immutable.fromJS([value, completeRight.get(key)])).toMap();
+  return completeLeft.map((value, key) => Immutable.Vector(value, completeRight.get(key))).toMap();
 };
 
 const getLinesWithImplicitValues = (lines, completeValues, completeExpectedAmount) => {
@@ -78,7 +78,11 @@ const getLinesWithImplicitValues = (lines, completeValues, completeExpectedAmoun
 
 const insertImplicitValues = (cff) => {
   const newLines = getLinesWithImplicitValues(cff.get('lines'), completeValues, completeExpectedAmount);
-  return cff.set('lines', newLines);
+  return Immutable.Map(
+    {
+      cff: cff.set('lines', newLines)
+    }
+  );
 };
 
 module.exports = insertImplicitValues;

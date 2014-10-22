@@ -10,20 +10,23 @@ chai.use(require('chai-things'));
 const expect = chai.expect;
 const validateCFF = require('./CFFValidator.js');
 
-const validateAll = (cffs, validateCFF) => {
-  return cffs.reduce(
+const validateAll = (cffs, validator) => {
+  const errors = cffs.reduce(
     (acc, cff) => {
-      return acc.concat(validateCFF(cff));
+      const cffErrors = validator(cff).get('errors') || [];
+      return acc.concat(cffErrors);
     },
     Immutable.Vector()
   );
+  return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
 };
 
 describe('validateCff', () => {
   it('should reject invalid object', () => {
     const cffs = ['string'];
     const immutableCFFs = Immutable.fromJS(cffs);
-    const x = validateAll(immutableCFFs, validateCFF).toJS();
+    const output = validateAll(immutableCFFs, validateCFF).toJS();
+    const x = output.errors;
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(1)
       .and.to.contain.an.item.with.property('msg', 'CFF is not a valid JSON object');
@@ -37,7 +40,8 @@ describe('validateCff', () => {
       }
     ];
     const immutableCFFs = Immutable.fromJS(cffs);
-    const x = validateAll(immutableCFFs, validateCFF).toJS();
+    const output = validateAll(immutableCFFs, validateCFF).toJS();
+    const x = output.errors;
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(4)
       .and.to.contain.an.item.with.property('msg', 'sourceId missing or invalid')
@@ -49,23 +53,28 @@ describe('validateCff', () => {
 
   it('should return errors with sourceId', () => {
     const cffs = [
-      {sourceId: '12345'}
+      {sourceId: 'SOURCE_ID'}
     ];
     const immutableCFFs = Immutable.fromJS(cffs);
-    const x = validateAll(immutableCFFs, validateCFF).toJS();
+    const output = validateAll(immutableCFFs, validateCFF).toJS();
+    const x = output.errors;
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length.at.least(1)
-      .and.to.all.have.property('sourceId', '12345');
+      .and.to.all.have.property('sourceId', 'SOURCE_ID');
   });
 
   it('should return errors with sourceId', () => {
     const cffs = [
-      {sourceId: '12345'}
+      {
+        sourceId: 'SOURCE_ID',
+        sourceDescription: 'desc',
+        lines: []
+      }
     ];
     const immutableCFFs = Immutable.fromJS(cffs);
-    const x = validateAll(immutableCFFs, validateCFF).toJS();
-    expect(Array.isArray(x)).to.be.true;
-    expect(x).to.have.length.at.least(1)
-      .and.to.all.have.property('sourceId', '12345');
+    const output = validateAll(immutableCFFs, validateCFF).toJS();
+    expect(typeof output === 'object' && !Array.isArray(output)).to.be.true;
+    expect(output).to.not.have.property('errors');
   });
+
 });

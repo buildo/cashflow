@@ -8,65 +8,101 @@ const validateCFFConsistency = require('./src/validators/consistencyValidator.js
 const insertDefaultValues = require('./src/modules/defaultValues.js');
 const insertImplicitValues = require('./src/modules/implicitValues.js');
 const applyHeuristics = require('./src/modules/heuristics.js');
+const standardizeCFF = require('./src/modules/standardizeInputs.js');
 
 const validateAll = (cffs, validator) => {
-  return cffs.reduce(
+  const errors = cffs.reduce(
     (acc, cff) => {
-      return acc.concat(validator(cff));
+      const cffErrors = validator(cff).get('errors') || [];
+      return acc.concat(cffErrors);
     },
     Immutable.Vector()
   );
+  return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
 };
+
+const preMergeFunctions = [
+  (cffs) => {
+    const x = validateAll(cffs, validateCFF);
+    return x;
+  },
+  sortByPriority
+];
+
+const postMergeFunctions = [
+  validateCFF,
+  insertDefaultValues,
+  standardizeCFF,
+  validateCFFConsistency,
+  insertImplicitValues,
+  validateCFF,
+  validateCFFConsistency
+];
 
 const processInputs = (inputCFFs, startValue, heuristics) => {
   const immutableCFFs = Immutable.fromJS(inputCFFs);
 
-  // CFFs must be valid
-  let errors = validateAll(immutableCFFs, validateCFF);
-  if (errors.length > 0) {
-    return errors;
+  const updateWarnings = (map, newWarning) => {
+    const warnings = map.get('warnings') || Immutable.Vector();
+    return map.set('warnings', warnings.concat(newWarning));
+  };
+
+  const preMerge = preMergeFunctions.reduce((acc, preMergeFunction) => {
+      if (acc.has('errors')) {
+        return acc;
+      }
+      const returnedMap = preMergeFunction(acc.get('cffs'));
+      if (returnedMap.has('errors')) {
+        return Immutable.Map({errors: returnedMap.get('errors')});
+      }
+      if (returnedMap.has('warnings')) {
+        acc = updateWarnings(acc, returnedMap.get('warnings'));
+      }
+      if (returnedMap.has('cffs')) {
+        acc = acc.set('cffs', returnedMap.get('cffs'));
+      }
+      return acc;
+    },
+    Immutable.Map(
+      {
+        cffs: immutableCFFs
+      }
+    )
+  );
+
+  if (preMerge.has('errors')) {
+    return preMerge;
   }
 
-  // sort CFFs by ascending priority
-  const sortedCFFs = sortByPriority(immutableCFFs);
+  const mergedCFF = mergeCFFs(preMerge.get('cffs')).get('cff');
 
-  // merge CFFs into one
-  const mergedCFF = mergeCFFs(sortedCFFs);
+  const postMerge = postMergeFunctions.reduce((acc, postMergeFunction) => {
+      if (acc.has('errors')) {
+        return acc;
+      }
+      const returnedMap = postMergeFunction(acc.get('cff'));
+      if (returnedMap.has('errors')) {
+        return Immutable.Map({errors: returnedMap.get('errors')});
+      }
+      if (returnedMap.has('warnings')) {
+        acc = updateWarnings(acc, returnedMap.get('warnings'));
+      }
+      if (returnedMap.has('cff')) {
+        acc = acc.set('cff', returnedMap.get('cff'));
+      }
 
-  // mergedCFF must still be valid
-  errors = validateCFF(mergedCFF);
-  if (errors.length > 0) {
-    return errors;
-  }
+      return acc;
+    },
+    Immutable.Map(
+      {
+        cff: mergedCFF
+      }
+    )
+  );
 
-  // insert default values if missing
-  const defaultCFF = insertDefaultValues(mergedCFF);
+  const heuristicOutput = applyHeuristics(postMerge.get('cff'), heuristics);
 
-  // validate consistency
-  errors = validateCFFConsistency(defaultCFF);
-  if (errors.length > 0) {
-    return errors;
-  }
-
-  // insert implicitValues
-  const implicitCFF = insertImplicitValues(defaultCFF);
-
-  // CFF must still be valid...
-  errors = validateCFF(mergedCFF);
-  if (errors.length > 0) {
-    return errors;
-  }
-
-  // ...and consistent!
-  errors = validateCFFConsistency(mergedCFF);
-  if (errors.length > 0) {
-    return errors;
-  }
-
-  // apply heuristic rules
-  const heuristicCFF = applyHeuristics(implicitCFF, heuristics);
-
-  return heuristicCFF;
+  return heuristicOutput;
 };
 
 module.exports = {

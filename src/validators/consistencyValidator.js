@@ -81,9 +81,9 @@ const validateLines = (cff, validateLine, validators, validateValuesMap) => {
   const errors = cff.get('lines').reduce(
     (errors, line) => errors.concat(validateLine(line, validators, validateValuesMap)),
     Immutable.Vector()
-  );
+  ).toVector();
 
-  return errors.toVector();
+  return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
 };
 
 const validateCFFConsistency = (cff) => validateLines(cff, validateLine, validators, validateValuesMap);

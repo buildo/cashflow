@@ -88,7 +88,8 @@ const startValue = {
   value: 5783.21
 };
 
-const cff = processInputs(cffs, startValue, heuristicRules).toJS();
+const output = processInputs(cffs, startValue, heuristicRules).toJS();
+const cff = output.cff;
 const lines = cff.lines;
 const lineClient1 = lines[0];
 const lineClient2 = lines[1];

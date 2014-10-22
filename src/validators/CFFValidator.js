@@ -32,14 +32,17 @@ const validateCFF = (cff) => {
   );
 
   const getBlockErrors = (validatorBlock, cff) => {
+    if (typeof validatorBlock === 'undefined') {
+      return Immutable.Vector();
+    }
     return validatorBlock.reduce(
       (errors, validator) => {
         if (!validator.get('condition')(cff)) {
           errors = errors.push(
-            Immutable.fromJS(
+            Immutable.Map(
               {
                 msg: validator.get('msg'),
-                sourceId: (cff instanceof Immutable.Map && cff.has('sourceId')) ? 
+                sourceId: (cff instanceof Immutable.Map && cff.has('sourceId')) ?
                   cff.get('sourceId') : 'UNKNOWN_SOURCE_ID'
               }
             )
@@ -55,10 +58,9 @@ const validateCFF = (cff) => {
   const getFirstValidatorBlockWithErrors = (cff) =>
     validatorBlocks.find((validatorBlock) => throwsErrors(validatorBlock, cff));
 
-  const firstValidatorBlockWithErrors = getFirstValidatorBlockWithErrors(cff);
+  const errors = getBlockErrors(getFirstValidatorBlockWithErrors(cff), cff);
 
-  return typeof firstValidatorBlockWithErrors === 'undefined' ?
-    Immutable.Vector() : getBlockErrors(firstValidatorBlockWithErrors, cff);
+  return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
 };
 
 module.exports = validateCFF;
