@@ -1,6 +1,7 @@
 node_modules
 dist
 test
+testrun.js
 .tmp
 ngris.sublime-project
 ngris.sublime-workspace
