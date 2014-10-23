@@ -19,6 +19,7 @@ const cffs = [
     lines: [
       {
         id: 'client1',
+        flowDirection: 'in',
         amount: {
           net: 12,
           vat: 3,
@@ -29,14 +30,27 @@ const cffs = [
         vat: 3,
         gross: 15,
         vatPercentage: 0.2
-        }
+        },
+        payments: [
+          {
+            date: '2014-5-20',
+            grossAmount: 15
+          }
+        ]
       },
       {
+        flowDirection: 'in',
         amount: {
           net: 12,
           vat: 3,
           gross: 15,
         },
+        payments: [
+          {
+            expectedDate: ['2014-5-20', '2014-5-25'],
+            expectedGrossAmount: [15, 15]
+          }
+        ]
       }
     ]
   },
@@ -46,27 +60,43 @@ const cffs = [
     lines: [
       {
         id: 'client1',
+        flowDirection: 'in',
         amount: {
           net: 9,
           vat: 1,
           gross: 10,
-        }
+        },
+        payments: []
       },
       {
         id: 'client2',
         enabled: false,
+        flowDirection: 'in',
         expectedAmount: {
           net: [12, 17],
           vat: 3,
           gross: [15, 20]
-        }
+        },
+        payments: [
+          {
+            date: '2014-5-20',
+            expectedGrossAmount: [15, 20]
+          }
+        ]
       },
       {
+        flowDirection: 'in',
         amount: {
           net: 12,
           vat: 3,
           gross: 15,
         },
+        payments: [
+          {
+            date: '2014-5-20',
+            grossAmount: 15
+          }
+        ]
       }
     ]
   }
@@ -90,6 +120,7 @@ const startValue = {
 
 const report = processInputs(cffs, startValue, heuristicRules);
 const output = report.output;
+const warnings = report.warnings;
 const lines = output.lines;
 const lineClient1 = lines[0];
 const lineClient2 = lines[1];
@@ -130,5 +161,9 @@ describe('CashFlow', () => {
   it('should return CFF with edited lines', () => {
     expect(lineClient1).to.not.have.property('expectedAmount');
     expect(lineClient2).to.have.property('mergedFrom', 'manual');
+  });
+
+  it('should return warnings for inconsistent interval sides', () => {
+    expect(warnings).to.contain.an.item.with.property('msg', 'one or more intervals have left value smaller then right value');
   });
 });
