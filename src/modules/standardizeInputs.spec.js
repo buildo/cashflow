@@ -52,6 +52,32 @@ describe('standardizeInputs', () => {
   it('should return one warning', () => {
     expect(returnedWarnings).to.have.length(1);
     expect(returnedWarnings[0]).to.have.property('msg', 'one or more intervals have left value smaller then right value');
-    expect(returnedWarnings[0]).and.to.have.property('lineID', 'LINE_ID');
+    expect(returnedWarnings[0]).and.to.have.property('lineId', 'LINE_ID');
   });
+
+
+  it('should not return any warning', () => {
+    const anotherMergedCFF = {
+      sourceId: 'MERGE_MODULE',
+      sourceDescription: 'merge of: desc1, desc2',
+      priority: 5,
+      lines: [
+        {
+          id: 'LINE_ID',
+          enabled: true,
+          mergedFrom: ['first','second'],
+          expectedAmount: {
+            net: [10, 17],
+            vat: [3, 5],
+            gross: [15, 20],
+            vatPercentage: [0.15, 0.2]
+          }
+        }
+      ]
+    };
+    const report = standardizeInputs(Immutable.fromJS(anotherMergedCFF)).toJS();
+    const returnedWarnings = report.warnings;
+    expect(typeof returnedWarnings === 'undefined').to.be.true;
+  });
+
 });

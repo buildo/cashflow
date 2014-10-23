@@ -23,7 +23,7 @@ const standardizeUserInputs = (cff) => {
     return cff.get('lines').reduce((acc, line) => {
         const warning = Immutable.Map(
           {
-            lineID: line.get('id'),
+            lineId: line.get('id') || 'UNKNOWN_LINE_ID',
             msg: 'one or more intervals have left value smaller then right value'
           }
         );

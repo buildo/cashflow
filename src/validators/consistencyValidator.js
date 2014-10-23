@@ -66,7 +66,7 @@ const validateLine = (line, validators, validateValuesMap) => {
       if (!validator.get('condition')(line, validateValuesMap)) {
         errors = errors.push(
           {
-            id: line.get('id'),
+            lineId: line.get('id') || 'UNKNOWN_LINE_ID',
             msg: validator.get('msg')
           }
         );

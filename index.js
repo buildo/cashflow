@@ -1,14 +1,18 @@
 'use strict';
 
 const Immutable = require('immutable');
-const validateCFF = require('./src/validators/CFFValidator.js');
-const mergeCFFs = require('./src/modules/merge.js');
+// modules
 const sortByPriority = require('./src/modules/prioritySort.js');
-const validateCFFConsistency = require('./src/validators/consistencyValidator.js');
+const mergeCFFs = require('./src/modules/merge.js');
 const insertDefaultValues = require('./src/modules/defaultValues.js');
+const standardizeCFF = require('./src/modules/standardizeInputs.js');
 const insertImplicitValues = require('./src/modules/implicitValues.js');
 const applyHeuristics = require('./src/modules/heuristics.js');
-const standardizeCFF = require('./src/modules/standardizeInputs.js');
+// validators
+const validateCFF = require('./src/validators/CFFValidator.js');
+const validateCFFConsistency = require('./src/validators/consistencyValidator.js');
+const validateCompletion = require('./src/validators/completionValidator.js');
+
 
 const processInputs = (inputCFFs, startValue, heuristics) => {
 

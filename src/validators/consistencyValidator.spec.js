@@ -47,7 +47,7 @@ describe('validateConsistency', () => {
   it('should reject inconsistent object', () => {
     expect(Array.isArray(errors)).to.be.true;
     expect(errors).to.have.length(2)
-      .and.to.contain.an.item.with.property('id', 'cloud')
+      .and.to.contain.an.item.with.property('lineId', 'cloud')
       .and.to.contain.an.item.with.property('msg', 'amount is inconsistent')
       .and.to.contain.an.item.with.property('msg', 'expectedAmount is inconsistent');
   });
