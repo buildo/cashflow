@@ -13,7 +13,7 @@ const standardizeUserInputs = (cff) => {
 
     const payments = line.has('payments') &&
       !(line.get('payments').every((payment) => {
-        return !intervalValidator(payments.get('expectedDate')) && !intervalValidator(payments.get('expectedGrossAmount'));
+        return !intervalValidator(payment.get('expectedDate')) && !intervalValidator(payment.get('expectedGrossAmount'));
       }));
 
     return invoice || expectedAmount || payments;
@@ -95,12 +95,10 @@ const standardizeUserInputs = (cff) => {
     return cff.set('lines', standardizedLines);
   };
 
-  return Immutable.Map(
-    {
-      warnings: getCFFWarnings(cff, hasSuspiciousIntervals, intervalValidator),
-      output: standardizeCFF(cff, standardizeLine, putSmallFirst, putBigFirst)
-    }
-  );
+  const warnings = getCFFWarnings(cff, hasSuspiciousIntervals, intervalValidator);
+  const output = standardizeCFF(cff, standardizeLine, putSmallFirst, putBigFirst);
+
+  return warnings.length > 0 ? Immutable.Map({warnings: warnings, output: output}) : Immutable.Map({output: output});
 };
 
 module.exports = standardizeUserInputs;
