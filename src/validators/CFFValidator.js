@@ -1,6 +1,7 @@
 'use strict';
 
 const Immutable = require('immutable');
+const UNIQUE_PREFIX = 'cashflow_unique_prefix';
 
 const validateCFF = (cff) => {
 
@@ -27,6 +28,20 @@ const validateCFF = (cff) => {
       {
         condition: (cff) => (cff.get('lines') instanceof Immutable.Vector),
         msg: 'lines missing or not Array'
+      }
+    ]),
+    Immutable.fromJS([
+      {
+        condition: (cff) => {
+          const setOfIds = cff.get('lines').reduce((acc, line, index) => {
+            const lineID = line.has('id') ? line.get('id') : (UNIQUE_PREFIX + index);
+            return acc.add(lineID);
+            },
+            Immutable.Set()
+          );
+          return setOfIds.length === cff.get('lines').length;
+        },
+        msg: 'lines must have unique IDs (or undefined)'
       }
     ])
   );

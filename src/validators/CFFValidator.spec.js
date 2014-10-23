@@ -63,12 +63,40 @@ describe('validateCff', () => {
       .and.to.all.have.property('sourceId', 'SOURCE_ID');
   });
 
-  it('should return errors with sourceId', () => {
+  it('should require each line to have a uniqueID', () => {
     const cffs = [
       {
         sourceId: 'SOURCE_ID',
         sourceDescription: 'desc',
-        lines: []
+        lines: [
+          {
+            id: 'NOT_UNIQUE_ID'
+          },
+          {
+            id: 'NOT_UNIQUE_ID'
+          }
+        ]
+      }
+    ];
+    const immutableCFFs = Immutable.fromJS(cffs);
+    const report = validateAll(immutableCFFs, validateCFF).toJS();
+    const errors = report.errors;
+    expect(Array.isArray(errors)).to.be.true;
+    expect(errors).to.contain.and.item.with.property('msg', 'lines must have unique IDs (or undefined)');
+  });
+
+  it('should not return errors', () => {
+    const cffs = [
+      {
+        sourceId: 'SOURCE_ID',
+        sourceDescription: 'desc',
+        lines: [
+          {
+            id: 'UNIQUE_ID'
+          },
+          {},
+          {}
+        ]
       }
     ];
     const immutableCFFs = Immutable.fromJS(cffs);
