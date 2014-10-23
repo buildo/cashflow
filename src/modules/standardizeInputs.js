@@ -98,7 +98,7 @@ const standardizeUserInputs = (cff) => {
   return Immutable.Map(
     {
       warnings: getCFFWarnings(cff, hasSuspiciousIntervals, intervalValidator),
-      cff: standardizeCFF(cff, standardizeLine, putSmallFirst, putBigFirst)
+      output: standardizeCFF(cff, standardizeLine, putSmallFirst, putBigFirst)
     }
   );
 };

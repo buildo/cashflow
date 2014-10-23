@@ -37,7 +37,7 @@ const mergeCFFs = (immutableCFFs) => {
 
   return Immutable.Map(
     {
-      cff: mergedCFF
+      output: mergedCFF
     }
   );
 };

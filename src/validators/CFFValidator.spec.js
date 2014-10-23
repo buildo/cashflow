@@ -25,8 +25,8 @@ describe('validateCff', () => {
   it('should reject invalid object', () => {
     const cffs = ['string'];
     const immutableCFFs = Immutable.fromJS(cffs);
-    const output = validateAll(immutableCFFs, validateCFF).toJS();
-    const x = output.errors;
+    const report = validateAll(immutableCFFs, validateCFF).toJS();
+    const x = report.errors;
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(1)
       .and.to.contain.an.item.with.property('msg', 'CFF is not a valid JSON object');
@@ -40,8 +40,8 @@ describe('validateCff', () => {
       }
     ];
     const immutableCFFs = Immutable.fromJS(cffs);
-    const output = validateAll(immutableCFFs, validateCFF).toJS();
-    const x = output.errors;
+    const report = validateAll(immutableCFFs, validateCFF).toJS();
+    const x = report.errors;
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length(4)
       .and.to.contain.an.item.with.property('msg', 'sourceId missing or invalid')
@@ -56,8 +56,8 @@ describe('validateCff', () => {
       {sourceId: 'SOURCE_ID'}
     ];
     const immutableCFFs = Immutable.fromJS(cffs);
-    const output = validateAll(immutableCFFs, validateCFF).toJS();
-    const x = output.errors;
+    const report = validateAll(immutableCFFs, validateCFF).toJS();
+    const x = report.errors;
     expect(Array.isArray(x)).to.be.true;
     expect(x).to.have.length.at.least(1)
       .and.to.all.have.property('sourceId', 'SOURCE_ID');
@@ -72,9 +72,9 @@ describe('validateCff', () => {
       }
     ];
     const immutableCFFs = Immutable.fromJS(cffs);
-    const output = validateAll(immutableCFFs, validateCFF).toJS();
-    expect(typeof output === 'object' && !Array.isArray(output)).to.be.true;
-    expect(output).to.not.have.property('errors');
+    const report = validateAll(immutableCFFs, validateCFF).toJS();
+    expect(typeof report === 'object' && !Array.isArray(report)).to.be.true;
+    expect(report).to.not.have.property('errors');
   });
 
 });

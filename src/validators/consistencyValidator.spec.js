@@ -40,8 +40,8 @@ const mergedCFF = {
 };
 
 const immutableMergedCFF = Immutable.fromJS(mergedCFF);
-const output = validateCFFConsistency(immutableMergedCFF).toJS();
-const errors = output.errors;
+const report = validateCFFConsistency(immutableMergedCFF).toJS();
+const errors = report.errors;
 
 describe('validateConsistency', () => {
   it('should reject inconsistent object', () => {

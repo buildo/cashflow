@@ -49,17 +49,17 @@ const cffs = [
 ];
 
 const immutableCFFs = Immutable.fromJS(cffs);
-const output = mergeCFFs(immutableCFFs).toJS();
-const cff = output.cff;
-const lines = cff.lines;
+const report = mergeCFFs(immutableCFFs).toJS();
+const output = report.output;
+const lines = output.lines;
 const mergedLine = lines[2];
 const uniqueLine = lines[0];
 
 describe('mergeCFFs', () => {
   it('should return new object with sourceId, sourceDescription and lines', () => {
-    expect(cff).to.have.property('sourceDescription', 'merge of: desc2, desc1');
-    expect(cff).to.have.property('lines');
-    expect(cff).to.have.property('sourceId', 'MERGE_MODULE');
+    expect(output).to.have.property('sourceDescription', 'merge of: desc2, desc1');
+    expect(output).to.have.property('lines');
+    expect(output).to.have.property('sourceId', 'MERGE_MODULE');
   });
 
   it('should return new object with merged lines', () => {

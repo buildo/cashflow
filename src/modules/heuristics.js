@@ -13,7 +13,7 @@ const applyHeuristicRulesToCFF = (cff, rules) => {
   const editedLines = applyRulesToLines(cff.get('lines'), rules || []);
   return Immutable.Map(
     {
-      cff: cff.set('lines', editedLines)
+      output: cff.set('lines', editedLines)
     }
   );
 };

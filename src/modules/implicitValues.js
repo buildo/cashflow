@@ -80,7 +80,7 @@ const insertImplicitValues = (cff) => {
   const newLines = getLinesWithImplicitValues(cff.get('lines'), completeValues, completeExpectedAmount);
   return Immutable.Map(
     {
-      cff: cff.set('lines', newLines)
+      output: cff.set('lines', newLines)
     }
   );
 };

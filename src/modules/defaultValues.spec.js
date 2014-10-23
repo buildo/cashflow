@@ -29,9 +29,9 @@ const mergedCFF = {
 };
 
 const immutableMergedCFF = Immutable.fromJS(mergedCFF);
-const output = insertDefaultValues(immutableMergedCFF).toJS();
-const cff = output.cff;
-const lines = cff.lines;
+const report = insertDefaultValues(immutableMergedCFF).toJS();
+const output = report.output;
+const lines = output.lines;
 
 describe('insertDefaultValues', () => {
   it('should create property enabled set to true', () => {

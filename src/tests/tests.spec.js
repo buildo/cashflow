@@ -88,20 +88,25 @@ const startValue = {
   value: 5783.21
 };
 
-const output = processInputs(cffs, startValue, heuristicRules).toJS();
-const cff = output.cff;
-const lines = cff.lines;
+const report = processInputs(cffs, startValue, heuristicRules);
+const output = report.output;
+const lines = output.lines;
 const lineClient1 = lines[0];
 const lineClient2 = lines[1];
 const amount = lineClient1.amount;
 const expectedAmount = lineClient2.expectedAmount;
 
 describe('CashFlow', () => {
-  it('should return valid CFF', () => {
+  it('should return report with output and no errors', () => {
+    expect(report).to.have.property('output');
+    expect(report).to.not.have.property('errors');
+  });
+
+  it('should return valid CFF as output', () => {
     expect(Array.isArray(lines)).to.be.true;
-    expect(cff).to.have.property('sourceDescription', 'merge of: desc2, desc1');
-    expect(cff).to.have.property('lines');
-    expect(cff).to.have.property('sourceId', 'MERGE_MODULE');
+    expect(output).to.have.property('sourceDescription', 'merge of: desc2, desc1');
+    expect(output).to.have.property('lines');
+    expect(output).to.have.property('sourceId', 'MERGE_MODULE');
   });
 
   it('should return correctly merged CFF', () => {

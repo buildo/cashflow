@@ -30,10 +30,10 @@ const mergedCFF = {
 };
 
 const immutableMergedCFF = Immutable.fromJS(mergedCFF);
-const output = standardizeInputs(immutableMergedCFF).toJS();
-const returnedCFF = output.cff;
+const report = standardizeInputs(immutableMergedCFF).toJS();
+const returnedCFF = report.output;
 const expectedAmount = returnedCFF.lines[0].expectedAmount;
-const returnedWarnings = output.warnings;
+const returnedWarnings = report.warnings;
 
 describe('standardizeInputs', () => {
   it('should return a Map with three properties: errors, warnings and cff', () => {

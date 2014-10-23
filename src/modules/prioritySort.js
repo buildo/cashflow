@@ -11,7 +11,7 @@ const comparator = (a, b) => {
 const sortByPriorityAscending = (immutableCFFs) => {
   return Immutable.Map(
     {
-      cffs: immutableCFFs.sort(comparator)
+      output: immutableCFFs.sort(comparator)
     }
   );
 };

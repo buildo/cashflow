@@ -37,9 +37,9 @@ const defaultCFF = {
     };
 
     const immutableDefaultCFF = Immutable.fromJS(defaultCFF);
-    const output = insertImplicitValues(immutableDefaultCFF).toJS();
-    const cff = output.cff;
-    const lines = cff.lines;
+    const report = insertImplicitValues(immutableDefaultCFF).toJS();
+    const output = report.output;
+    const lines = output.lines;
 
 describe('insertImplicitValues', () => {
   it('should complete implicit values inside amount and expctedAmount', () => {
