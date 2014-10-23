@@ -28,7 +28,8 @@ const processInputs = (inputCFFs, startValue, heuristics) => {
     insertImplicitValues,
     validateCFF,
     validateCFFConsistency,
-    (cff) => applyHeuristics(cff, heuristics)
+    (cff) => applyHeuristics(cff, heuristics),
+    validateCompletion
   ];
 
   const validateAll = (cffs, validator) => {
