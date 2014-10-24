@@ -33,7 +33,7 @@ const cffs = [
         },
         payments: [
           {
-            date: '2014-5-20',
+            date: '2015-5-20',
             grossAmount: 15
           }
         ]
@@ -47,7 +47,7 @@ const cffs = [
         },
         payments: [
           {
-            expectedDate: ['2014-5-20', '2014-5-25'],
+            expectedDate: ['2015-5-20', '2015-5-25'],
             expectedGrossAmount: [15, 15]
           }
         ]
@@ -79,7 +79,7 @@ const cffs = [
         },
         payments: [
           {
-            date: '2014-5-20',
+            date: '2015-5-20',
             expectedGrossAmount: [15, 20]
           }
         ]
@@ -93,7 +93,7 @@ const cffs = [
         },
         payments: [
           {
-            date: '2014-5-20',
+            date: '2015-5-20',
             grossAmount: 15
           }
         ]
@@ -109,7 +109,7 @@ const heuristicRules = [
   },
   {
     match: (line) => line.get('mergedFrom').length === 1,
-    edit: (line) => line.set('mergedFrom', line.get('mergedFrom').get(0))
+    edit: (line) => line.set('mergedFrom', line.getIn(['mergedFrom', 0]))
   }
 ];
 
@@ -119,6 +119,9 @@ const startValue = {
 };
 
 const report = processInputs(cffs, startValue, heuristicRules);
+if (typeof report.errors !== 'undefined') {
+  console.log('\nINDEX THROWS ERRORS\n', report.errors);
+}
 const output = report.output;
 const warnings = report.warnings;
 const lines = output.lines;

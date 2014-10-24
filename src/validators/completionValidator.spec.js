@@ -41,7 +41,7 @@ describe('validateCompletion', () => {
       .and.to.contain.an.item.with.property('msg', 'flowDirection missing or invalid');
   });
 
-  it('should return one error', () => {
+  it('should return error because has incomplete payments', () => {
     cff.lines[0].payments = [
       {},
       {
@@ -59,11 +59,28 @@ describe('validateCompletion', () => {
     expect(errors).to.contain.an.item.with.property('lineId', 'client1');
   });
 
+  it('should return error because has uncertain amount but passed payments', () => {
+    cff.lines[0].payments = [
+      {
+        expectedGrossAmount: [5, 12],
+        date: '2014-2-15'
+      }
+    ];
+    cff.lines[0].flowDirection = 'in';
+    const report = completionValidator(Immutable.fromJS(cff)).toJS();
+    const errors = report.errors;
+
+    expect(Array.isArray(errors)).to.be.true;
+    expect(errors).to.have.length(1);
+    expect(errors).to.contain.an.item.with.property('msg', 'one or more payments have passed farthest date but uncertain intervals');
+    expect(errors).to.contain.an.item.with.property('lineId', 'client1');
+  });
+
   it('should return warnings', () => {
     cff.lines[0].payments = [
       {
         expectedGrossAmount: [5, 12],
-        expectedDate: ['2014-2-15','2014-2-20']
+        expectedDate: ['2016-2-15','2016-2-20']
       }
     ];
     cff.lines[0].flowDirection = 'in';
@@ -75,10 +92,17 @@ describe('validateCompletion', () => {
   });
 
   it('should not return warnings nor errors', () => {
+    cff.lines[0].amount = {
+      gross: 18
+    };
     cff.lines[0].payments = [
       {
-        expectedGrossAmount: [16, 20],
-        expectedDate: ['2014-2-15','2014-2-20']
+        expectedGrossAmount: [10, 10],
+        expectedDate: ['2016-2-15','2016-2-20']
+      },
+      {
+        grossAmount: 8,
+        expectedDate: ['2016-2-15','2016-2-20']
       }
     ];
     cff.lines[0].flowDirection = 'in';
