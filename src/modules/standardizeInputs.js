@@ -33,52 +33,44 @@ const standardizeUserInputs = (cff) => {
   };
 
   const putBigFirst = (interval) => {
-      if (interval instanceof Immutable.Vector) {
-        const big = Math.max(interval.get(0), interval.get(1));
-        const small = Math.min(interval.get(0), interval.get(1));
-        return Immutable.Vector(big, small);
-      }
-      return interval;
-    };
+    return (interval instanceof Immutable.Vector) && interval.get(1) > interval.get(0) ?
+      interval.reverse() : interval;
+  };
 
-    const putSmallFirst = (interval) => {
-      if (interval instanceof Immutable.Vector) {
-        const big = Math.max(interval.get(0), interval.get(1));
-        const small = Math.min(interval.get(0), interval.get(1));
-        return Immutable.Vector(small, big);
-      }
-      return interval;
-    };
+  const putSmallFirst = (interval) => {
+    return (interval instanceof Immutable.Vector) && interval.get(1) < interval.get(0) ?
+      interval.reverse() : interval;
+  };
 
   const standardizeLine = (line, putSmallFirst, putBigFirst) => {
 
     const keyPathsSmallFirst = [
       ['expectedAmount', 'gross'],
-      ['expectedAmount', 'net'],
-      ['invoice', 'expectedDate']
+      ['expectedAmount', 'net']
     ];
 
     const keyPathsBigFirst = [
       ['expectedAmount', 'vat'],
-      ['expectedAmount', 'vatPercentage']
+      ['expectedAmount', 'vatPercentage'],
+      ['invoice', 'expectedDate']
     ];
 
     const keyPathsSmallFirstPayments = [
-      ['expectedDate'],
       ['expectedGrossAmount']
     ];
 
-    keyPathsSmallFirst.forEach((accessor) => {
-      line = line.updateIn(accessor, putSmallFirst);
-    });
+    const keyPathsBigFirstPayments = [
+      ['expectedDate'],
+    ];
 
-    keyPathsBigFirst.forEach((accessor) => {
-      line = line.updateIn(accessor, putBigFirst);
-    });
+    keyPathsSmallFirst.forEach((accessor) => line = line.updateIn(accessor, putSmallFirst));
+
+    keyPathsBigFirst.forEach((accessor) => line = line.updateIn(accessor, putBigFirst));
 
     if (line.has('payments')) {
       const standardizedPayments = line.get('payments').reduce((acc, payment) => {
           keyPathsSmallFirstPayments.forEach((accessor) => payment = payment.updateIn(accessor, putSmallFirst));
+          keyPathsBigFirstPayments.forEach((accessor) => payment = payment.updateIn(accessor, putBigFirst));
           return acc.push(payment);
         },
         Immutable.Vector()

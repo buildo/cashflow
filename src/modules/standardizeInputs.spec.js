@@ -24,7 +24,13 @@ const mergedCFF = {
         vat: [3, 5],
         gross: [15, 20],
         vatPercentage: [0.2, 0.15]
-      }
+      },
+      payments: [
+        {
+          expectedDate: ['2015-2-15','2015-2-20'],
+          expectedGrossAmount: [15, 20]
+        }
+      ]
     }
   ]
 };
