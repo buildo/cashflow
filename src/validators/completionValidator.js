@@ -23,6 +23,19 @@ const validateCompletion = (cff) => {
         },
         msg: 'one or more payments are incomplete'
       }
+    ]),
+    Immutable.fromJS([
+      {
+        condition: (line) => line.get('payments').every((payment) => {
+          const farthestDate = payment.get('date') || payment.getIn(['expectedDate', 0]);
+          const today = new Date();
+          const todayFormatted = [today.getFullYear(), ('0' + today.getMonth() + 1).slice(-2), ('0' + today.getDate()).slice(-2)].join('-');
+
+          return payment.has('date') ? farthestDate > todayFormatted || payment.has('grossAmount')
+            : farthestDate > todayFormatted;
+        }),
+        msg: 'one or more payments have passed farthest date but uncertain intervals'
+      }
     ])
   );
 
