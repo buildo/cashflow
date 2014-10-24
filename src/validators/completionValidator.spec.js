@@ -72,7 +72,7 @@ describe('validateCompletion', () => {
 
     expect(Array.isArray(errors)).to.be.true;
     expect(errors).to.have.length(1);
-    expect(errors).to.contain.an.item.with.property('msg', 'one or more payments have passed farthest date but uncertain intervals');
+    expect(errors).to.contain.an.item.with.property('msg', 'one or more payments with passed farthest date have not been updated');
     expect(errors).to.contain.an.item.with.property('lineId', 'client1');
   });
 

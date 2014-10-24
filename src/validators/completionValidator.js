@@ -34,7 +34,7 @@ const validateCompletion = (cff) => {
           return payment.has('date') ? farthestDate > todayFormatted || payment.has('grossAmount')
             : farthestDate > todayFormatted;
         }),
-        msg: 'one or more payments have passed farthest date but uncertain intervals'
+        msg: 'one or more payments with passed farthest date have not been updated'
       }
     ])
   );

@@ -3,7 +3,7 @@
 const Immutable = require('immutable');
 
 const standardizeUserInputs = (cff) => {
-
+  // WARNINGS: functions needed to return warnings
   const intervalValidator = (interval) => !(interval instanceof Immutable.Vector) || interval.get(1) > interval.get(0);
 
   const hasSuspiciousIntervals = (line, intervalValidator) => {
@@ -32,6 +32,7 @@ const standardizeUserInputs = (cff) => {
     );
   };
 
+  // STANDARDIZER: functions needed to return standardized input
   const putBigFirst = (interval) => {
     return (interval instanceof Immutable.Vector) && interval.get(1) > interval.get(0) ?
       interval.reverse() : interval;
@@ -87,6 +88,7 @@ const standardizeUserInputs = (cff) => {
     return cff.set('lines', standardizedLines);
   };
 
+  // returned values (warnings returned only if there's any)
   const warnings = getCFFWarnings(cff, hasSuspiciousIntervals, intervalValidator);
   const output = standardizeCFF(cff, standardizeLine, putSmallFirst, putBigFirst);
 

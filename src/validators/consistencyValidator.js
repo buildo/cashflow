@@ -4,10 +4,6 @@ const Immutable = require('immutable');
 
 const validateValuesMap = (valuesMap) => {
   const filteredValues = valuesMap.filter((value) => typeof value !== 'undefined').toMap();
-  if (filteredValues.length <= 2){
-    return true;
-  }
-
   const net = filteredValues.get('net');
   const gross = filteredValues.get('gross');
   const vat = filteredValues.get('vat');
@@ -18,28 +14,23 @@ const validateValuesMap = (valuesMap) => {
       return (net === gross - vat) || (vat === gross - gross * (1 - vatPercentage));
     case 4:
       return (net === gross - vat) && (vat === gross - gross * (1 - vatPercentage));
+    default:
+      // if length <= 2
+      return true;
   }
 };
 
 const validators = Immutable.fromJS([
     {
-      condition: (line, validateValuesMap) => {
-        const amount = line.get('amount');
-        if(!(amount instanceof Immutable.Map)){
-          return true;
-        }
-
-        return validateValuesMap(amount);
-      },
+      condition: (line, validateValuesMap) => (line.has('amount') ? validateValuesMap(line.get('amount')) : true),
       msg: 'amount is inconsistent'
     },
     {
       condition: (line, validateValuesMap) => {
-        const expectedAmount = line.get('expectedAmount');
-        if(!(expectedAmount instanceof Immutable.Map)){
+        if (!line.has('expectedAmount')) {
           return true;
         }
-
+        const expectedAmount = line.get('expectedAmount');
         const net = expectedAmount.get('net');
         const gross = expectedAmount.get('gross');
         const vat = expectedAmount.get('vat');
@@ -63,15 +54,13 @@ const validators = Immutable.fromJS([
 
 const validateLine = (line, validators, validateValuesMap) => {
   return validators.reduce((errors, validator) => {
-      if (!validator.get('condition')(line, validateValuesMap)) {
-        errors = errors.push(
-          {
-            lineId: line.get('id') || 'UNKNOWN_LINE_ID',
-            msg: validator.get('msg')
-          }
-        );
-      }
-      return errors;
+      const error = Immutable.Map(
+        {
+          lineId: line.get('id') || 'UNKNOWN_LINE_ID',
+          msg: validator.get('msg')
+        }
+      );
+      return !validator.get('condition')(line, validateValuesMap) ? errors.push(error) : errors;
     },
     Immutable.Vector()
   );
@@ -81,8 +70,7 @@ const validateLines = (cff, validateLine, validators, validateValuesMap) => {
   const errors = cff.get('lines').reduce(
     (errors, line) => errors.concat(validateLine(line, validators, validateValuesMap)),
     Immutable.Vector()
-  ).toVector();
-
+  );
   return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
 };
 

@@ -33,13 +33,10 @@ const validateCFF = (cff) => {
     Immutable.fromJS([
       {
         condition: (cff) => {
-          const setOfIds = cff.get('lines').reduce((acc, line, index) => {
-            const lineID = line.has('id') ? line.get('id') : (UNIQUE_PREFIX + index);
-            return acc.add(lineID);
-            },
-            Immutable.Set()
-          );
-          return setOfIds.length === cff.get('lines').length;
+          const lines = cff.get('lines');
+          const setOfIds = lines.reduce((acc, line, index) => acc.add(line.get('id') || (UNIQUE_PREFIX + index)),
+            Immutable.Set());
+          return setOfIds.length === lines.length;
         },
         msg: 'lines must have unique IDs (or undefined)'
       }
@@ -52,18 +49,14 @@ const validateCFF = (cff) => {
     }
     return validatorBlock.reduce(
       (errors, validator) => {
-        if (!validator.get('condition')(cff)) {
-          errors = errors.push(
-            Immutable.Map(
-              {
-                msg: validator.get('msg'),
-                sourceId: (cff instanceof Immutable.Map && cff.has('sourceId')) ?
-                  cff.get('sourceId') : 'UNKNOWN_SOURCE_ID'
-              }
-            )
-          );
-        }
-        return errors;
+        const error = Immutable.Map(
+          {
+            msg: validator.get('msg'),
+            sourceId: (cff instanceof Immutable.Map && cff.has('sourceId')) ?
+              cff.get('sourceId') : 'UNKNOWN_SOURCE_ID'
+          }
+        );
+        return !validator.get('condition')(cff) ? errors.push(error) : errors;
       },Immutable.Vector()
     );
   };

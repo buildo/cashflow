@@ -10,6 +10,7 @@ const applyRulesToLines = (lines, rules) => {
 };
 
 const applyHeuristicRulesToCFF = (cff, rules) => {
+  // short-circuit evaluation for 'rules'
   const editedLines = applyRulesToLines(cff.get('lines'), rules || []);
   return Immutable.Map(
     {
