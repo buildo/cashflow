@@ -11,35 +11,35 @@ const expect = chai.expect;
 const insertImplicitValues = require('./implicitValues.js');
 
 const defaultCFF = {
-      sourceId: 'MERGE_MODULE',
-      sourceDescription: 'merge of: desc1, desc2',
-      priority: 5,
-      lines: [
-        {
-          id: 'uniqueID',
-          enabled: true,
-          mergedFrom: ['first','second'],
-          amount: {
-            vat: 3,
-            gross: 15
-          }
-        },
-        {
-          id: 'anotherUniqueId',
-          enabled: true,
-          mergedFrom: ['second'],
-          expectedAmount: {
-            vat: [3, 5],
-            gross: 15
-          }
-        }
-      ]
-    };
+  sourceId: 'MERGE_MODULE',
+  sourceDescription: 'merge of: desc1, desc2',
+  priority: 5,
+  lines: [
+    {
+      id: 'uniqueID',
+      enabled: true,
+      mergedFrom: ['first','second'],
+      amount: {
+        vat: 3,
+        gross: 15
+      }
+    },
+    {
+      id: 'anotherUniqueId',
+      enabled: true,
+      mergedFrom: ['second'],
+      expectedAmount: {
+        vat: [3, 5],
+        gross: 15
+      }
+    }
+  ]
+};
 
-    const immutableDefaultCFF = Immutable.fromJS(defaultCFF);
-    const report = insertImplicitValues(immutableDefaultCFF).toJS();
-    const output = report.output;
-    const lines = output.lines;
+const immutableDefaultCFF = Immutable.fromJS(defaultCFF);
+const report = insertImplicitValues(immutableDefaultCFF).toJS();
+const output = report.output;
+const lines = output.lines;
 
 describe('insertImplicitValues', () => {
   it('should complete implicit values inside amount and expctedAmount', () => {

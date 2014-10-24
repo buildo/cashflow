@@ -8,11 +8,11 @@ const insertDefaultValues = require('./src/modules/defaultValues.js');
 const standardizeCFF = require('./src/modules/standardizeInputs.js');
 const insertImplicitValues = require('./src/modules/implicitValues.js');
 const applyHeuristics = require('./src/modules/heuristics.js');
+const generateReport = require('./src/modules/report.js');
 // validators
 const validateCFF = require('./src/validators/CFFValidator.js');
 const validateCFFConsistency = require('./src/validators/consistencyValidator.js');
 const validateCompletion = require('./src/validators/completionValidator.js');
-
 
 const processInputs = (inputCFFs, startValue, heuristics) => {
 
