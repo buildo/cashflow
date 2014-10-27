@@ -3,11 +3,16 @@
 const Immutable = require('immutable');
 
 const generateCashflows = require('../analysis/cashflowsGenerator.js');
+const mergeCashflowPoints = require('../analysis/mergeCashflowPoints.js');
+const cumulateCashflows = require('../analysis/cumulativeCashflows.js');
 
-const generateReport = (cff) => {
+
+const generateReport = (cff, startValue) => {
 
   const reportFunctions = [
     generateCashflows,
+    (cashflows) => mergeCashflowPoints(cashflows, startValue),
+    cumulateCashflows
   ];
 
   const pushWarnings = (flowObject, warnings) => {
