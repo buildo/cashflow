@@ -28,8 +28,6 @@ const calculateExpectedCashflow = (cff) => {
     undefined
   );
 
-  console.log(splitDate);
-
   // create object with history, best and worst lines.
   const cashflows = groupedPayments.reduce((cashflowsAcc, payment) => {
       // intervals are formatted as [worst, best] with conventional flowDirection 'in'.
@@ -79,9 +77,11 @@ const calculateExpectedCashflow = (cff) => {
     })
   );
 
-  // sort cashflows by date
-  const sortByDate = (a, b) => a.get('date') - b.get('date');
-  cashflows.map((x) => x.sort(sortByDate));
+  const sortByDate = (a, b) => {
+    const dateA = parseInt(a.get('date').replace('-', ''), 10);
+    const dateB = parseInt(b.get('date').replace('-', ''), 10);
+    return dateA - dateB;
+  };
 
   // populate warnings
   const today = new Date();
