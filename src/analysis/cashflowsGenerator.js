@@ -77,12 +77,6 @@ const calculateExpectedCashflow = (cff) => {
     })
   );
 
-  const sortByDate = (a, b) => {
-    const dateA = parseInt(a.get('date').replace('-', ''), 10);
-    const dateB = parseInt(b.get('date').replace('-', ''), 10);
-    return dateA - dateB;
-  };
-
   // populate warnings
   const today = new Date();
   const todayFormatted = [today.getFullYear(), ('0' + today.getMonth() + 1).slice(-2), ('0' + today.getDate()).slice(-2)].join('-');
