@@ -9,6 +9,7 @@ const calculateExpectedCashflow = (cff) => {
       let info = Immutable.Map();
       info = info.set('flowDirection', line.get('flowDirection'));
       info = info.set('lineId', line.get('id') || 'UNKNOWN_LINE_ID');
+      info = info.set('mergedFrom', line.get('mergedFrom'));
       info = line.has('invoice') ? info.set('invoice', line.get('invoice')) : info;
       info = line.has('company') ? info.set('company', line.get('company')) : info;
       info = line.has('description') ? info.set('description', line.get('description')) : info;
