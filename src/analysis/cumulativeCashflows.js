@@ -2,32 +2,31 @@
 
 const Immutable = require('immutable');
 
-const cumulateCashflows = (cashflows, startValue) => {
+const cumulateCashflows = (cashflows) => {
 
-  const keys = Immutable.Vector('history', 'worst', 'best');
-  const indipendentCumulativeFlows = keys.map((key) => cashflows.get(key).map((point, index) => {
-    if (index !== 0) {
-      return point.set('grossAmount', point.get('grossAmount') + cashflows.getIn([key, index - 1, 'grossAmount']));
-    }
-    return point;
-  }));
+  const historyFlow = cashflows.get('history');
 
-  console.log(indipendentCumulativeFlows.get(0).last());
+  const getCumulativeFlow = (flow, startValue) => {
+    startValue = typeof startValue === 'undefined' ? 0 : startValue;
+    const firstPoint = flow.get(0).set('grossAmount', flow.getIn([0, 'grossAmount']) + startValue);
+    return flow.shift().reduce((acc, point, index) => {
+      const newPoint = point.set('grossAmount', point.get('grossAmount') + acc.getIn([index, 'grossAmount']));
+      return acc.push(newPoint);
+      },
+      Immutable.Vector(firstPoint)
+    );
+  };
 
-  const lastHistoryValue = indipendentCumulativeFlows.last().get('grossAmount');
-
-  const dipendentBestWorst = indipendentCumulativeFlows.toVector().shift().map((flow) => flow.map((point) => {
-    return point.set('grossAmount', point.get('grossAmount') + lastHistoryValue);
-  }));
+  const cumulativeHistory = getCumulativeFlow(cashflows.get('history'));
+  const lastHistoryValue = cumulativeHistory.last().get('grossAmount');
 
   return Immutable.fromJS({
     output:{
-      history: indipendentCumulativeFlows.get(0),
-      worst: dipendentBestWorst.get(0),
-      best: dipendentBestWorst.get(1)
+      history: cumulativeHistory,
+      worst: getCumulativeFlow(cashflows.get('worst'), lastHistoryValue),
+      best: getCumulativeFlow(cashflows.get('best'), lastHistoryValue)
     }
   });
-
 };
 
 module.exports = cumulateCashflows;

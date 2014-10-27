@@ -12,17 +12,64 @@ const cumulateCashflows = require('./cumulativeCashflows.js');
 
 const cashflows = {
   best: [
-    { date: '2014-12-01', grossAmount: -11 },
-    { date: '2014-09-20', grossAmount: 20 },
-    { date: '2014-12-10', grossAmount: 31 }
+    {
+      date: '2014-09-20',
+      grossAmount: 51,
+      info: [
+        {
+          lineId: '2'
+        },
+        {
+          lineId: '3'
+        }
+      ]
+    },
+    {
+      date: '2014-12-01',
+      grossAmount: -11,
+      info: [
+        {
+          lineId: '1'
+        }
+      ]
+    }
   ],
   history: [
-    { date: '2014-05-20', grossAmount: 7 }
+    {
+      date: '2014-05-20',
+      grossAmount: 340,
+      info: [
+        {
+          lineId: '2'
+        },
+        {
+          description: 'START_VALUE'
+        }
+      ]
+    }
   ],
   worst: [
-    { date: '2014-11-18', grossAmount: -18 },
-    { date: '2014-09-20', grossAmount: 15 },
-    { date: '2015-01-25', grossAmount: 31 }
+    {
+      date: '2014-11-18',
+      grossAmount: 13,
+      info: [
+        {
+          lineId: '1'
+        },
+        {
+          lineId: '2'
+        }
+      ]
+    },
+    {
+      date: '2014-09-20',
+      grossAmount: 15,
+      info: [
+        {
+          lineId: '2'
+        }
+      ]
+    }
   ]
 };
 
@@ -41,13 +88,11 @@ describe('cumulateCashflows', () => {
     expect(Array.isArray(worst)).to.be.true;
   });
 
-  it('should separate payments correctly', () => {
-    expect(worst).to.contain.an.item.with.property('grossAmount', 15)
-      .and.to.contain.an.item.with.property('grossAmount', -18)
-      .and.to.contain.an.item.with.property('date', '2014-11-18');
-    expect(best).to.contain.an.item.with.property('grossAmount', 20)
-    .and.to.contain.an.item.with.property('grossAmount', -11)
-    .and.to.contain.an.item.with.property('date', '2014-12-10');
-    expect(historyCashflow).to.contain.an.item.with.property('grossAmount', 7);
+  it('should return cumulative cashflows', () => {
+    expect(best).to.contain.an.item.with.property('grossAmount', 391)
+      .and.to.contain.an.item.with.property('grossAmount', 380);
+    expect(worst).to.contain.an.item.with.property('grossAmount', 353)
+    .and.to.contain.an.item.with.property('grossAmount', 368);
+    expect(historyCashflow).to.contain.an.item.with.property('grossAmount', 340);
   });
 });
