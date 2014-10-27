@@ -29,7 +29,8 @@ const processInputs = (inputCFFs, startValue, heuristics) => {
     validateCFF,
     validateCFFConsistency,
     (cff) => applyHeuristics(cff, heuristics),
-    validateCompletion
+    validateCompletion,
+    (cff) => generateReport(cff, startValue)
   ];
 
   const validateAll = (cffs, validator) => {

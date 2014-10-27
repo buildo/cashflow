@@ -33,13 +33,13 @@ const cffs = [
         },
         payments: [
           {
-            date: '2015-5-20',
+            date: '2015-07-20',
             grossAmount: 15
           }
         ]
       },
       {
-        flowDirection: 'in',
+        flowDirection: 'out',
         amount: {
           net: 12,
           vat: 3,
@@ -47,8 +47,8 @@ const cffs = [
         },
         payments: [
           {
-            expectedDate: ['2015-5-20', '2015-5-25'],
-            expectedGrossAmount: [15, 15]
+            expectedDate: ['2015-05-20', '2015-05-25'],
+            expectedGrossAmount: [15, 30]
           }
         ]
       }
@@ -79,7 +79,7 @@ const cffs = [
         },
         payments: [
           {
-            date: '2015-5-20',
+            date: '2015-03-20',
             expectedGrossAmount: [15, 20]
           }
         ]
@@ -93,7 +93,7 @@ const cffs = [
         },
         payments: [
           {
-            date: '2015-5-20',
+            date: '2015-05-10',
             grossAmount: 15
           }
         ]
@@ -113,10 +113,7 @@ const heuristicRules = [
   }
 ];
 
-const startValue = {
-  date: '2014-03-20',
-  value: 5783.21
-};
+const startValue = 200.5;
 
 const report = processInputs(cffs, startValue, heuristicRules);
 if (typeof report.errors !== 'undefined') {
@@ -124,11 +121,9 @@ if (typeof report.errors !== 'undefined') {
 }
 const output = report.output;
 const warnings = report.warnings;
-const lines = output.lines;
-const lineClient1 = lines[0];
-const lineClient2 = lines[1];
-const amount = lineClient1.amount;
-const expectedAmount = lineClient2.expectedAmount;
+const historyFlow = output.history;
+const bestFlow = output.best;
+const worstFlow = output.worst;
 
 describe('CashFlow', () => {
   it('should return report with output and no errors', () => {
@@ -136,34 +131,16 @@ describe('CashFlow', () => {
     expect(report).to.not.have.property('errors');
   });
 
-  it('should return valid CFF as output', () => {
-    expect(Array.isArray(lines)).to.be.true;
-    expect(output).to.have.property('sourceDescription', 'merge of: desc2, desc1');
-    expect(output).to.have.property('lines');
-    expect(output).to.have.property('sourceId', 'MERGE_MODULE');
+  it('should return output with three cashflows', () => {
+    expect(Array.isArray(historyFlow)).to.be.true;
+    expect(Array.isArray(bestFlow)).to.be.true;
+    expect(Array.isArray(worstFlow)).to.be.true;
   });
 
-  it('should return correctly merged CFF', () => {
-    expect(lines).to.have.length(4);
-    expect(lines).to.contain.an.item.with.property('id', 'client1');
-    expect(lines).to.contain.an.item.with.property('id', 'client2');
-    expect(amount).to.have.property('net', 12);
-  });
-
-  it('should return CFF with default values', () => {
-    expect(lineClient1).to.have.property('enabled', true);
-    expect(lineClient2).to.have.property('enabled', false);
-  });
-
-  it('should return CFF with implicit values', () => {
-    expect(amount).to.have.property('vatPercentage', 0.2);
-    expect(expectedAmount.vatPercentage[0]).to.equals(0.2);
-    expect(expectedAmount.vatPercentage[1]).to.equals(0.15);
-  });
-
-  it('should return CFF with edited lines', () => {
-    expect(lineClient1).to.not.have.property('expectedAmount');
-    expect(lineClient2).to.have.property('mergedFrom', 'manual');
+  it('should return cumulative points', () => {
+    expect(historyFlow).to.contain.an.item.with.property('grossAmount', 200.5);
+    expect(bestFlow).to.contain.an.item.with.property('grossAmount', 235.5);
+    expect(worstFlow).to.contain.an.item.with.property('grossAmount', 215.5);
   });
 
   it('should return warnings for inconsistent interval sides', () => {
