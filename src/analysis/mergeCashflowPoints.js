@@ -2,7 +2,7 @@
 
 const Immutable = require('immutable');
 
-const collapseCashflows = (cashflows) => {
+const collapseCashflows = (cashflows, startValue) => {
 
   const sortByDate = (a, b) => {
     const dateA = parseInt(a.get('date').replace('-', ''), 10);
@@ -26,9 +26,20 @@ const collapseCashflows = (cashflows) => {
       },
       Immutable.Map()
     );
-    const array = mergedMap.toVector();
-    return array.sort(sortByDate);
+    return mergedMap.toVector().sort(sortByDate);
   };
+
+  // insert startPoint in history with firstDate as date
+  const firstHistoryPoint = cashflows.get('history').min((a, b) => a.get('date') > b.get('date'));
+  const startPoint = Immutable.Map({
+    date: firstHistoryPoint.get('date'),
+    grossAmount: startValue,
+    info:{
+      description: 'START_VALUE'
+    }
+  });
+
+  cashflows = cashflows.set('history', cashflows.get('history').push(startPoint));
 
   return Immutable.Map({
     output: cashflows.map((cashflow) => mergeCashflowPoints(cashflow))

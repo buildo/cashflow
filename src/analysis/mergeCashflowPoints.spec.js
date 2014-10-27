@@ -68,8 +68,10 @@ const cashflows = {
   ]
 };
 
+const startValue = 200;
+
 const immutableCashflows = Immutable.fromJS(cashflows);
-const report = collapseCashflows(immutableCashflows).toJS();
+const report = collapseCashflows(immutableCashflows, startValue).toJS();
 const output = report.output;
 const historyCashflow = output.history;
 const best = output.best;
@@ -89,6 +91,10 @@ describe('mergeCashflows', () => {
     expect(best[0]).to.have.property('grossAmount', 51);
     expect(worst[1]).to.have.property('grossAmount', 13);
     expect(Array.isArray(historyCashflow[0].info)).to.be.true;
+  });
+
+  it('should merge startPoint with first point of history', () => {
+    expect(historyCashflow[0]).to.have.property('grossAmount', 207);
   });
 
 });
