@@ -29,10 +29,16 @@ const collapseCashflows = (cashflows, startValue) => {
     return mergedMap.toVector().sort(sortByDate);
   };
 
-  // insert startPoint in history with firstDate as date
-  const firstHistoryPoint = cashflows.get('history').min((a, b) => a.get('date') > b.get('date'));
+  // create startPoint with startvalue and most ancient date. Insert it in history
+  const getFlowFirstPoint = (cashflow) =>
+    cashflow.reduce((firstPointAcc, point) => firstPointAcc = point.get('date') < firstPointAcc.get('date') ? point : firstPointAcc);
+
+  const firstDate = cashflows.reduce((acc, flow) => flow.length > 0 && getFlowFirstPoint(flow).get('date') < acc ?
+    getFlowFirstPoint(flow).get('date') : acc, 'z'
+  );
+
   const startPoint = Immutable.Map({
-    date: firstHistoryPoint.get('date'),
+    date: firstDate,
     grossAmount: startValue,
     info:{
       description: 'START_VALUE'
@@ -41,6 +47,7 @@ const collapseCashflows = (cashflows, startValue) => {
 
   cashflows = cashflows.set('history', cashflows.get('history').push(startPoint));
 
+  // return cashflows with merged points
   return Immutable.Map({
     output: cashflows.map((cashflow) => mergeCashflowPoints(cashflow))
   });
