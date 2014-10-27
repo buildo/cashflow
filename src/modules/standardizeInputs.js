@@ -7,7 +7,7 @@ const standardizeUserInputs = (cff) => {
   const intervalValidator = (interval) => !(interval instanceof Immutable.Vector) || interval.get(1) > interval.get(0);
 
   const hasSuspiciousIntervals = (line, intervalValidator) => {
-    const invoice = line.has('invoice') && !intervalValidator(line.get('invoice').get('expectedDate'));
+    const invoice = line.has('invoice') && !intervalValidator(line.getIn(['invoice', 'expectedDate']));
     const expectedAmount = line.has('expectedAmount') &&
       !(line.get('expectedAmount').every((value) => intervalValidator(value)));
 

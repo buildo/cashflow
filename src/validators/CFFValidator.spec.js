@@ -13,7 +13,7 @@ const validateCFF = require('./CFFValidator.js');
 const validateAll = (cffs, validator) => {
   const errors = cffs.reduce(
     (acc, cff) => {
-      const cffErrors = validator(cff).get('errors') || [];
+      const cffErrors = validator(cff).get('errors') || Immutable.Vector();
       return acc.concat(cffErrors);
     },
     Immutable.Vector()

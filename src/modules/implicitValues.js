@@ -23,7 +23,7 @@ const completeValues = (valuesMap) => {
     }
   );
 
-  return newAmount.map((value) => value.find((x) => typeof x !== 'undefined')).toMap();
+  return newAmount.map((value) => value.find((x) => typeof x !== 'undefined'));
 };
 
 const completeExpectedAmount = (expectedAmount, completeValues) => {
@@ -53,7 +53,7 @@ const completeExpectedAmount = (expectedAmount, completeValues) => {
   const completeLeft = completeValues(leftValues);
   const completeRight = completeValues(rightValues);
 
-  return completeLeft.map((value, key) => Immutable.Vector(value, completeRight.get(key))).toMap();
+  return completeLeft.map((value, key) => Immutable.Vector(value, completeRight.get(key)));
 };
 
 const getLinesWithImplicitValues = (lines, completeValues, completeExpectedAmount) => {
