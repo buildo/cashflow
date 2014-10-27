@@ -3,9 +3,20 @@
 const Immutable = require('immutable');
 
 const calculateExpectedCashflow = (cff) => {
-  // group payments in one single vector and save flowDirection inside each one of them
+  // group payments in one single vector and insert field 'info' with every important information in each payment.
   const groupedPayments = cff.get('lines').flatMap((line) => line.get('payments')
-    .map((p) => p.set('flowDirection', line.get('flowDirection'))));
+    .map((p) => {
+      let info = Immutable.Map();
+      info = info.set('flowDirection', line.get('flowDirection'));
+      info = info.set('lineId', line.get('id'));
+      info = line.has('invoice') ? info.set('invoice', line.get('invoice')) : info;
+      info = line.has('company') ? info.set('company', line.get('company')) : info;
+      info = line.has('description') ? info.set('description', line.get('description')) : info;
+      info = p.has('method') ? info.set('method', p.get('method')) : info;
+      info = p.has('methodType') ? info.set('methodType', p.get('methodType')) : info;
+      return p.set('info', info);
+    })
+  );
 
   // create object with firstDate, splitDate, lastDate
   const splitDate = groupedPayments.reduce((acc, payment) => {
@@ -28,7 +39,7 @@ const calculateExpectedCashflow = (cff) => {
         payment.get('grossAmount') || payment.getIn(['expectedGrossAmount', 1]));
 
       // if flowDirection 'out' invert previous worsts / bests and set gross sign to negative
-      if (payment.get('flowDirection') === 'out') {
+      if (payment.getIn(['info', 'flowDirection']) === 'out') {
         dates = dates.reverse().toVector();
         grosses = grosses.reverse().map((g) => -g).toVector();
       }
@@ -37,19 +48,22 @@ const calculateExpectedCashflow = (cff) => {
         // we're in the history line -> best and worst values coincide.
         const point = Immutable.Map({
           date: dates.get(0),
-          grossAmount: grosses.get(0)
+          grossAmount: grosses.get(0),
+          info: payment.get('info')
         });
         cashflowsAcc = cashflowsAcc.set('history', cashflowsAcc.get('history').push(point));
       } else {
         // we're after the history line -> best != worst -> we must separate values in two lines
         const worstPoint = Immutable.Map({
           date: dates.get(0),
-          grossAmount: grosses.get(0)
+          grossAmount: grosses.get(0),
+          info: payment.get('info')
         });
 
         const bestPoint = Immutable.Map({
           date: dates.get(1),
-          grossAmount: grosses.get(1)
+          grossAmount: grosses.get(1),
+          info: payment.get('info')
         });
 
         cashflowsAcc = cashflowsAcc.set('worst', cashflowsAcc.get('worst').push(worstPoint));
