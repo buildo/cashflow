@@ -9,11 +9,12 @@ const validateValuesMap = (valuesMap) => {
   const vat = filteredValues.get('vat');
   const vatPercentage = filteredValues.get('vatPercentage');
 
+  const tolerance = 0.01;
   switch (filteredValues.length) {
     case 3:
-      return (net === gross - vat) || (vat === gross - gross * (1 - vatPercentage));
+      return (Math.abs(net - (gross - vat)) < tolerance) || (Math.abs(vat - (gross - gross * (1 - vatPercentage))) < tolerance);
     case 4:
-      return (net === gross - vat) && (vat === gross - gross * (1 - vatPercentage));
+      return (Math.abs(net - (gross - vat)) < tolerance) && (Math.abs(vat - (gross - gross * (1 - vatPercentage))) < tolerance);
     default:
       // if length <= 2
       return true;

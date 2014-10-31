@@ -35,6 +35,16 @@ const mergedCFF = {
         date: '2012-01-01',
         number: 17
       }
+    },
+    {
+      id: '12345',
+      enabled: false,
+      mergedFrom: ['first','second'],
+      amount: {
+        net: 11.999,
+        vat: 3,
+        gross: 15
+      }
     }
   ]
 };
