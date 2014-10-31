@@ -19,6 +19,9 @@ const calculateExpectedCashflow = (cff) => {
     })
   );
 
+  const today = new Date();
+  const todayFormatted = [today.getFullYear(), ('0' + today.getMonth() + 1).slice(-2), ('0' + today.getDate()).slice(-2)].join('-');
+
   // create object with firstDate, splitDate, lastDate
   const splitDate = groupedPayments.reduce((acc, payment) => {
       const closestDate = payment.get('date') || payment.getIn(['expectedDate', 1]);
@@ -27,7 +30,7 @@ const calculateExpectedCashflow = (cff) => {
       return paymentUncertain && (typeof acc === 'undefined' || closestDate < acc) ? closestDate : acc;
     },
     undefined
-  );
+  ) || todayFormatted;
 
   // create object with history, best and worst lines.
   const cashflows = groupedPayments.reduce((cashflowsAcc, payment) => {
@@ -79,9 +82,6 @@ const calculateExpectedCashflow = (cff) => {
   );
 
   // populate warnings
-  const today = new Date();
-  const todayFormatted = [today.getFullYear(), ('0' + today.getMonth() + 1).slice(-2), ('0' + today.getDate()).slice(-2)].join('-');
-
   const warnings = cff.get('lines').reduce((warningsAcc, line) => {
       const warning = {
         lineId: line.get('id') || 'UNKNOWN_LINE_ID',
