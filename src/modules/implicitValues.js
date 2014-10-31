@@ -59,18 +59,13 @@ const completeExpectedAmount = (expectedAmount, completeValues) => {
 const getLinesWithImplicitValues = (lines, completeValues, completeExpectedAmount) => {
   return lines.reduce((acc, line) => {
       // has amount?
-      if (line.has('amount')) {
-        return acc.push(line.set('amount', completeValues(line.get('amount'))));
-      }
+      line = line.has('amount') ? line.set('amount', completeValues(line.get('amount'))) : line;
 
       // has expectedAmount?
-      if (line.has('expectedAmount')) {
-        return acc.push(line.set('expectedAmount',
-          completeExpectedAmount(line.get('expectedAmount'), completeValues)));
-      }
+      line = line.has('expectedAmount') ?
+        line.set('expectedAmount',completeExpectedAmount(line.get('expectedAmount'), completeValues)) : line;
 
-      // default
-      return acc;
+      return acc.push(line);
     },
     Immutable.Vector()
   );
