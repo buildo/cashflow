@@ -6,8 +6,8 @@ const collapseCashflows = (cashflows, startValue) => {
   startValue = typeof startValue === 'undefined' ? 0 : startValue;
 
   const sortByDate = (a, b) => {
-    const dateA = parseInt(a.get('date').replace('-', ''), 10);
-    const dateB = parseInt(b.get('date').replace('-', ''), 10);
+    const dateA = parseInt(a.get('date').split('-').join(''), 10);
+    const dateB = parseInt(b.get('date').split('-').join(''), 10);
     return dateA - dateB;
   };
 
@@ -27,6 +27,7 @@ const collapseCashflows = (cashflows, startValue) => {
       },
       Immutable.Map()
     );
+
     return mergedMap.toVector().sort(sortByDate);
   };
 
