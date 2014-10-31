@@ -4,22 +4,22 @@ const Immutable = require('immutable');
 
 const standardizeUserInputs = (cff) => {
   // WARNINGS: functions needed to return warnings
-  const intervalValidator = (interval) => !(interval instanceof Immutable.Vector) || interval.get(1) > interval.get(0);
+  const intervalValidator = (interval) => !(interval instanceof Immutable.Vector) || (interval.get(0) <= interval.get(1));
 
-  const hasSuspiciousIntervals = (line, intervalValidator) => {
-    const invoice = line.has('invoice') && !intervalValidator(line.getIn(['invoice', 'expectedDate']));
-    const expectedAmount = line.has('expectedAmount') &&
-      !(line.get('expectedAmount').every((value) => intervalValidator(value)));
+  const validateIntervals = (line, intervalValidator) => {
+    const invoice = !line.has('invoice') || intervalValidator(line.getIn(['invoice', 'expectedDate']));
+    const expectedAmount = !line.has('expectedAmount') ||
+      (line.get('expectedAmount').every((value) => intervalValidator(value)));
 
-    const payments = line.has('payments') &&
-      !(line.get('payments').every((payment) => {
-        return !intervalValidator(payment.get('expectedDate')) && !intervalValidator(payment.get('expectedGrossAmount'));
+    const payments = !line.has('payments') ||
+      (line.get('payments').every((payment) => {
+        return intervalValidator(payment.get('expectedDate')) && intervalValidator(payment.get('expectedGrossAmount'));
       }));
 
-    return invoice || expectedAmount || payments;
+    return invoice && expectedAmount && payments;
   };
 
-  const getCFFWarnings = (cff, hasSuspiciousIntervals, intervalValidator) => {
+  const getCFFWarnings = (cff, validateIntervals, intervalValidator) => {
     return cff.get('lines').reduce((acc, line) => {
         const warning = Immutable.Map(
           {
@@ -27,7 +27,7 @@ const standardizeUserInputs = (cff) => {
             msg: 'one or more intervals have left value smaller then right value'
           }
         );
-        return hasSuspiciousIntervals(line, intervalValidator) ? acc.push(warning) : acc;
+        return validateIntervals(line, intervalValidator) ? acc : acc.push(warning);
       },Immutable.Vector()
     );
   };
@@ -89,7 +89,7 @@ const standardizeUserInputs = (cff) => {
   };
 
   // returned values (warnings returned only if there's any)
-  const warnings = getCFFWarnings(cff, hasSuspiciousIntervals, intervalValidator);
+  const warnings = getCFFWarnings(cff, validateIntervals, intervalValidator);
   const output = standardizeCFF(cff, standardizeLine, putSmallFirst, putBigFirst);
 
   return warnings.length > 0 ? Immutable.Map({warnings: warnings, output: output}) : Immutable.Map({output: output});
