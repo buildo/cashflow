@@ -44,19 +44,21 @@ const processInputs = (inputCFFs, startValue, heuristics) => {
     return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
   };
 
-  const processedInput = processFunctions.reduce((acc, processFunction) => {
+  const processedInput = processFunctions.reduce((acc, processFunction, index) => {
       if (acc.has('errors')) {
         return acc;
       }
-      const returnedMap = processFunction(acc.get('output'));
+      let returnedMap = processFunction(acc.get('output'));
       if (returnedMap.has('errors') && acc.has('errors')) {
-        acc = acc.set('errors', acc.get('errors').concat(returnedMap.get('errors')));
+        return Immutable.Map({errors: returnedMap.get('errors')});
       }
-      if (returnedMap.has('warnings') && acc.has('warnings')) {
-        acc = acc.set('warnings', acc.get('warnings').concat(returnedMap.get('warnings')));
+      if (returnedMap.has('warnings')) {
+        const previousWarnings = acc.get('warnings') || Immutable.Vector();
+        acc = acc.set('warnings', previousWarnings.concat(returnedMap.get('warnings')));
       }
 
-      return returnedMap.mergeDeep(acc);
+      returnedMap.keySeq().forEach((key) => acc = acc.set(key, returnedMap.get(key)));
+      return acc;
     },
     Immutable.Map().set('output', inputCFFs)
   );
