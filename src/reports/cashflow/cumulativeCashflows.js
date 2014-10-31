@@ -8,6 +8,9 @@ const cumulateCashflows = (cashflows) => {
 
   const getCumulativeFlow = (flow, startValue) => {
     flow = flow instanceof Immutable.Vector ? flow : flow.toVector();
+    if (flow.length === 0) {
+      return Immutable.Vector();
+    }
     startValue = typeof startValue === 'undefined' ? 0 : startValue;
     const firstPoint = flow.get(0).set('grossAmount', flow.getIn([0, 'grossAmount']) + startValue);
     return flow.shift().reduce((acc, point, index) => {
