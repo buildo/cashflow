@@ -23,7 +23,7 @@ const completeValues = (valuesMap) => {
     }
   );
 
-  return newAmount.map((value) => value.find((x) => typeof x !== 'undefined'));
+  return newAmount.map((value) => value.find((x) => typeof x !== 'undefined' && !isNaN(x)));
 };
 
 const completeExpectedAmount = (expectedAmount, completeValues) => {
