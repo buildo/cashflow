@@ -115,23 +115,24 @@ const heuristicRules = [
 
 const startValue = 200.5;
 
-const report = processInputs(cffs, startValue, heuristicRules);
-if (typeof report.errors !== 'undefined') {
-  console.log('\nINDEX THROWS ERRORS\n', report.errors);
+const reports = processInputs(cffs, startValue, heuristicRules);
+if (typeof reports.errors !== 'undefined') {
+  console.log('\nINDEX THROWS ERRORS\n', reports.errors);
 }
-const output = report.output;
-const warnings = report.warnings;
-const historyFlow = output.history;
-const bestFlow = output.best;
-const worstFlow = output.worst;
+console.log(reports);
+const cashflow = reports.cashflow;
+const warnings = reports.warnings;
+const historyFlow = cashflow.history;
+const bestFlow = cashflow.best;
+const worstFlow = cashflow.worst;
 
 describe('CashFlow', () => {
-  it('should return report with output and no errors', () => {
-    expect(report).to.have.property('output');
-    expect(report).to.not.have.property('errors');
+  it('should return reports with no errors', () => {
+    expect(reports).to.have.property('cashflow');
+    expect(reports).to.not.have.property('errors');
   });
 
-  it('should return output with three cashflows', () => {
+  it('should return cashflow report with three cashflows', () => {
     expect(Array.isArray(historyFlow)).to.be.true;
     expect(Array.isArray(bestFlow)).to.be.true;
     expect(Array.isArray(worstFlow)).to.be.true;

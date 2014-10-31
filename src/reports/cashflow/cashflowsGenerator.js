@@ -95,7 +95,7 @@ const calculateExpectedCashflow = (cff) => {
     Immutable.Vector()
   );
 
-  const report = Immutable.Map({output: cashflows});
+  const report = Immutable.Map({cashflow: cashflows});
 
   return warnings.length > 0 ? report.set('warnings', warnings) : report;
 };

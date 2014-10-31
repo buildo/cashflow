@@ -72,7 +72,7 @@ const startValue = 200;
 
 const immutableCashflows = Immutable.fromJS(cashflows);
 const report = collapseCashflows(immutableCashflows, startValue).toJS();
-const output = report.output;
+const output = report.cashflow;
 const historyCashflow = output.history;
 const best = output.best;
 const worst = output.worst;

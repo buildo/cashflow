@@ -54,7 +54,7 @@ const processedInput =
 
 const immutableProcessedInput = Immutable.fromJS(processedInput);
 const report = generateCashflows(immutableProcessedInput).toJS();
-const output = report.output;
+const output = report.cashflow;
 const historyCashflow = output.history;
 const best = output.best;
 const worst = output.worst;

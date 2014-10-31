@@ -1,45 +1,33 @@
 'use strict';
 
 const Immutable = require('immutable');
-
-const generateCashflows = require('../analysis/cashflowsGenerator.js');
-const mergeCashflowPoints = require('../analysis/mergeCashflowPoints.js');
-const cumulateCashflows = require('../analysis/cumulativeCashflows.js');
+const generateCashflowReport = require('../reports/cashflow/cashflowReport.js');
+const generateCreditCardsReport = require('../reports/credit_cards/creditCardsReport.js');
 
 
-const generateReport = (cff, startValue) => {
-
-  const reportFunctions = [
-    generateCashflows,
-    (cashflows) => mergeCashflowPoints(cashflows, startValue),
-    cumulateCashflows
+const generateReports = (cff, startValue) => {
+  const reportGenerators = [
+    (cff) => generateCashflowReport(cff, startValue),
+    generateCreditCardsReport
   ];
 
-  const pushWarnings = (flowObject, warnings) => {
-    const oldWarnings = flowObject.get('warnings') || Immutable.Vector();
-    return flowObject.set('warnings', oldWarnings.concat(warnings));
-  };
-
-  const report = reportFunctions.reduce((acc, reportFunction) => {
-      if (acc.has('errors')) {
-        return acc;
+  const reports = reportGenerators.reduce((acc, reportGenerator) => {
+      const report = reportGenerator(cff);
+      // merge errors
+      if (report.has('errors') && acc.has('errors')) {
+        acc = acc.set('errors', acc.get('errors').concat(report.get('errors')));
       }
-      const returnedMap = reportFunction(acc.get('output'));
-      if (returnedMap.has('errors')) {
-        return Immutable.Map({errors: returnedMap.get('errors')});
+      // merge warnings
+      if (report.has('warnings') && acc.has('warnings')) {
+        acc = acc.set('warnings', acc.get('warnings').concat(report.get('warnings')));
       }
-      if (returnedMap.has('warnings')) {
-        acc = pushWarnings(acc, returnedMap.get('warnings'));
-      }
-      if (returnedMap.has('output')) {
-        acc = acc.set('output', returnedMap.get('output'));
-      }
-      return acc;
+      // add report output (each report returns output with a unique key)
+      return report.mergeDeep(acc);
     },
-    Immutable.Map().set('output', cff)
+    Immutable.Map()
   );
 
-  return report;
+  return reports;
 };
 
-module.exports = generateReport;
+module.exports = generateReports;

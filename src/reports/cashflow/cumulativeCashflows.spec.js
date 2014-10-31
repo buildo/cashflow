@@ -75,7 +75,7 @@ const cashflows = {
 
 const immutableCashflows = Immutable.fromJS(cashflows);
 const report = cumulateCashflows(immutableCashflows).toJS();
-const output = report.output;
+const output = report.cashflow;
 const historyCashflow = output.history;
 const best = output.best;
 const worst = output.worst;

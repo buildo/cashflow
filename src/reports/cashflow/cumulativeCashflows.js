@@ -22,7 +22,7 @@ const cumulateCashflows = (cashflows) => {
   const lastHistoryValue = cumulativeHistory.last().get('grossAmount');
 
   return Immutable.fromJS({
-    output:{
+    cashflow:{
       history: cumulativeHistory,
       worst: getCumulativeFlow(cashflows.get('worst'), lastHistoryValue),
       best: getCumulativeFlow(cashflows.get('best'), lastHistoryValue)

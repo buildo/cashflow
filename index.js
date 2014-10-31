@@ -8,7 +8,7 @@ const insertDefaultValues = require('./src/modules/defaultValues.js');
 const standardizeCFF = require('./src/modules/standardizeInputs.js');
 const insertImplicitValues = require('./src/modules/implicitValues.js');
 const applyHeuristics = require('./src/modules/heuristics.js');
-const generateReport = require('./src/modules/report.js');
+const generateReports = require('./src/modules/report.js');
 // validators
 const validateCFF = require('./src/validators/CFFValidator.js');
 const validateCFFConsistency = require('./src/validators/consistencyValidator.js');
@@ -30,7 +30,7 @@ const processInputs = (inputCFFs, startValue, heuristics) => {
     validateCFFConsistency,
     (cff) => applyHeuristics(cff, heuristics),
     validateCompletion,
-    (cff) => generateReport(cff, startValue)
+    (cff) => generateReports(cff, startValue)
   ];
 
   const validateAll = (cffs, validator) => {
@@ -44,26 +44,19 @@ const processInputs = (inputCFFs, startValue, heuristics) => {
     return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
   };
 
-  const pushWarnings = (flowObject, warnings) => {
-    const oldWarnings = flowObject.get('warnings') || Immutable.Vector();
-    return flowObject.set('warnings', oldWarnings.concat(warnings));
-  };
-
   const processedInput = processFunctions.reduce((acc, processFunction) => {
       if (acc.has('errors')) {
         return acc;
       }
       const returnedMap = processFunction(acc.get('output'));
-      if (returnedMap.has('errors')) {
-        return Immutable.Map({errors: returnedMap.get('errors')});
+      if (returnedMap.has('errors') && acc.has('errors')) {
+        acc = acc.set('errors', acc.get('errors').concat(returnedMap.get('errors')));
       }
-      if (returnedMap.has('warnings')) {
-        acc = pushWarnings(acc, returnedMap.get('warnings'));
+      if (returnedMap.has('warnings') && acc.has('warnings')) {
+        acc = acc.set('warnings', acc.get('warnings').concat(returnedMap.get('warnings')));
       }
-      if (returnedMap.has('output')) {
-        acc = acc.set('output', returnedMap.get('output'));
-      }
-      return acc;
+
+      return returnedMap.mergeDeep(acc);
     },
     Immutable.Map().set('output', inputCFFs)
   );
