@@ -18,6 +18,7 @@ const mergedCFF = {
     {
       id: 'LINE_ID',
       enabled: true,
+      cashFlowdirection: 'out',
       mergedFrom: ['first','second'],
       expectedAmount: {
         net: [17, 10],
@@ -27,8 +28,8 @@ const mergedCFF = {
       },
       payments: [
         {
-          expectedDate: ['2015-2-15','2015-2-20'],
-          expectedGrossAmount: [15, 20]
+          expectedDate: ['2015-05-20','2015-05-25'],
+          expectedGrossAmount: [20, 15]
         }
       ]
     }
@@ -40,6 +41,7 @@ const report = standardizeInputs(immutableMergedCFF).toJS();
 const returnedCFF = report.output;
 const expectedAmount = returnedCFF.lines[0].expectedAmount;
 const returnedWarnings = report.warnings;
+const firstPayment = returnedCFF.lines[0].payments[0];
 
 describe('standardizeInputs', () => {
   it('should return a Map with three properties: errors, warnings and cff', () => {
@@ -53,11 +55,13 @@ describe('standardizeInputs', () => {
     expect(expectedAmount.gross[0]).to.be.below(expectedAmount.gross[1]);
     expect(expectedAmount.vat[0]).to.be.above(expectedAmount.vat[1]);
     expect(expectedAmount.vatPercentage[0]).to.be.above(expectedAmount.vatPercentage[1]);
+    expect(firstPayment.expectedGrossAmount[0]).to.be.below(firstPayment.expectedGrossAmount[1]);
+    expect(firstPayment.expectedDate[0] > firstPayment.expectedDate[1]).to.be.true;
   });
 
   it('should return one warning', () => {
     expect(returnedWarnings).to.have.length(1);
-    expect(returnedWarnings[0]).to.have.property('msg', 'one or more intervals have left value smaller then right value');
+    expect(returnedWarnings[0]).to.have.property('msg', 'one or more intervals have left value bigger then right value');
     expect(returnedWarnings[0]).and.to.have.property('lineId', 'LINE_ID');
   });
 

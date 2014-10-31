@@ -24,7 +24,7 @@ const standardizeUserInputs = (cff) => {
         const warning = Immutable.Map(
           {
             lineId: line.get('id') || 'UNKNOWN_LINE_ID',
-            msg: 'one or more intervals have left value smaller then right value'
+            msg: 'one or more intervals have left value bigger then right value'
           }
         );
         return validateIntervals(line, intervalValidator) ? acc : acc.push(warning);
@@ -35,12 +35,12 @@ const standardizeUserInputs = (cff) => {
   // STANDARDIZER: functions needed to return standardized input
   const putBigFirst = (interval) => {
     return (interval instanceof Immutable.Vector) && interval.get(1) > interval.get(0) ?
-      interval.reverse() : interval;
+      interval.reverse().toVector() : interval;
   };
 
   const putSmallFirst = (interval) => {
     return (interval instanceof Immutable.Vector) && interval.get(1) < interval.get(0) ?
-      interval.reverse() : interval;
+      interval.reverse().toVector() : interval;
   };
 
   const standardizeLine = (line, putSmallFirst, putBigFirst) => {

@@ -47,7 +47,7 @@ const cffs = [
         },
         payments: [
           {
-            expectedDate: ['2015-05-20', '2015-05-25'],
+            expectedDate: ['2015-04-20', '2015-05-25'],
             expectedGrossAmount: [15, 30]
           }
         ]
@@ -80,7 +80,7 @@ const cffs = [
         payments: [
           {
             date: '2015-03-20',
-            expectedGrossAmount: [15, 20]
+            expectedGrossAmount: [20, 15]
           }
         ]
       },
@@ -103,14 +103,14 @@ const cffs = [
 ];
 
 const heuristicRules = [
-  {
-    match: (line) => line.has('amount') && line.has('expectedAmount'),
-    edit: (line) => line.remove('expectedAmount')
-  },
-  {
-    match: (line) => line.get('mergedFrom').length === 1,
-    edit: (line) => line.set('mergedFrom', line.getIn(['mergedFrom', 0]))
-  }
+  // {
+  //   match: (line) => line.has('amount') && line.has('expectedAmount'),
+  //   edit: (line) => line.remove('expectedAmount')
+  // },
+  // {
+  //   match: (line) => line.get('mergedFrom').length === 1,
+  //   edit: (line) => line.set('mergedFrom', line.getIn(['mergedFrom', 0]))
+  // }
 ];
 
 const startValue = 200.5;
@@ -119,7 +119,6 @@ const reports = processInputs(cffs, startValue, heuristicRules);
 if (typeof reports.errors !== 'undefined') {
   console.log('\nINDEX THROWS ERRORS\n', reports.errors);
 }
-console.log(reports);
 const cashflow = reports.cashflow;
 const warnings = reports.warnings;
 const historyFlow = cashflow.history;
@@ -145,6 +144,6 @@ describe('CashFlow', () => {
   });
 
   it('should return warnings for inconsistent interval sides', () => {
-    expect(warnings).to.contain.an.item.with.property('msg', 'one or more intervals have left value smaller then right value');
+    expect(warnings).to.contain.an.item.with.property('msg', 'one or more intervals have left value bigger then right value');
   });
 });
