@@ -12,17 +12,22 @@ const generateReports = (cff, startValue) => {
   ];
 
   const reports = reportGenerators.reduce((acc, reportGenerator) => {
-      const report = reportGenerator(cff);
+      let report = reportGenerator(cff);
       // merge errors
-      if (report.has('errors') && acc.has('errors')) {
-        acc = acc.set('errors', acc.get('errors').concat(report.get('errors')));
+      if (report.has('errors')) {
+        const oldErrors = acc.get('errors') || Immutable.Vector();
+        acc = acc.set('errors', oldErrors.concat(report.get('errors')));
       }
+
       // merge warnings
-      if (report.has('warnings') && acc.has('warnings')) {
-        acc = acc.set('warnings', acc.get('warnings').concat(report.get('warnings')));
+      if (report.has('warnings')) {
+        const oldWarnings = acc.get('warnings') || Immutable.Vector();
+        report = report.set('warnings', oldWarnings.concat(report.get('warnings')));
       }
-      // add report output (each report returns output with a unique key)
-      return report.mergeDeep(acc);
+
+      // replace errors and warnings with merged one and add report output (each report returns output with a unique key)
+      report.keySeq().forEach((key) => acc = acc.set(key, report.get(key)));
+      return acc;
     },
     Immutable.Map()
   );

@@ -14,11 +14,6 @@ const generateCashFlowReport = (cff, startValue) => {
     cumulateCashflows
   ];
 
-  const pushWarnings = (flowObject, warnings) => {
-    const oldWarnings = flowObject.get('warnings') || Immutable.Vector();
-    return flowObject.set('warnings', oldWarnings.concat(warnings));
-  };
-
   const initWarnings = [{
     sourceId: cff.get('sourceId'),
     msg: 'no start value'
@@ -36,17 +31,14 @@ const generateCashFlowReport = (cff, startValue) => {
         return Immutable.Map({errors: returnedMap.get('errors')});
       }
       if (returnedMap.has('warnings')) {
-        acc = pushWarnings(acc, returnedMap.get('warnings'));
+        const oldWarnings = acc.get('warnings') || Immutable.Vector();
+        acc = acc.set('warnings', oldWarnings.concat(returnedMap.get('warnings')));
       }
-      if (returnedMap.has('cashflow')) {
-        acc = acc.set('cashflow', returnedMap.get('cashflow'));
-      }
-      return acc;
+
+      return acc.set('cashflow', returnedMap.get('cashflow'));
     },
     emptyReport
   );
-
-  pushWarnings(report, [{sourceId: cff.get('sourceId'), msg: 'no start value'}]);
 
   return report;
 };
