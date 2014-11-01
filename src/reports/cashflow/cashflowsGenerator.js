@@ -20,7 +20,7 @@ const calculateExpectedCashflow = (cff) => {
   );
 
   const today = new Date();
-  const todayFormatted = [today.getFullYear(), ('0' + today.getMonth() + 1).slice(-2), ('0' + today.getDate()).slice(-2)].join('-');
+  const todayFormatted = [today.getFullYear(), ('0' + (today.getMonth() + 1)).slice(-2), ('0' + today.getDate()).slice(-2)].join('-');
 
   // create object with firstDate, splitDate, lastDate
   const splitDate = groupedPayments.reduce((acc, payment) => {
@@ -87,10 +87,13 @@ const calculateExpectedCashflow = (cff) => {
         lineId: line.get('id') || 'UNKNOWN_LINE_ID',
         msg: 'one or more payments are out of date'
       };
-      const hasWarnings = line.get('payments').every((payment) => payment.getIn(['expectedDate', 1]) > splitDate &&
-        payment.getIn(['expectedDate', 1]) < todayFormatted);
+      const isValid = line.get('payments').every((payment) => {
+        const furthestDate = payment.get('date') || payment.getIn(['expectedDate', 0]);
+        const isCertain = payment.has('date') && payment.has('grossAmount');
+        return isCertain || furthestDate > todayFormatted;
+      });
 
-      return hasWarnings ? warningsAcc.push(warning) : warningsAcc;
+      return isValid ? warningsAcc : warningsAcc.push(warning);
     },
     Immutable.Vector()
   );
