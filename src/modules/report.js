@@ -5,14 +5,14 @@ const generateCashflowReport = require('../reports/cashflow/cashflowReport.js');
 const generateCreditCardsReport = require('../reports/credit_cards/creditCardsReport.js');
 
 
-const generateReports = (cff, startValue) => {
+const generateReports = (cff, configs) => {
   const reportGenerators = [
-    (cff) => generateCashflowReport(cff, startValue),
+    generateCashflowReport,
     generateCreditCardsReport
   ];
 
   const reports = reportGenerators.reduce((acc, reportGenerator) => {
-      let report = reportGenerator(cff);
+      let report = reportGenerator(cff, configs);
       // merge errors
       if (report.has('errors')) {
         const oldErrors = acc.get('errors') || Immutable.Vector();

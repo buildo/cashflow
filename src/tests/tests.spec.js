@@ -113,9 +113,11 @@ const heuristicRules = [
   // }
 ];
 
-const startValue = 200.5;
+const configs = {
+  startValue: 200.5
+};
 
-const reports = processInputs(cffs, startValue, heuristicRules);
+const reports = processInputs(cffs, configs, heuristicRules);
 if (typeof reports.errors !== 'undefined') {
   console.log('\nINDEX THROWS ERRORS\n', reports.errors);
 }

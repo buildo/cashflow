@@ -7,12 +7,12 @@ const filterCashflows = require('./cashflowFilters.js');
 const mergeCashflowPoints = require('./mergeCashflowPoints.js');
 const cumulateCashflows = require('./cumulativeCashflows.js');
 
-const generateCashFlowReport = (cff, startValue, filterParameters) => {
+const generateCashFlowReport = (cff, configs) => {
 
   const reportFunctions = [
     generateCashflows,
-    (cashflows) => filterCashflows(cashflows, filterParameters),
-    (cashflows) => mergeCashflowPoints(cashflows, startValue),
+    (cashflows) => filterCashflows(cashflows, configs.filterParameters),
+    (cashflows) => mergeCashflowPoints(cashflows, configs.startValue),
     cumulateCashflows
   ];
 
@@ -21,7 +21,7 @@ const generateCashFlowReport = (cff, startValue, filterParameters) => {
     msg: 'no start value'
   }];
 
-  const emptyReport = typeof startValue === 'undefined' ? Immutable.fromJS({cashflow: cff, warnings: initWarnings})
+  const emptyReport = typeof configs.startValue === 'undefined' ? Immutable.fromJS({cashflow: cff, warnings: initWarnings})
     : Immutable.Map({cashflow: cff});
 
   const report = reportFunctions.reduce((acc, reportFunction) => {

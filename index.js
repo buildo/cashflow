@@ -14,7 +14,7 @@ const validateCFF = require('./src/validators/CFFValidator.js');
 const validateCFFConsistency = require('./src/validators/consistencyValidator.js');
 const validateCompletion = require('./src/validators/completionValidator.js');
 
-const processInputs = (inputCFFs, startValue, heuristics) => {
+const processInputs = (inputCFFs, configs, heuristics) => {
 
   const processFunctions = [
     (cffs) => Immutable.fromJS({output: cffs}),
@@ -30,7 +30,7 @@ const processInputs = (inputCFFs, startValue, heuristics) => {
     validateCFFConsistency,
     (cff) => applyHeuristics(cff, heuristics),
     validateCompletion,
-    (cff) => generateReports(cff, startValue)
+    (cff) => generateReports(cff, configs)
   ];
 
   const validateAll = (cffs, validator) => {
