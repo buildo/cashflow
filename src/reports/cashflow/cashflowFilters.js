@@ -10,6 +10,12 @@ const filterByDate = (cashflow, filterParamters) => {
     (!dateEnd || point.get('date') <= dateEnd)).toVector();
 };
 
+const filterByCompany = (cashflow, filterParamters) => {
+  const companyIds = filterParamters.get('companyIds');
+  return cashflow.filter((point) => !companyIds ||
+      typeof companyIds.find((id) => id === point.getIn(['info', 'company', 'id'])) !== 'undefined').toVector();
+};
+
 
 const filterCashflows = (cashflows, filterParamters) => {
   filterParamters = Immutable.fromJS(filterParamters) || Immutable.Map();
@@ -18,7 +24,8 @@ const filterCashflows = (cashflows, filterParamters) => {
   const mergedFilterParameters = globalFilterParameters.mergeDeep(cashflowFilterParameters);
 
   const filters = [
-    filterByDate
+    filterByDate,
+    filterByCompany
   ];
 
   const filteredCashflows = cashflows.map((cashflow) =>
