@@ -3,13 +3,15 @@
 const Immutable = require('immutable');
 
 const generateCashflows = require('./cashflowsGenerator.js');
+const filterCashflows = require('./cashflowFilters.js');
 const mergeCashflowPoints = require('./mergeCashflowPoints.js');
 const cumulateCashflows = require('./cumulativeCashflows.js');
 
-const generateCashFlowReport = (cff, startValue) => {
+const generateCashFlowReport = (cff, startValue, filterParameters) => {
 
   const reportFunctions = [
     generateCashflows,
+    (cashflows) => filterCashflows(cashflows, filterParameters),
     (cashflows) => mergeCashflowPoints(cashflows, startValue),
     cumulateCashflows
   ];
