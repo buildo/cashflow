@@ -16,6 +16,17 @@ const filterByCompany = (cashflow, filterParamters) => {
       typeof companyIds.find((id) => id === point.getIn(['info', 'company', 'id'])) !== 'undefined').toVector();
 };
 
+const filterByMethodType = (cashflow, filterParamters) => {
+  const methodTypes = filterParamters.get('methodTypes');
+  return cashflow.filter((point) => !methodTypes ||
+      typeof methodTypes.find((methodType) => methodType === point.getIn(['info', 'methodType'])) !== 'undefined').toVector();
+};
+
+const filterByFlowDirection = (cashflow, filterParamters) => {
+  const flowDirection = filterParamters.get('flowDirection');
+  return cashflow.filter((point) => !flowDirection || flowDirection === point.getIn(['info', 'flowDirection'])).toVector();
+};
+
 
 const filterCashflows = (cashflows, filterParamters) => {
   filterParamters = Immutable.fromJS(filterParamters) || Immutable.Map();
@@ -25,7 +36,9 @@ const filterCashflows = (cashflows, filterParamters) => {
 
   const filters = [
     filterByDate,
-    filterByCompany
+    filterByCompany,
+    filterByMethodType,
+    filterByFlowDirection
   ];
 
   const filteredCashflows = cashflows.map((cashflow) =>

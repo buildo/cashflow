@@ -44,6 +44,8 @@ const cashflows = {
       grossAmount: 5,
       info: {
         lineId: '6',
+        flowDirection: 'in',
+        methodType: 'credit card',
         company: {
           id: 'omnilab'
         }
@@ -56,6 +58,30 @@ const cashflows = {
       grossAmount: 340,
       info: {
         lineId: '2'
+      }
+    },
+    {
+      date: '2014-12-18',
+      grossAmount: 5,
+      info: {
+        lineId: '6',
+        flowDirection: 'out',
+        methodType: 'credit card',
+        company: {
+          id: 'omnilab'
+        }
+      }
+    },
+    {
+      date: '2014-12-18',
+      grossAmount: 5,
+      info: {
+        lineId: '6',
+        flowDirection: 'in',
+        methodType: 'bancomat',
+        company: {
+          id: 'omnilab'
+        }
       }
     }
   ],
@@ -75,6 +101,8 @@ const cashflows = {
       grossAmount: 15,
       info: {
         lineId: '2',
+        flowDirection: 'in',
+        methodType: 'credit card',
         company: {
           id: 'omnilab'
         }
@@ -90,14 +118,15 @@ const filterParameters = {
   },
   cashflow: {
     dateStart: '2014-09-30',
-    dateEnd: '2015-09-20'
+    dateEnd: '2015-09-20', 
+    flowDirection: 'in',
+    methodTypes: ['credit card']
   }
 };
 
 const immutableCashflows = Immutable.fromJS(cashflows);
 const report = filterCashflows(immutableCashflows, filterParameters).toJS();
 const output = report.cashflow;
-console.log(output);
 const historyCashflow = output.history;
 const best = output.best;
 const worst = output.worst;
@@ -112,9 +141,8 @@ describe('filterCashflows', () => {
   it('should filter payments correctly', () => {
     expect(historyCashflow).to.have.length(0);
     expect(best).to.have.length(1);
-    expect(worst).to.have.length(2);
-    expect(worst).to.contain.an.item.with.property('date', '2014-09-30')
-      .and.to.contain.an.item.with.property('date', '2014-11-18');
+    expect(worst).to.have.length(1);
+    expect(worst).to.contain.an.item.with.property('date', '2014-09-30');
     expect(best).to.contain.an.item.with.property('date', '2014-12-18');
   });
 });
