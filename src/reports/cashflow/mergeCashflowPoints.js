@@ -21,21 +21,21 @@ const collapseCashflows = (cashflows, startValue) => {
           acc = acc.setIn([date, 'info'], acc.getIn([date, 'info']).push(info));
         } else {
           acc = acc.set(date, point);
-          acc = acc.setIn([date, 'info'], Immutable.Vector(info));
+          acc = acc.setIn([date, 'info'], Immutable.List([info]));
         }
         return acc;
       },
       Immutable.Map()
     );
 
-    return mergedMap.toVector().sort(sortByDate);
+    return mergedMap.toIndexedSeq().toList().sort(sortByDate);
   };
 
   // create startPoint with startValue and most ancient date. Insert it in history
   const getFlowFirstPoint = (cashflow) =>
     cashflow.reduce((firstPointAcc, point) => firstPointAcc = point.get('date') < firstPointAcc.get('date') ? point : firstPointAcc);
 
-  const firstDate = cashflows.reduce((acc, flow) => flow.length > 0 && getFlowFirstPoint(flow).get('date') < acc ?
+  const firstDate = cashflows.reduce((acc, flow) => flow.size > 0 && getFlowFirstPoint(flow).get('date') < acc ?
     getFlowFirstPoint(flow).get('date') : acc, 'z'
   );
 

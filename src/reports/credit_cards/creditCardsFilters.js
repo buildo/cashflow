@@ -12,13 +12,13 @@ const filterByDate = (payments, filterParameters) => {
   const dateEnd =  filterParameters.get('dateEnd');
 
   return payments.filter((payment) => (!dateStart || payment.get('date') >= dateStart) &&
-    (!dateEnd || payment.get('date') <= dateEnd)).toVector();
+    (!dateEnd || payment.get('date') <= dateEnd));
 };
 
 const filterByPeople = (payments, filterParameters) => {
   const people = filterParameters.get('people');
   return payments.filter((payment) => !people ||
-      typeof people.find((person) => person === payment.get('method').split(' ')[1]) !== 'undefined').toVector();
+      typeof people.find((person) => person === payment.get('method').split(' ')[1]) !== 'undefined');
 };
 
 const getFilteredPayments = (groupedPayments, filterParameters) => {

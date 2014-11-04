@@ -3,9 +3,9 @@
 const Immutable = require('immutable');
 
 const completeValues = (valuesMap) => {
-  const filteredValues = valuesMap.filter((value) => typeof value !== 'undefined').toMap();
+  const filteredValues = valuesMap.filter((value) => typeof value !== 'undefined');
 
-  if (filteredValues.length < 2) {
+  if (filteredValues.size < 2) {
     return filteredValues;
   }
 
@@ -34,26 +34,26 @@ const completeExpectedAmount = (expectedAmount, completeValues) => {
 
   const leftValues = Immutable.Map(
     {
-      net: net instanceof Immutable.Vector ? net.get(0) : net,
-      gross: gross instanceof Immutable.Vector ? gross.get(0) : gross,
-      vat: vat instanceof Immutable.Vector ? vat.get(0) : vat,
-      vatPercentage: vatPercentage instanceof Immutable.Vector ? vatPercentage.get(0) : vatPercentage
+      net: Immutable.List.isList(net) ? net.get(0) : net,
+      gross: Immutable.List.isList(gross) ? gross.get(0) : gross,
+      vat: Immutable.List.isList(vat) ? vat.get(0) : vat,
+      vatPercentage: Immutable.List.isList(vatPercentage) ? vatPercentage.get(0) : vatPercentage
     }
   );
 
   const rightValues = Immutable.Map(
     {
-      net: net instanceof Immutable.Vector ? net.get(1) : net,
-      gross: gross instanceof Immutable.Vector ? gross.get(1) : gross,
-      vat: vat instanceof Immutable.Vector ? vat.get(1) : vat,
-      vatPercentage: vatPercentage instanceof Immutable.Vector ? vatPercentage.get(1) : vatPercentage
+      net: Immutable.List.isList(net) ? net.get(1) : net,
+      gross: Immutable.List.isList(gross) ? gross.get(1) : gross,
+      vat: Immutable.List.isList(vat) ? vat.get(1) : vat,
+      vatPercentage: Immutable.List.isList(vatPercentage) ? vatPercentage.get(1) : vatPercentage
     }
   );
 
   const completeLeft = completeValues(leftValues);
   const completeRight = completeValues(rightValues);
 
-  return completeLeft.map((value, key) => Immutable.Vector(value, completeRight.get(key)));
+  return completeLeft.map((value, key) => Immutable.List([value, completeRight.get(key)]));
 };
 
 const getLinesWithImplicitValues = (lines, completeValues, completeExpectedAmount) => {
@@ -67,7 +67,7 @@ const getLinesWithImplicitValues = (lines, completeValues, completeExpectedAmoun
 
       return acc.push(line);
     },
-    Immutable.Vector()
+    Immutable.List()
   );
 };
 

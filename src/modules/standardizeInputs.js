@@ -5,7 +5,7 @@ const Immutable = require('immutable');
 const standardizeUserInputs = (cff) => {
   // WARNINGS: functions needed to return warnings
 
-  const intervalValidator = (interval) => !(interval instanceof Immutable.Vector) || (interval.get(0) <= interval.get(1));
+  const intervalValidator = (interval) => !Immutable.List.isList(interval) || (interval.get(0) <= interval.get(1));
 
   const validateIntervals = (line, intervalValidator) => {
     const invoice = !line.has('invoice') || intervalValidator(line.getIn(['invoice', 'expectedDate']));
@@ -29,19 +29,19 @@ const standardizeUserInputs = (cff) => {
           }
         );
         return validateIntervals(line, intervalValidator) ? acc : acc.push(warning);
-      },Immutable.Vector()
+      },Immutable.List()
     );
   };
 
   // STANDARDIZERS: functions needed to return standardized input
   const standardizeIntervals = (line) => {
     const putBigFirst = (interval) => {
-      return (interval instanceof Immutable.Vector) && interval.get(1) > interval.get(0) ?
-        interval.reverse().toVector() : interval;
+      return Immutable.List.isList(interval) && interval.get(1) > interval.get(0) ?
+        interval.reverse() : interval;
     };
     const putSmallFirst = (interval) => {
-      return (interval instanceof Immutable.Vector) && interval.get(1) < interval.get(0) ?
-        interval.reverse().toVector() : interval;
+      return Immutable.List.isList(interval) && interval.get(1) < interval.get(0) ?
+        interval.reverse() : interval;
     };
 
     const keyPathsSmallFirst = [
@@ -66,7 +66,7 @@ const standardizeUserInputs = (cff) => {
           keyPathsBigFirst.forEach((accessor) => payment = payment.updateIn(accessor, putBigFirst));
           return acc.push(payment);
         },
-        Immutable.Vector()
+        Immutable.List()
       );
       line = line.set('payments', standardizedPayments);
     }
@@ -78,7 +78,7 @@ const standardizeUserInputs = (cff) => {
       standardizeIntervals
     ];
 
-    const standardizedLines = standardizers.reduce((acc, standardizer) => acc.map((line) => standardizer(line)).toVector(), cff.get('lines'));
+    const standardizedLines = standardizers.reduce((acc, standardizer) => acc.map((line) => standardizer(line)), cff.get('lines'));
     return cff.set('lines', standardizedLines);
   };
 
@@ -86,7 +86,7 @@ const standardizeUserInputs = (cff) => {
   const warnings = getCFFWarnings(cff, validateIntervals, intervalValidator);
   const output = standardizeCFF(cff);
 
-  return warnings.length > 0 ? Immutable.Map({warnings: warnings, output: output}) : Immutable.Map({output: output});
+  return warnings.size > 0 ? Immutable.Map({warnings: warnings, output: output}) : Immutable.Map({output: output});
 };
 
 module.exports = standardizeUserInputs;

@@ -71,7 +71,7 @@ describe('applyHeuristics', () => {
         edit: (line) => line.remove('expectedAmount')
       },
       {
-        match: (line) => line.get('mergedFrom').length === 1,
+        match: (line) => line.get('mergedFrom').size === 1,
         edit: (line) => line.set('mergedFrom', line.get('mergedFrom').get(0))
       }
     ];

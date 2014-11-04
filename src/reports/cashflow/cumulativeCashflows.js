@@ -7,9 +7,8 @@ const cumulateCashflows = (cashflows) => {
   const historyFlow = cashflows.get('history');
 
   const getCumulativeFlow = (flow, startValue) => {
-    flow = flow instanceof Immutable.Vector ? flow : flow.toVector();
-    if (flow.length === 0) {
-      return Immutable.Vector();
+    if (flow.size === 0) {
+      return Immutable.List();
     }
     startValue = typeof startValue === 'undefined' ? 0 : startValue;
     const firstPoint = flow.get(0).set('grossAmount', flow.getIn([0, 'grossAmount']) + startValue);
@@ -17,7 +16,7 @@ const cumulateCashflows = (cashflows) => {
       const newPoint = point.set('grossAmount', point.get('grossAmount') + acc.getIn([index, 'grossAmount']));
       return acc.push(newPoint);
       },
-      Immutable.Vector(firstPoint)
+      Immutable.List([firstPoint])
     );
   };
 

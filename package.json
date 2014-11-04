@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "immutable": "^2.3.2",
+    "immutable": "^3.0.2",
     "lodash": "^2.4.1",
     "xlsjs": "~0.7.1"
   },

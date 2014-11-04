@@ -5,14 +5,14 @@ const UNIQUE_PREFIX = 'cashflow_unique_prefix';
 
 const validateCFF = (cff) => {
 
-  const validatorBlocks = Immutable.Sequence(
-    Immutable.fromJS([
+  const validatorBlocks = Immutable.fromJS([
+    [
       {
-        condition: (cff) => (cff instanceof Immutable.Map),
+        condition: (cff) => (Immutable.Map.isMap(cff)),
         msg: 'CFF is not a valid JSON object'
       }
-    ]),
-    Immutable.fromJS([
+    ],
+    [
       {
         condition: (cff) => (typeof cff.get('sourceId') === 'string'),
         msg: 'sourceId missing or invalid'
@@ -26,49 +26,49 @@ const validateCFF = (cff) => {
         msg: 'priority is invalid'
       },
       {
-        condition: (cff) => (cff.get('lines') instanceof Immutable.Vector),
+        condition: (cff) => (Immutable.List.isList(cff.get('lines'))),
         msg: 'lines missing or not Array'
       }
-    ]),
-    Immutable.fromJS([
+    ],
+    [
       {
         condition: (cff) => {
           const lines = cff.get('lines');
           const setOfIds = lines.reduce((acc, line, index) => acc.add(line.get('id') || (UNIQUE_PREFIX + index)),
             Immutable.Set());
-          return setOfIds.length === lines.length;
+          return setOfIds.size === lines.size;
         },
         msg: 'lines must have unique IDs (or undefined)'
       }
-    ])
-  );
+    ]
+  ]);
 
   const getBlockErrors = (validatorBlock, cff) => {
     if (typeof validatorBlock === 'undefined') {
-      return Immutable.Vector();
+      return Immutable.List();
     }
     return validatorBlock.reduce(
       (errors, validator) => {
         const error = Immutable.Map(
           {
             msg: validator.get('msg'),
-            sourceId: (cff instanceof Immutable.Map && cff.has('sourceId')) ?
+            sourceId: (Immutable.Map.isMap(cff) && cff.has('sourceId')) ?
               cff.get('sourceId') : 'UNKNOWN_SOURCE_ID'
           }
         );
         return !validator.get('condition')(cff) ? errors.push(error) : errors;
-      },Immutable.Vector()
+      },Immutable.List()
     );
   };
 
-  const throwsErrors = (validatorBlock, cff) => getBlockErrors(validatorBlock, cff).length > 0;
+  const throwsErrors = (validatorBlock, cff) => getBlockErrors(validatorBlock, cff).size > 0;
 
   const getFirstValidatorBlockWithErrors = (cff) =>
     validatorBlocks.find((validatorBlock) => throwsErrors(validatorBlock, cff));
 
   const errors = getBlockErrors(getFirstValidatorBlockWithErrors(cff), cff);
 
-  return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
+  return errors.size > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
 };
 
 module.exports = validateCFF;

@@ -8,7 +8,7 @@ const getLinesWithDefaultValues = (lines) => {
     line = line.has('currency') && (line.get('currency').has('conversion') || line.get('currency').has('name')) ? line
       : line.set('currency', Immutable.Map({name: 'EUR', conversion: 1}));
     return line;
-  }).toVector();
+  });
 };
 
 const insertDefaultValues = (cff) => {

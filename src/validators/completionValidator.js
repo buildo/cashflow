@@ -4,10 +4,10 @@ const Immutable = require('immutable');
 
 const validateCompletion = (cff) => {
   // ERRORS: functions and validators needed to check for and return errors
-  const validatorBlocks = Immutable.Sequence(
-    Immutable.fromJS([
+  const validatorBlocks = Immutable.fromJS([
+    [
       {
-        condition: (line) => line.get('payments') instanceof Immutable.Vector && line.get('payments').length > 0,
+        condition: (line) => Immutable.List.isList(line.get('payments')) && line.get('payments').size > 0,
         msg: 'payments missing or invalid'
       },
       {
@@ -18,8 +18,8 @@ const validateCompletion = (cff) => {
         condition: (line) => typeof line.getIn(['currency', 'conversion']) === 'number' && typeof line.getIn(['currency', 'name']) === 'string',
         msg: 'currency informations missing or invalid'
       }
-    ]),
-    Immutable.fromJS([
+    ],
+    [
       {
         condition: (line) => {
           return line.get('payments').every((payment) => (payment.has('date') || payment.has('expectedDate')) &&
@@ -27,12 +27,12 @@ const validateCompletion = (cff) => {
         },
         msg: 'one or more payments are incomplete'
       }
-    ])
-  );
+    ]
+  ]);
 
   const getBlockErrors = (validatorBlock, line) => {
     if (typeof validatorBlock === 'undefined') {
-      return Immutable.Vector();
+      return Immutable.List();
     }
     return validatorBlock.reduce(
       (acc, validator) => {
@@ -43,11 +43,11 @@ const validateCompletion = (cff) => {
           }
         );
         return !validator.get('condition')(line) ? acc.push(error) : acc;
-      },Immutable.Vector()
+      },Immutable.List()
     );
   };
 
-  const throwsErrors = (validatorBlock, line) => getBlockErrors(validatorBlock, line).length > 0;
+  const throwsErrors = (validatorBlock, line) => getBlockErrors(validatorBlock, line).size > 0;
   const getFirstValidatorBlockWithErrors = (line) =>
     validatorBlocks.find((validatorBlock) => throwsErrors(validatorBlock, line));
 
@@ -65,7 +65,7 @@ const validateCompletion = (cff) => {
               acc = typeof bestGrossAmount !== 'undefined' ? (acc.set(1, acc.get(1) + bestGrossAmount)) : acc;
               return acc;
             },
-            Immutable.Vector(0, 0)
+            Immutable.List([0, 0])
           );
 
           const lineWorstGross = line.getIn(['amount','gross']) || line.getIn(['expectedAmount', 'gross', 0]);
@@ -88,25 +88,25 @@ const validateCompletion = (cff) => {
               }
             );
             return !warningValidator.get('condition')(line) ? lineWarnings.push(warning) : lineWarnings;
-          },Immutable.Vector()
+          },Immutable.List()
         );
         return acc.concat(lineWarnings);
       },
-      Immutable.Vector()
+      Immutable.List()
     );
   };
 
   // values to return
   const errors = cff.get('lines').reduce((acc, line) =>
-    acc.concat(getBlockErrors(getFirstValidatorBlockWithErrors(line), line)), Immutable.Vector());
+    acc.concat(getBlockErrors(getFirstValidatorBlockWithErrors(line), line)), Immutable.List());
 
-  if (errors.length > 0) {
+  if (errors.size > 0) {
     return Immutable.Map({errors: errors});
   }
 
   const warnings = getWarnings(cff);
 
-  return warnings.length > 0 ? Immutable.Map({warnings: warnings}) : Immutable.Map();
+  return warnings.size > 0 ? Immutable.Map({warnings: warnings}) : Immutable.Map();
 };
 
 module.exports = validateCompletion;

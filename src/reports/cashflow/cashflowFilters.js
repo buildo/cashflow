@@ -7,24 +7,24 @@ const filterByDate = (cashflow, filterParamters) => {
   const dateEnd =  filterParamters.get('dateEnd');
 
   return cashflow.filter((point) => (!dateStart || point.get('date') >= dateStart) &&
-    (!dateEnd || point.get('date') <= dateEnd)).toVector();
+    (!dateEnd || point.get('date') <= dateEnd));
 };
 
 const filterByCompany = (cashflow, filterParamters) => {
   const companyIds = filterParamters.get('companyIds');
   return cashflow.filter((point) => !companyIds ||
-      typeof companyIds.find((id) => id === point.getIn(['info', 'company', 'id'])) !== 'undefined').toVector();
+      typeof companyIds.find((id) => id === point.getIn(['info', 'company', 'id'])) !== 'undefined');
 };
 
 const filterByMethodType = (cashflow, filterParamters) => {
   const methodTypes = filterParamters.get('methodTypes');
   return cashflow.filter((point) => !methodTypes ||
-      typeof methodTypes.find((methodType) => methodType === point.getIn(['info', 'methodType'])) !== 'undefined').toVector();
+      typeof methodTypes.find((methodType) => methodType === point.getIn(['info', 'methodType'])) !== 'undefined');
 };
 
 const filterByFlowDirection = (cashflow, filterParamters) => {
   const flowDirection = filterParamters.get('flowDirection');
-  return cashflow.filter((point) => !flowDirection || flowDirection === point.getIn(['info', 'flowDirection'])).toVector();
+  return cashflow.filter((point) => !flowDirection || flowDirection === point.getIn(['info', 'flowDirection']));
 };
 
 
@@ -42,7 +42,7 @@ const filterCashflows = (cashflows, filterParamters) => {
   ];
 
   const filteredCashflows = cashflows.map((cashflow) =>
-    filters.reduce((acc, filter) => filter(acc, mergedFilterParameters), cashflow)).toMap();
+    filters.reduce((acc, filter) => filter(acc, mergedFilterParameters), cashflow));
 
   return Immutable.Map({cashflow: filteredCashflows});
 };

@@ -33,7 +33,7 @@ const generateCashFlowReport = (cff, configs) => {
         return Immutable.Map({errors: returnedMap.get('errors')});
       }
       if (returnedMap.has('warnings')) {
-        const oldWarnings = acc.get('warnings') || Immutable.Vector();
+        const oldWarnings = acc.get('warnings') || Immutable.List();
         acc = acc.set('warnings', oldWarnings.concat(returnedMap.get('warnings')));
       }
 

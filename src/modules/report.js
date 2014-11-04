@@ -15,13 +15,13 @@ const generateReports = (cff, configs) => {
       let report = reportGenerator(cff, configs);
       // merge errors
       if (report.has('errors')) {
-        const oldErrors = acc.get('errors') || Immutable.Vector();
+        const oldErrors = acc.get('errors') || Immutable.List();
         acc = acc.set('errors', oldErrors.concat(report.get('errors')));
       }
 
       // merge warnings
       if (report.has('warnings')) {
-        const oldWarnings = acc.get('warnings') || Immutable.Vector();
+        const oldWarnings = acc.get('warnings') || Immutable.List();
         report = report.set('warnings', oldWarnings.concat(report.get('warnings')));
       }
 

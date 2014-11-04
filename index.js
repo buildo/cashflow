@@ -36,12 +36,12 @@ const processInputs = (inputCFFs, configs, heuristics) => {
   const validateAll = (cffs, validator) => {
     const errors = cffs.reduce(
       (acc, cff) => {
-        const cffErrors = validator(cff).get('errors') || Immutable.Vector();
+        const cffErrors = validator(cff).get('errors') || Immutable.List();
         return acc.concat(cffErrors);
       },
-      Immutable.Vector()
+      Immutable.List()
     );
-    return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
+    return errors.size > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
   };
 
   const processedInput = processFunctions.reduce((acc, processFunction) => {
@@ -56,7 +56,7 @@ const processInputs = (inputCFFs, configs, heuristics) => {
 
       // merge wraning
       if (returnedMap.has('warnings')) {
-        const previousWarnings = acc.get('warnings') || Immutable.Vector();
+        const previousWarnings = acc.get('warnings') || Immutable.List();
         returnedMap = returnedMap.set('warnings', previousWarnings.concat(returnedMap.get('warnings')));
       }
 

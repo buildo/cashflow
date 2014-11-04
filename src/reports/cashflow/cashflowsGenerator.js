@@ -3,7 +3,7 @@
 const Immutable = require('immutable');
 
 const calculateExpectedCashflow = (cff) => {
-  // group payments in one single vector and insert field 'info' with every important information in each payment.
+  // group payments in one single list and insert field 'info' with every important information in each payment.
   const groupedPayments = cff.get('lines').flatMap((line) => line.get('payments')
     .map((p) => {
       let info = Immutable.Map();
@@ -37,15 +37,15 @@ const calculateExpectedCashflow = (cff) => {
   const cashflows = groupedPayments.reduce((cashflowsAcc, payment) => {
       // intervals are formatted as [worst, best] with conventional flowDirection 'in'.
       const closestDate = payment.get('date') || payment.getIn(['expectedDate', 1]);
-      let dates = Immutable.Vector(payment.get('date') || payment.getIn(['expectedDate', 0]), payment.get('date') || payment.getIn(['expectedDate', 1]));
-      let grosses = Immutable.Vector(payment.get('grossAmount') || payment.getIn(['expectedGrossAmount', 0]),
+      let dates = Immutable.List.of(payment.get('date') || payment.getIn(['expectedDate', 0]), payment.get('date') || payment.getIn(['expectedDate', 1]));
+      let grosses = Immutable.List.of(payment.get('grossAmount') || payment.getIn(['expectedGrossAmount', 0]),
         payment.get('grossAmount') || payment.getIn(['expectedGrossAmount', 1]));
 
       const convertToEuros = (amount) => amount / payment.getIn(['info', 'currency', 'conversion']);
       // if flowDirection 'out' invert previous worsts / bests and set gross sign to negative
       if (payment.getIn(['info', 'flowDirection']) === 'out') {
-        dates = dates.reverse().toVector();
-        grosses = grosses.reverse().map((g) => -g).toVector();
+        dates = dates.reverse();
+        grosses = grosses.reverse().map((g) => -g);
       }
 
       if (closestDate < splitDate) {
@@ -97,11 +97,11 @@ const calculateExpectedCashflow = (cff) => {
 
       return isValid ? warningsAcc : warningsAcc.push(warning);
     },
-    Immutable.Vector()
+    Immutable.List()
   );
 
   const report = Immutable.Map({cashflow: cashflows});
-  return warnings.length > 0 ? report.set('warnings', warnings) : report;
+  return warnings.size > 0 ? report.set('warnings', warnings) : report;
 };
 
 module.exports = calculateExpectedCashflow;

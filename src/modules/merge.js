@@ -9,13 +9,14 @@ const mergeCFFs = (immutableCFFs) => {
     const groupedLinesMap = lines.reduce(
       (acc, line, index) => {
         const lineID = line.get('id') || (UNIQUE_PREFIX + index);
-        const mergedFrom = acc.getIn([lineID, 'mergedFrom']) || Immutable.Vector();
+        const mergedFrom = acc.getIn([lineID, 'mergedFrom']) || Immutable.List();
         const newLine = line.set('mergedFrom', mergedFrom.push(line.get('parentID'))).remove('parentID');
         return acc.mergeDeep(Immutable.Map().set(lineID, newLine));
       },
       Immutable.Map()
     );
-    return groupedLinesMap.toVector();
+
+    return groupedLinesMap.toIndexedSeq().toList();
   };
 
   const mergeSourceDescriptions = (immutableCFFs) => {

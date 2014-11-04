@@ -13,12 +13,12 @@ const validateCFF = require('./CFFValidator.js');
 const validateAll = (cffs, validator) => {
   const errors = cffs.reduce(
     (acc, cff) => {
-      const cffErrors = validator(cff).get('errors') || Immutable.Vector();
+      const cffErrors = validator(cff).get('errors') || Immutable.List();
       return acc.concat(cffErrors);
     },
-    Immutable.Vector()
+    Immutable.List()
   );
-  return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
+  return errors.size > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
 };
 
 describe('validateCff', () => {

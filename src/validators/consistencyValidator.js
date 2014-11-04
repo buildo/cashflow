@@ -3,20 +3,20 @@
 const Immutable = require('immutable');
 
 const validateValuesMap = (valuesMap) => {
-  const filteredValues = valuesMap.filter((value) => typeof value !== 'undefined').toMap();
+  const filteredValues = valuesMap.filter((value) => typeof value !== 'undefined');
   const net = filteredValues.get('net');
   const gross = filteredValues.get('gross');
   const vat = filteredValues.get('vat');
   const vatPercentage = filteredValues.get('vatPercentage');
 
   const tolerance = 0.01;
-  switch (filteredValues.length) {
+  switch (filteredValues.size) {
     case 3:
       return (Math.abs(net - (gross - vat)) < tolerance) || (Math.abs(vat - (gross - gross * (1 - vatPercentage))) < tolerance);
     case 4:
       return (Math.abs(net - (gross - vat)) < tolerance) && (Math.abs(vat - (gross - gross * (1 - vatPercentage))) < tolerance);
     default:
-      // if length <= 2
+      // if size <= 2
       return true;
   }
 };
@@ -40,10 +40,10 @@ const validators = Immutable.fromJS([
         return [0, 1].every((index) => {
           const columnValues = Immutable.Map(
             {
-              net: net instanceof Immutable.Vector ? net.get(index) : net,
-              gross: gross instanceof Immutable.Vector ? gross.get(index) : gross,
-              vat: vat instanceof Immutable.Vector ? vat.get(index) : vat,
-              vatPercentage: vatPercentage instanceof Immutable.Vector ? vatPercentage.get(index) : vatPercentage
+              net: Immutable.List.isList(net) ? net.get(index) : net,
+              gross: Immutable.List.isList(gross) ? gross.get(index) : gross,
+              vat: Immutable.List.isList(vat) ? vat.get(index) : vat,
+              vatPercentage: Immutable.List.isList(vatPercentage) ? vatPercentage.get(index) : vatPercentage
             }
           );
           return validateValuesMap(columnValues);
@@ -63,16 +63,16 @@ const validateLine = (line, validators, validateValuesMap) => {
       );
       return !validator.get('condition')(line, validateValuesMap) ? errors.push(error) : errors;
     },
-    Immutable.Vector()
+    Immutable.List()
   );
 };
 
 const validateLines = (cff, validateLine, validators, validateValuesMap) => {
   const errors = cff.get('lines').reduce(
     (errors, line) => errors.concat(validateLine(line, validators, validateValuesMap)),
-    Immutable.Vector()
+    Immutable.List()
   );
-  return errors.length > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
+  return errors.size > 0 ? Immutable.Map({errors: errors}) : Immutable.Map();
 };
 
 const validateCFFConsistency = (cff) => validateLines(cff, validateLine, validators, validateValuesMap);

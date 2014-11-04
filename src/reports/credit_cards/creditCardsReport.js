@@ -10,7 +10,7 @@ const generateCreditCardsReport = (cff, configs) => {
     return months[monthNumber - 1];
   };
 
-  // group payments in one single vector and insert field 'info' with every important information in each payment.
+  // group payments in one single list and insert field 'info' with every important information in each payment.
   const groupedPayments = cff.get('lines').flatMap((line) => line.get('payments')
     .map((payment) => payment.setIn(['info', 'currency'], line.get('currency'))));
 
@@ -63,7 +63,7 @@ const generateCreditCardsReport = (cff, configs) => {
     Immutable.Map()
   );
 
-  const report = reportWithKeys.map((monthReport) => monthReport.set('people', monthReport.get('people').toVector())).toVector();
+  const report = reportWithKeys.map((monthReport) => monthReport.set('people', monthReport.get('people'))).toList();
 
   return Immutable.Map({creditCards: report.sort((a, b) => a.get('monthNumber') > b.get('monthNumber'))});
 };
