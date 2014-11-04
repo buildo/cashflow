@@ -35,9 +35,10 @@ describe('validateCompletion', () => {
     const errors = report.errors;
 
     expect(Array.isArray(errors)).to.be.true;
-    expect(errors).to.have.length(2);
+    expect(errors).to.have.length(3);
     expect(errors).to.contain.an.item.with.property('msg', 'payments missing or invalid')
-      .and.to.contain.an.item.with.property('msg', 'flowDirection missing or invalid');
+      .and.to.contain.an.item.with.property('msg', 'flowDirection missing or invalid')
+      .and.to.contain.an.item.with.property('msg', 'conversion tax missing or invalid');
   });
 
   it('should return error because has incomplete payments', () => {
@@ -49,6 +50,10 @@ describe('validateCompletion', () => {
       }
     ];
     cff.lines[0].flowDirection = 'in';
+    cff.lines[0].currency = {
+      name: 'USD',
+      conversion: 1.24
+    };
     const report = completionValidator(Immutable.fromJS(cff)).toJS();
     const errors = report.errors;
 
@@ -66,6 +71,10 @@ describe('validateCompletion', () => {
       }
     ];
     cff.lines[0].flowDirection = 'in';
+    cff.lines[0].currency = {
+      name: 'USD',
+      conversion: 1.24
+    };
     const report = completionValidator(Immutable.fromJS(cff)).toJS();
     const warnings = report.warnings;
     expect(Array.isArray(warnings)).to.be.true;
@@ -88,6 +97,10 @@ describe('validateCompletion', () => {
       }
     ];
     cff.lines[0].flowDirection = 'in';
+    cff.lines[0].currency = {
+      name: 'USD',
+      conversion: 1.24
+    };
     const report = completionValidator(Immutable.fromJS(cff)).toJS();
     const errors = report.errors;
     const warnings = report.warnings;
