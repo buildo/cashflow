@@ -4,6 +4,7 @@ const Immutable = require('immutable');
 
 const standardizeUserInputs = (cff) => {
   // WARNINGS: functions needed to return warnings
+
   const intervalValidator = (interval) => !(interval instanceof Immutable.Vector) || (interval.get(0) <= interval.get(1));
 
   const validateIntervals = (line, intervalValidator) => {
@@ -32,65 +33,58 @@ const standardizeUserInputs = (cff) => {
     );
   };
 
-  // STANDARDIZER: functions needed to return standardized input
-  const putBigFirst = (interval) => {
-    return (interval instanceof Immutable.Vector) && interval.get(1) > interval.get(0) ?
-      interval.reverse().toVector() : interval;
-  };
-
-  const putSmallFirst = (interval) => {
-    return (interval instanceof Immutable.Vector) && interval.get(1) < interval.get(0) ?
-      interval.reverse().toVector() : interval;
-  };
-
-  const standardizeLine = (line, putSmallFirst, putBigFirst) => {
+  // STANDARDIZERS: functions needed to return standardized input
+  const standardizeIntervals = (line) => {
+    const putBigFirst = (interval) => {
+      return (interval instanceof Immutable.Vector) && interval.get(1) > interval.get(0) ?
+        interval.reverse().toVector() : interval;
+    };
+    const putSmallFirst = (interval) => {
+      return (interval instanceof Immutable.Vector) && interval.get(1) < interval.get(0) ?
+        interval.reverse().toVector() : interval;
+    };
 
     const keyPathsSmallFirst = [
       ['expectedAmount', 'gross'],
-      ['expectedAmount', 'net']
+      ['expectedAmount', 'net'],
+      ['expectedGrossAmount']
     ];
 
     const keyPathsBigFirst = [
       ['expectedAmount', 'vat'],
       ['expectedAmount', 'vatPercentage'],
-      ['invoice', 'expectedDate']
-    ];
-
-    const keyPathsSmallFirstPayments = [
-      ['expectedGrossAmount']
-    ];
-
-    const keyPathsBigFirstPayments = [
+      ['invoice', 'expectedDate'],
       ['expectedDate'],
     ];
 
     keyPathsSmallFirst.forEach((accessor) => line = line.updateIn(accessor, putSmallFirst));
-
     keyPathsBigFirst.forEach((accessor) => line = line.updateIn(accessor, putBigFirst));
 
     if (line.has('payments')) {
       const standardizedPayments = line.get('payments').reduce((acc, payment) => {
-          keyPathsSmallFirstPayments.forEach((accessor) => payment = payment.updateIn(accessor, putSmallFirst));
-          keyPathsBigFirstPayments.forEach((accessor) => payment = payment.updateIn(accessor, putBigFirst));
+          keyPathsSmallFirst.forEach((accessor) => payment = payment.updateIn(accessor, putSmallFirst));
+          keyPathsBigFirst.forEach((accessor) => payment = payment.updateIn(accessor, putBigFirst));
           return acc.push(payment);
         },
         Immutable.Vector()
       );
       line = line.set('payments', standardizedPayments);
     }
-
     return line;
   };
 
-  const standardizeCFF = (cff, standardizeLine, putSmallFirst, putBigFirst) => {
-    const standardizedLines = cff.get('lines').reduce((acc, line) =>
-      acc.push(standardizeLine(line, putSmallFirst, putBigFirst)), Immutable.Vector());
+  const standardizeCFF = (cff) => {
+    const standardizers = [
+      standardizeIntervals
+    ];
+
+    const standardizedLines = standardizers.reduce((acc, standardizer) => acc.map((line) => standardizer(line)).toVector(), cff.get('lines'));
     return cff.set('lines', standardizedLines);
   };
 
   // returned values (warnings returned only if there's any)
   const warnings = getCFFWarnings(cff, validateIntervals, intervalValidator);
-  const output = standardizeCFF(cff, standardizeLine, putSmallFirst, putBigFirst);
+  const output = standardizeCFF(cff);
 
   return warnings.length > 0 ? Immutable.Map({warnings: warnings, output: output}) : Immutable.Map({output: output});
 };
