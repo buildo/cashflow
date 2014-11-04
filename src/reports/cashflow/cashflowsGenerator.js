@@ -10,6 +10,7 @@ const calculateExpectedCashflow = (cff) => {
       info = info.set('flowDirection', line.get('flowDirection'));
       info = info.set('lineId', line.get('id') || 'UNKNOWN_LINE_ID');
       info = info.set('mergedFrom', line.get('mergedFrom'));
+      info = info.set('currency', line.get('currency'));
       info = line.has('invoice') ? info.set('invoice', line.get('invoice')) : info;
       info = line.has('company') ? info.set('company', line.get('company')) : info;
       info = line.has('description') ? info.set('description', line.get('description')) : info;
@@ -40,6 +41,7 @@ const calculateExpectedCashflow = (cff) => {
       let grosses = Immutable.Vector(payment.get('grossAmount') || payment.getIn(['expectedGrossAmount', 0]),
         payment.get('grossAmount') || payment.getIn(['expectedGrossAmount', 1]));
 
+      const convertToEuros = (amount) => amount / payment.getIn(['info', 'currency', 'conversion']);
       // if flowDirection 'out' invert previous worsts / bests and set gross sign to negative
       if (payment.getIn(['info', 'flowDirection']) === 'out') {
         dates = dates.reverse().toVector();
@@ -50,7 +52,7 @@ const calculateExpectedCashflow = (cff) => {
         // we're in the history line -> best and worst values coincide.
         const point = Immutable.Map({
           date: dates.get(0),
-          grossAmount: grosses.get(0),
+          grossAmount: convertToEuros(grosses.get(0)),
           info: payment.get('info')
         });
         cashflowsAcc = cashflowsAcc.set('history', cashflowsAcc.get('history').push(point));
@@ -58,13 +60,13 @@ const calculateExpectedCashflow = (cff) => {
         // we're after the history line -> best != worst -> we must separate values in two lines
         const worstPoint = Immutable.Map({
           date: dates.get(0),
-          grossAmount: grosses.get(0),
+          grossAmount: convertToEuros(grosses.get(0)),
           info: payment.get('info')
         });
 
         const bestPoint = Immutable.Map({
           date: dates.get(1),
-          grossAmount: grosses.get(1),
+          grossAmount: convertToEuros(grosses.get(1)),
           info: payment.get('info')
         });
 

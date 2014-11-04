@@ -18,6 +18,10 @@ const processedInput =
   lines: [
     {
       id: 'client1',
+      currency: {
+        name: 'EUR',
+        conversion: 1
+      },
       flowDirection: 'in',
       payments: [
         {
@@ -28,6 +32,10 @@ const processedInput =
     },
     {
       flowDirection: 'out',
+      currency: {
+        name: 'EUR',
+        conversion: 1
+      },
       payments: [
         {
           expectedDate: ['2014-12-01', '2014-11-18'],
@@ -38,6 +46,10 @@ const processedInput =
     {
       id: 'client2',
       flowDirection: 'in',
+      currency: {
+        name: 'SUPERCURRENCY',
+        conversion: 2
+      },
       payments: [
         {
           date: '2014-09-20',
@@ -67,10 +79,10 @@ describe('generateCashflows', () => {
   });
 
   it('should separate payments correctly', () => {
-    expect(worst).to.contain.an.item.with.property('grossAmount', 15)
+    expect(worst).to.contain.an.item.with.property('grossAmount', 7.5)
       .and.to.contain.an.item.with.property('grossAmount', -18)
       .and.to.contain.an.item.with.property('date', '2014-11-18');
-    expect(best).to.contain.an.item.with.property('grossAmount', 20)
+    expect(best).to.contain.an.item.with.property('grossAmount', 10)
     .and.to.contain.an.item.with.property('grossAmount', -11)
     .and.to.contain.an.item.with.property('date', '2014-12-10');
     expect(historyCashflow).to.contain.an.item.with.property('grossAmount', 7);
