@@ -15,8 +15,8 @@ const validateCompletion = (cff) => {
         msg: 'flowDirection missing or invalid'
       },
       {
-        condition: (line) => typeof line.getIn(['currency', 'conversion']) === 'number',
-        msg: 'conversion tax missing or invalid'
+        condition: (line) => typeof line.getIn(['currency', 'conversion']) === 'number' && typeof line.getIn(['currency', 'name']) === 'string',
+        msg: 'currency informations missing or invalid'
       }
     ]),
     Immutable.fromJS([

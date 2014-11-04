@@ -38,7 +38,7 @@ describe('validateCompletion', () => {
     expect(errors).to.have.length(3);
     expect(errors).to.contain.an.item.with.property('msg', 'payments missing or invalid')
       .and.to.contain.an.item.with.property('msg', 'flowDirection missing or invalid')
-      .and.to.contain.an.item.with.property('msg', 'conversion tax missing or invalid');
+      .and.to.contain.an.item.with.property('msg', 'currency informations missing or invalid');
   });
 
   it('should return error because has incomplete payments', () => {
