@@ -10,16 +10,22 @@ const generateCreditCardsReport = (cff, configs) => {
     return months[monthNumber - 1];
   };
 
-  const groupedPayments = cff.get('lines').flatMap((line) => line.get('payments'));
+  // group payments in one single vector and insert field 'info' with every important information in each payment.
+  const groupedPayments = cff.get('lines').flatMap((line) => line.get('payments')
+    .map((payment) => payment.setIn(['info', 'currency'], line.get('currency'))));
+
   const filteredPayments = getFilteredPayments(groupedPayments, configs.filterParameters);
 
   const updateMonth = (monthMap, payment) => {
     const person = payment.get('method').split(' ')[1];
+    console.log(payment.get('info'));
+    const convertAmountToEuros = (amount) => amount / payment.getIn(['info', 'currency', 'conversion']);
 
     const updatePerson = (personMap) => {
-      personMap = personMap.set('totalAmount', personMap.get('totalAmount') + payment.get('grossAmount'));
+      personMap = personMap.set('totalAmount', personMap.get('totalAmount') + convertAmountToEuros(payment.get('grossAmount')));
       const paymentInfo = Immutable.Map({
         amount: payment.get('grossAmount'),
+        currency: payment.getIn(['info', 'currency', 'name']),
         date: payment.get('date')
       });
       personMap = personMap.set('payments', personMap.get('payments').push(paymentInfo));
@@ -34,7 +40,7 @@ const generateCreditCardsReport = (cff, configs) => {
       }
     );
 
-    monthMap = monthMap.set('totalAmount', monthMap.get('totalAmount') + payment.get('grossAmount'));
+    monthMap = monthMap.set('totalAmount', monthMap.get('totalAmount') + convertAmountToEuros(payment.get('grossAmount')));
     monthMap = monthMap.updateIn(['people', person], emptyPerson, updatePerson);
     return monthMap;
   };
