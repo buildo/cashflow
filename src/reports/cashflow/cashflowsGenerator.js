@@ -13,6 +13,7 @@ const calculateExpectedCashflow = (cff) => {
       info = info.set('currency', line.get('currency'));
       info = line.has('invoice') ? info.set('invoice', line.get('invoice')) : info;
       info = line.has('company') ? info.set('company', line.get('company')) : info;
+      info = line.has('project') ? info.set('project', line.get('project')) : info;
       info = line.has('description') ? info.set('description', line.get('description')) : info;
       info = p.has('method') ? info.set('method', p.get('method')) : info;
       info = p.has('methodType') ? info.set('methodType', p.get('methodType')) : info;

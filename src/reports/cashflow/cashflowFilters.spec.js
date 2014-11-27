@@ -45,6 +45,20 @@ const cashflows = {
       info: {
         lineId: '6',
         flowDirection: 'in',
+        project: 'betrank',
+        methodType: 'credit card',
+        company: {
+          id: 'omnilab'
+        }
+      }
+    },
+    {
+      date: '2014-12-18',
+      grossAmount: 5,
+      info: {
+        lineId: '6',
+        flowDirection: 'in',
+        project: 'omnilab',
         methodType: 'credit card',
         company: {
           id: 'omnilab'
@@ -102,6 +116,19 @@ const cashflows = {
       info: {
         lineId: '2',
         flowDirection: 'in',
+        project: 'betrank',
+        methodType: 'credit card',
+        company: {
+          id: 'omnilab'
+        }
+      }
+    },
+    {
+      date: '2014-09-30',
+      grossAmount: 15,
+      info: {
+        lineId: '2',
+        flowDirection: 'in',
         methodType: 'credit card',
         company: {
           id: 'omnilab'
@@ -118,8 +145,9 @@ const filterParameters = {
   },
   cashflow: {
     dateStart: '2014-09-30',
-    dateEnd: '2015-09-20', 
+    dateEnd: '2015-09-20',
     flowDirection: 'in',
+    projects: ['betrank'],
     methodTypes: ['credit card']
   }
 };

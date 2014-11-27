@@ -16,6 +16,12 @@ const filterByCompany = (cashflow, filterParamters) => {
       typeof companyIds.find((id) => id === point.getIn(['info', 'company', 'id'])) !== 'undefined');
 };
 
+const filterByProject = (cashflow, filterParamters) => {
+  const projects = filterParamters.get('projects');
+  return cashflow.filter((point) => !projects ||
+      typeof projects.find((project) => project === point.getIn(['info', 'project'])) !== 'undefined');
+};
+
 const filterByMethodType = (cashflow, filterParamters) => {
   const methodTypes = filterParamters.get('methodTypes');
   return cashflow.filter((point) => !methodTypes ||
@@ -38,7 +44,8 @@ const filterCashflows = (cashflows, filterParamters) => {
     filterByDate,
     filterByCompany,
     filterByMethodType,
-    filterByFlowDirection
+    filterByFlowDirection,
+    filterByProject
   ];
 
   const filteredCashflows = cashflows.map((cashflow) =>
