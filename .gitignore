@@ -1,0 +1,7 @@
+node_modules
+dist
+test
+*.tmp
+*.log
+ngris.sublime-project
+ngris.sublime-workspace
