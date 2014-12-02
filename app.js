@@ -10,11 +10,11 @@ var app = koa();
 var router = require('koa-router');
 var bodyParser = require('koa-body-parser');
 var compress = require('koa-compress');
+var scrapers = require('./src/scrapers.js');
 var jsendify = require('./src/jsendify.js');
 var utils = require('./src/utils.js');
 var db;
 
-var ENDPOINT = ''; // 'http://' + config.BACKEND_ENDPOINT + ':' + config.BACKEND_ENDPOINT_PORT;
 var mongoURL = 'mongodb://localhost:27017/cashflow';
 
 
@@ -26,17 +26,17 @@ app.use(router(app));
 
 
 comongo.configure({
-    host: 'localhost',
-    port: 27017,
-    name: 'cashflow',
-    pool: 10,
-    collections: ['users', 'cffs', 'projects', 'resources', 'sessions']
+  host: 'localhost',
+  port: 27017,
+  name: 'cashflow',
+  pool: 10,
+  collections: ['users', 'cffs', 'projects', 'resources', 'sessions']
 });
 
 // init db
 co(function *() {
   db = yield comongo.get();
-})();
+});
 
 
 app.get('/test', function *() {
@@ -61,11 +61,12 @@ app.post('/users', function *() {
     this.throw(400, 'user already exists');
   } else {
     var newUser = {
-      login: {
-        email: email,
-        password: password
-      },
-      credentials: {}
+      credentials: {
+        login: {
+          email: email,
+          password: password
+        },
+      }
     };
     yield db.users.insert(newUser);
   }
@@ -73,7 +74,6 @@ app.post('/users', function *() {
 
 // login
 app.post('/login', function* () {
-  console.log(this.request.body);
   var email = this.request.body.email;
   var password = this.request.body.password;
 
@@ -93,7 +93,7 @@ app.post('/login', function* () {
     console.log('user does not exists');
     this.throw(400, 'user does not exists');
   } else {
-    var body = { email : email, password : password};
+    var body = {email : email, password : password};
   // var response = yield this.r.post([{
   //   url : ENDPOINT + '/login',
   //   body : body
@@ -102,7 +102,7 @@ app.post('/login', function* () {
     this.objectName = 'credentials';
     var token = 'asjdhuhhcsio';
 
-    yield db.sessions.update({userId: user['_id']}, {userId: user._id, token: token}, {upsert: true});
+    yield db.sessions.update({userId: user._id}, {userId: user._id, token: token}, {upsert: true});
     this.body = {token: token};
   }
 });
@@ -110,46 +110,92 @@ app.post('/login', function* () {
 app.get('/users/me', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   console.log('token', token);
-  var session = yield db.sessions.findOne({token: token});
-  console.log('userID', session.userId);
-  var user = yield db.users.findOne({_id: ObjectId(String(session.userId))});
+  var user = yield utils.getUserByToken(db, token);
   console.log(user);
   this.objectName = 'user';
   this.body = {user: user};
 });
 
-app.post('users/credentials/fattureincloud', function *(next) {
-  //
+app.post('/users/credentials/fattureincloud', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var email = this.request.body.email;
+  var password = this.request.body.password;
+
+  if (!email || !password) {
+    this.throw(400, 'email, and password must be set in request body');
+  }
+
+  if(!user){
+    // error
+  }
+  yield db.users.update({_id: user._id}, {$set: {"credentials.fattureincloud": {email: email, password: password}}});
 });
 
-app.post('users/credentials/bank', function *(next) {
-  //
+app.post('/users/credentials/bank', function *(next) {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var bankId = this.request.body.bankId;
+  var bankUserId = this.request.body.bankUserId;
+  var password = this.request.body.password;
+
+  if (!bankUserId || !password) {
+    this.throw(400, 'email, and password must be set in request body');
+  }
+
+  if(!user){
+    // error
+  }
+  yield db.users.update({_id: user._id}, {$set: {"credentials.bank": {id:bankId, user: bankUserId, password: password}}});
 });
 
-app.get('/cffs/main/:refresh', function *() {
-  this.r.parseAuthorization(this.request.header.authorization);
-  var userId = ''; // get userId with authorization token
-  var refresh = this.params.refresh;
+app.get('/cffs/main', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var refresh = this.query.refresh;
+  var userCFFs;
 
   if (refresh) {
     // fai partire scrapers, aggiorna.
+    var credentialsFattureInCloud = user.credentials.fattureincloud;
+    if (!credentialsFattureInCloud) {
+      this.throw(400, 'fattureincloud credentials not found');
+    }
+    userCFFs = yield db.cffs.findOne({userId: user._id});
+    var oldCFF = userCFFs && userCFFs.main ? userCFFs.main : {};
+    var result = yield scrapers.getFattureInCloud(credentialsFattureInCloud, oldCFF);
+    yield db.cffs.update({userId: user._id}, {$set: {main:result.fattureInCloud.cff}}, {upsert: true});
   }
-  var mainCFF = mongo.cffs.findOne({userId: userId}).cffs.main;
-
-
+  userCFFs = yield db.cffs.findOne({userId: user._id});
+  this.objectName = 'cffs';
+  this.body = { main: userCFFs.main || {} };
 });
 
-app.get('/cffs/bank/:refresh', function *() {
-  this.r.parseAuthorization(this.request.header.authorization);
-  var userId = ''; // get userId with authorization token
-  var refresh = this.params.refresh;
+app.get('/cffs/bank', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var refresh = this.query.refresh;
+  var userCFFs;
 
   if (refresh) {
     // fai partire scrapers, aggiorna.
+    var credentialsBank = user.credentials.bank;
+    if (!credentialsBank) {
+      this.throw(400, 'bank credentials not found');
+    }
+    userCFFs = yield db.cffs.findOne({userId: user._id});
+    var validResponse = false;
+    var result;
+    while (!validResponse) {
+      result = yield scrapers.getBank(credentialsBank);
+      validResponse = typeof result.bank.error === 'undefined';
+      console.log(validResponse);
+    }
+    yield db.cffs.update({userId: user._id}, {$set: {bank:result.bank.cff}}, {upsert: true});
   }
-  var mainCFF = mongo.cffs.findOne({userId: userId}).cffs.main;
-
-
+  userCFFs = yield db.cffs.findOne({userId: user._id});
+  this.objectName = 'cffs';
+  this.body = { bank: userCFFs.bank || {} };
 });
 
 app.get('/projects', function *() {
@@ -162,6 +208,4 @@ app.post('/resources', function *() {
 });
 
 app.listen(9000);
-
-
 
