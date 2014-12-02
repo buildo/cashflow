@@ -8,9 +8,8 @@ var parseAuthorization = function(authorization) {
     throw err;
   }
 
-  var token = authorization.replace(/Token token=\"([a-z0-9]+)\"/g, '$1');
+  var token = authorization.replace(/Token token=\"(.+)\"/g, '$1');
   return token;
-  // this.options.headers["Authorization"] = "Token token=\"" + token + "\"";
 };
 
 var getUserByToken = function*(db, token) {

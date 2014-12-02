@@ -25,6 +25,8 @@
     "koa-route": "^2.4.0",
     "koa-router": "~3.0.0",
     "mongodb": "^1.4.22",
+    "password-hash": "^1.2.2",
+    "rand-token": "^0.2.1"
   },
   "devDependencies": {
     "chai": "^1.9.2",
