@@ -16,6 +16,7 @@
     "bluebird": "^2.3.11",
     "bper": "file:../cashflow-scrapers/bper",
     "bper-credit-card": "file:../cashflow-scrapers/bper-credit-card",
+    "cff-manager-assistant": "file:../CFF-manager-assistant",
     "co": "^4.0.1",
     "co-mongo": "0.0.2",
     "fatture-in-cloud": "file:../cashflow-scrapers/fatture-in-cloud",
