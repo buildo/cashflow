@@ -1,6 +1,7 @@
 'use strict';
 
 var _Promise = require('bluebird');
+var co = require('co');
 var scrapeBperCreditCard = require('bper-credit-card');
 var scrapeFattureInCloud = require('fatture-in-cloud');
 
@@ -44,6 +45,24 @@ var scrapeFattureInCloud = require('fatture-in-cloud');
 //   }
 // };
 
+var progressFattureInCloud = function(db, userId, progressObject) {
+  co(function *() {
+    var _progress = {
+      authentication: progressObject.login.authentication,
+      invoices: {
+        list: progressObject.invoiceScraper.mainRequest,
+        data: progressObject.invoiceScraper.modifyData
+      },
+      expenses: {
+        list: progressObject.expenseScraper.mainRequest,
+        data: progressObject.expenseScraper.modifyData,
+      }
+    };
+    yield db.progresses.update({userId: userId, type: 'fattureincloud'}, {$set: {progress: _progress}}, {upsert: true});
+  });
+};
+
+
 var banks = [
   {
     id: 'bper',
@@ -58,43 +77,48 @@ var getBperCreditCard = function (credentialsBperCreditCard) {
     });
 };
 
-var getFattureInCloud = function (credentialsFattureInCloud, oldCFF) {
-  return scrapeFattureInCloud(credentialsFattureInCloud, oldCFF)
+var getFattureInCloud = function (db, userId, credentialsFattureInCloud, oldCFF) {
+  var progressCallback = function (progressObject) {
+    progressFattureInCloud(db, userId, progressObject);
+  };
+  return scrapeFattureInCloud(credentialsFattureInCloud, progressCallback, oldCFF)
     .then(function(fattureInCloudReport) {
       return _Promise.resolve({fattureInCloud: fattureInCloudReport});
     });
 };
 
 var getBank = function (credentialsBank) {
-  var scraper = banks.filter(function(bankObj) {return bankObj.id === credentialsBank.id})[0].scraper;
+  var scraper = banks.filter(function(bankObj) {return bankObj.id === credentialsBank.id;})[0].scraper;
   return scraper(credentialsBank)
     .then(function(bankReport) {return _Promise.resolve({bank: bankReport});});
 };
 
-var getAll = function (credentials, oldCFF) {
-  var getReports = function (credentials) {
-    return _Promise.all([scrapeBper(credentials.bper), scrapeBperCreditCard(credentials.bperCreditCard), scrapeFattureInCloud(credentials.fattureInCloud, oldCFF)]);
-  };
+// var getAll = function (credentials, oldCFF) {
+//   var getReports = function (credentials) {
+//     return _Promise.all([scrapeBper(credentials.bper), scrapeBperCreditCard(credentials.bperCreditCard), scrapeFattureInCloud(credentials.fattureInCloud, oldCFF)]);
+//   };
 
-  var getCFFs = function (reports) {
-    var mergedCFF = reports.map(function (report) {
-      return report.cff;
-    });
+//   var getCFFs = function (reports) {
+//     var mergedCFF = reports.map(function (report) {
+//       return report.cff;
+//     });
 
-    return _Promise.resolve({
-      mergedCFF: mergedCFF,
-      bank: reports[0],
-      bperCreditCard: reports[1],
-      fattureInCloud: reports[2]
-    });
-  };
+//     return _Promise.resolve({
+//       mergedCFF: mergedCFF,
+//       bank: reports[0],
+//       bperCreditCard: reports[1],
+//       fattureInCloud: reports[2]
+//     });
+//   };
 
-  return getReports(credentials)
-    .then(getCFFs);
-};
+//   return getReports(credentials)
+//     .then(getCFFs);
+// };
+
+
 
 module.exports = {
-  getAll: getAll,
+  // getAll: getAll,
   getBank: getBank,
   getFattureInCloud: getFattureInCloud,
   getBperCreditCard: getBperCreditCard

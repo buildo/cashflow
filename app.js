@@ -29,7 +29,7 @@ comongo.configure({
   port: 27017,
   name: 'cashflow',
   pool: 10,
-  collections: ['users', 'cffs', 'projects', 'resources', 'sessions']
+  collections: ['users', 'cffs', 'projects', 'resources', 'sessions', 'progresses']
 });
 
 // init db
@@ -88,11 +88,13 @@ app.post('/login', function* () {
 
 app.get('/users/me', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
-  console.log('token', token);
   var user = yield utils.getUserByToken(db, token);
-  console.log(user);
   this.objectName = 'user';
-  this.body = {user: user};
+  var body = {
+    _id: user._id,
+    email: user.credentials.login.email
+  };
+  this.body = body;
 });
 
 // CREDENTIALS
@@ -184,29 +186,36 @@ app.post('/cffs/main/pull', function *() {
     oldCFF.lines = oldLines;
   }
 
-  var result = yield scrapers.getFattureInCloud(credentialsFattureInCloud, oldCFF);
-  // transform lines from Array to Object
-  var newObjectLines = result.fattureInCloud.cff.lines.reduce(function(acc, line) {
-      acc[line.id] = line;
-      return acc;
-    },
-    {}
-  );
+  scrapers.getFattureInCloud(db, user._id, credentialsFattureInCloud, oldCFF)
+    .done(function(result) {
+      // transform lines from Array to Object
+      var newObjectLines = result.fattureInCloud.cff.lines.reduce(function(acc, line) {
+          acc[line.id] = line;
+          return acc;
+        },
+        {}
+      );
 
-  var newCFF = {
-    sourceId: result.fattureInCloud.cff.sourceId,
-    sourceDescription: result.fattureInCloud.cff.sourceDescription,
-    lines: newObjectLines,
-    stagedLines: {}
-  };
-  // save modified CFF to db
-  yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff: newCFF}}, {upsert: true});
+      var newCFF = {
+        sourceId: result.fattureInCloud.cff.sourceId,
+        sourceDescription: result.fattureInCloud.cff.sourceDescription,
+        lines: newObjectLines,
+        stagedLines: {}
+      };
+      // save modified CFF to db
+      co(function *() {
+        yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff: newCFF}}, {upsert: true});
+      });
+      console.log('done');
+    });
+});
 
-  // return correct CFF with lines as array
-  // add stagedLines field
-  result.fattureInCloud.cff.stagedLines = [];
-  this.objectName = 'cffs';
-  this.body = { main: result.fattureInCloud.cff || {} };
+app.get('/cffs/main/pull/progress', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var fattureInCloudProgress = yield db.progresses.findOne({userId: user._id, type: 'fattureincloud'});
+  this.objectName = 'progress';
+  this.body = fattureInCloudProgress;
 });
 
 app.get('/cffs/main/stage', function *() {
@@ -219,7 +228,7 @@ app.get('/cffs/main/stage', function *() {
     return acc;
   }, []);
   this.objectName = 'stagedLines';
-  this.body = { lines: stagedLines};
+  this.body = stagedLines;
 });
 
 app.post('/cffs/main/stage/clear', function *() {
@@ -239,7 +248,7 @@ app.get('/cffs/main/stage/:lineId', function *() {
     this.throw(400, 'the given id does not correspond to any staged line');
   }
   this.objectName = 'stagedLine';
-  this.body = { line: userMainCFF.cff.stagedLines[stageLineId] };
+  this.body = userMainCFF.cff.stagedLines[stageLineId];
 });
 
 app.put('/cffs/main/stage/:lineId/payment', function *() {
