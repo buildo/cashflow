@@ -4,6 +4,7 @@ var _Promise = require('bluebird');
 var co = require('co');
 var scrapeBperCreditCard = require('bper-credit-card');
 var scrapeFattureInCloud = require('fatture-in-cloud');
+var bper = require('bper').scrapeBPER;
 
 // var oldCFF = {};
 
@@ -11,6 +12,7 @@ var scrapeFattureInCloud = require('fatture-in-cloud');
 //   bper: {
 //     user: '55084063',
 //     password: 'Bej@hY(2'
+  // Bej%40hY%282
 //   },
 //   bperCreditCard: [
 //     {
@@ -66,7 +68,7 @@ var progressFattureInCloud = function(db, userId, progressObject) {
 var banks = [
   {
     id: 'bper',
-    scraper: require('bper').cff
+    scraper: bper
   }
 ];
 
@@ -87,9 +89,9 @@ var getFattureInCloud = function (db, userId, credentialsFattureInCloud, oldCFF)
     });
 };
 
-var getBank = function (credentialsBank) {
+var getBank = function (credentialsBank, inputParameters) {
   var scraper = banks.filter(function(bankObj) {return bankObj.id === credentialsBank.id;})[0].scraper;
-  return scraper(credentialsBank)
+  return scraper(credentialsBank, inputParameters)
     .then(function(bankReport) {return _Promise.resolve({bank: bankReport});});
 };
 

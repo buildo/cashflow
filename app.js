@@ -29,7 +29,7 @@ comongo.configure({
   port: 27017,
   name: 'cashflow',
   pool: 10,
-  collections: ['users', 'cffs', 'projects', 'resources', 'sessions', 'progresses']
+  collections: ['users', 'cffs', 'projects', 'resources', 'sessions', 'progresses', 'bankSessions']
 });
 
 // init db
@@ -301,39 +301,64 @@ app.get('/cffs/bank', function *() {
 app.post('/cffs/bank/pull', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  var refresh = this.query.refresh;
-  var body = {};
+  var captcha = this.query.captcha;
+  var inputParameters = {
+    cff: true
+  };
+
+  if (captcha) {
+    var bankSession = yield db.bankSessions.findOne({userId: user._id, type: 'bper'});
+    inputParameters.captcha = captcha;
+    inputParameters.cookies = bankSession.cookies;
+    console.log(captcha, bankSession.cookies);
+  }
   // fai partire scrapers, aggiorna.
   var credentialsBank = user.credentials.bank;
   if (!credentialsBank) {
     this.throw(400, 'bank credentials not found');
   }
-  var validResponse = false;
+  var status = 'failed';
   var result;
   var attempts = 0;
-  while (!validResponse && attempts < 5) {
-    result = yield scrapers.getBank(credentialsBank);
-    validResponse = typeof result.bank.error === 'undefined';
-    attempts += 1;
+  while (status === 'failed') {
+    result = yield scrapers.getBank(credentialsBank, inputParameters);
+    switch (result.bank.error) {
+      case undefined:
+        status = 'success';
+        break;
+      case 'requiring captcha':
+        status = 'captcha';
+        break;
+      case 'scraper failed for unknown reason':
+        attempts += 1;
+        if (attempts === 5) {
+          this.throw(500, 'reached maximum number of attempts (' + attempts + ')');
+        }
+        break;
+    }
   }
-  if (!validResponse) {
-    this.throw(500, 'reached maximum number of attempts (' + attempts + ')');
-  }
-  body.attempts = attempts;
-  // transform lines from Array to Object
-  var newObjectLines = result.bank.cff.lines.reduce(function(acc, line) {
-      acc[line.id] = line;
-      return acc;
-    },
-    {}
-  );
-  result.bank.cff.lines = newObjectLines;
-  yield db.cffs.update({userId: user._id, type: 'bank'}, {$set: {cff:result.bank.cff}}, {upsert: true});
 
-  var userBankCFF = yield db.cffs.findOne({userId: user._id});
-  this.objectName = 'bank';
-  body.cff = userBankCFF.cff || {};
-  this.body = body;
+  switch (status) {
+    case 'success':
+      // transform lines from Array to Object
+      console.log(result)
+      var newObjectLines = result.bank.cff.lines.reduce(function(acc, line) {
+          acc[line.id] = line;
+          return acc;
+        },
+        {}
+      );
+      result.bank.cff.lines = newObjectLines;
+      yield db.cffs.update({userId: user._id, type: 'bank'}, {$set: {cff:result.bank.cff}}, {upsert: true});
+      break;
+    case 'captcha':
+      yield db.bankSessions.update({userId: user._id, type: 'bper'}, {$set: {cookies: result.bank.cookies}}, {upsert: true});
+      this.objectName = 'captcha';
+      console.log(result.bank.captcha);
+      var b = new Buffer(result.bank.captcha);
+      this.body = {captcha: b.toString('base64')};
+      break;
+  }
 });
 
 app.post('/cffs/main/commit', function*() {
