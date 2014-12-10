@@ -52,6 +52,7 @@ const calculateExpectedCashflow = (cff) => {
       if (closestDate < splitDate) {
         // we're in the history line -> best and worst values coincide.
         const point = Immutable.Map({
+          name: 'history',
           date: dates.get(0),
           grossAmount: convertToEuros(grosses.get(0)),
           info: payment.get('info').set('date', dates.get(0)).set('grossAmount', convertToEuros(grosses.get(0)))
@@ -60,12 +61,14 @@ const calculateExpectedCashflow = (cff) => {
       } else {
         // we're after the history line -> best != worst -> we must separate values in two lines
         const worstPoint = Immutable.Map({
+          name: 'worst',
           date: dates.get(0),
           grossAmount: convertToEuros(grosses.get(0)),
           info: payment.get('info').set('date', dates.get(0)).set('grossAmount', convertToEuros(grosses.get(0)))
         });
 
         const bestPoint = Immutable.Map({
+          name: 'best',
           date: dates.get(1),
           grossAmount: convertToEuros(grosses.get(1)),
           info: payment.get('info').set('date', dates.get(1)).set('grossAmount', convertToEuros(grosses.get(1)))
