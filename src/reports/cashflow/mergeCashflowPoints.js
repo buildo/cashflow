@@ -39,10 +39,12 @@ const collapseCashflows = (cashflows, startValue) => {
     getFlowFirstPoint(flow).get('date') : acc, 'z'
   );
 
-  const startPoint = Immutable.Map({
+  const startPoint = Immutable.fromJS({
     date: firstDate,
     grossAmount: startValue,
     info:{
+      date: firstDate,
+      grossAmount: startValue,
       description: 'START_VALUE'
     }
   });
