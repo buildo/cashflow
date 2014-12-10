@@ -54,7 +54,7 @@ const calculateExpectedCashflow = (cff) => {
         const point = Immutable.Map({
           date: dates.get(0),
           grossAmount: convertToEuros(grosses.get(0)),
-          info: payment.get('info')
+          info: payment.get('info').set('date', dates.get(0)).set('grossAmount', convertToEuros(grosses.get(0)))
         });
         cashflowsAcc = cashflowsAcc.set('history', cashflowsAcc.get('history').push(point));
       } else {
@@ -62,13 +62,13 @@ const calculateExpectedCashflow = (cff) => {
         const worstPoint = Immutable.Map({
           date: dates.get(0),
           grossAmount: convertToEuros(grosses.get(0)),
-          info: payment.get('info')
+          info: payment.get('info').set('date', dates.get(0)).set('grossAmount', convertToEuros(grosses.get(0)))
         });
 
         const bestPoint = Immutable.Map({
           date: dates.get(1),
           grossAmount: convertToEuros(grosses.get(1)),
-          info: payment.get('info')
+          info: payment.get('info').set('date', dates.get(1)).set('grossAmount', convertToEuros(grosses.get(1)))
         });
 
         cashflowsAcc = cashflowsAcc.set('worst', cashflowsAcc.get('worst').push(worstPoint));
