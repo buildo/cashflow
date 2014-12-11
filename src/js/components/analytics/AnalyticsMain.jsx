@@ -5,7 +5,7 @@
 const React = require('react');
 const RouteHandler = require('react-router').RouteHandler;
 
-const MainApp = React.createClass({
+const AnalyticsMain = React.createClass({
 
   render: function () {
     return (
@@ -17,4 +17,4 @@ const MainApp = React.createClass({
 
 });
 
-module.exports = MainApp;
+module.exports = AnalyticsMain;

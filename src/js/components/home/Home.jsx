@@ -2,9 +2,11 @@
 
 'use strict';
 
-const React = require('react'),
-  SideBar = require('./SideBar.jsx'),
-  MainContent = require('./MainContent.jsx');
+const React = require('react');
+const SideBar = require('./SideBar.jsx');
+const RouteHandler = require('react-router').RouteHandler;
+const CFFStore = require('../../store/CFFStore.js');
+const ServerActions = require('../../actions/ServerActions.js');
 
 const pages = [
   {
@@ -57,9 +59,24 @@ const pages = [
   }
 ];
 
-let Home = React.createClass({
+const getStateFromStores = function () {
+  return {
+    mainCFF: CFFStore.getMainCFF(),
+    bankCFF: CFFStore.getBankCFF()
+  };
+};
 
-  render: () => {
+const Home = React.createClass({
+
+  getInitialState: function() {
+    return getStateFromStores();
+  },
+
+  componentDidMount: function() {
+    ServerActions.updateMain();
+  },
+
+  render: function () {
     return (
       <div className='ui page grid'>
         <div className='row'>
@@ -67,15 +84,19 @@ let Home = React.createClass({
           </div>
         </div>
         <div className='row'>
-          <div className='three wide column'>
+          <div className='three wide Left floated column'>
             <SideBar pages={pages}/>
           </div>
-          <div className='ten wide column'>
-            <MainContent/>
+          <div className='thirteen wide Right floated column'>
+            <RouteHandler/>
           </div>
         </div>
       </div>
     );
+  },
+
+  _onChange: function() {
+    this.setState(getStateFromStores());
   }
 
 });
