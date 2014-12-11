@@ -1,0 +1,22 @@
+.sideBar {
+  // padding-top: 0;
+}
+
+.c3-chart-line.c3-target.c3-target-Best {
+  stroke-dasharray: 2;
+}
+.c3-chart-line.c3-target.c3-target-Worst {
+  stroke-dasharray: 2;
+}
+
+.c3-circle-0 {
+  fill: blue !important;
+}
+
+.grid-alert line{
+  stroke: red;
+}
+
+.grid-alert text{
+  fill: red;
+}
