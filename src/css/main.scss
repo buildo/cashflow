@@ -43,3 +43,34 @@
   text-align: center;
   font-size: 1.1rem;
 }
+
+#main-app {
+  height: 100%;
+}
+
+
+.login-main {
+  height: 100%;
+  display: -webkit-flexbox;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  text-align: center;
+
+  .login-form {
+    width: 200px;
+    margin: 0 auto;
+    .labeled.input {
+      display: table;
+    }
+    .divider {
+      display: table;
+    }
+  }
+}
+
+

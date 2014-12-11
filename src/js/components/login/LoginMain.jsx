@@ -27,7 +27,7 @@ const LoginMain = React.createClass({
     const loginForm = <LoginForm loginState={this.state.loginState}/>;
 
     return (
-      <div>
+      <div className="login-main">
         <LoginForm/>
       </div>
     );

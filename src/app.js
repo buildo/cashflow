@@ -30,6 +30,6 @@ const routes = (
 Router.run(routes, (Handler) => {
   React.render(
     <Handler />,
-    document.getElementById('cashflow-app'));
+    document.getElementById('main-app'));
 });
 
