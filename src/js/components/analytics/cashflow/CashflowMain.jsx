@@ -9,7 +9,7 @@ const CFFStore = require('../../../store/CFFStore.js');
 
 const getStateFromStores = function () {
   return {
-    isLoading: CFFStore.isLoading()
+    isLoading: CFFStore.isLoading(),
   };
 };
 
@@ -32,7 +32,7 @@ const CashflowMain = React.createClass({
         <div className="ui segment">
           <div className="ui active inverted dimmer">
             <div className="ui indeterminate text active loader">
-              Preparing...
+              Caricamento...
             </div>
           </div>
           <br></br>
@@ -50,6 +50,7 @@ const CashflowMain = React.createClass({
         <h4 className='ui top attached inverted header'>
           Pagamenti
         </h4>
+        <br></br>
         <div className='cashflow-payments'>
           <CashflowPayments/>
         </div>

@@ -27,8 +27,13 @@ module.exports = _.extend(self, Store(
   },
 
   CASHFLOW_POINT_SELECTED: (actionData) => {
-    index = actionData.index;
-    pathName = actionData.pathName.toLowerCase();
+    console.log(actionData);
+    if (actionData.index === index && actionData.pathName.toLowerCase() === pathName) {
+      resetPointSelection();
+    } else {
+      index = actionData.index;
+      pathName = actionData.pathName.toLowerCase();
+    }
     return true;
   }
 
@@ -36,7 +41,7 @@ module.exports = _.extend(self, Store(
   // custom getters
   getCurrentSelectedPayments() {
     const data = CashflowStore.getCashflowData();
-    return data && pathName && index > 0 ? data[pathName][index].info : undefined;
+    return data && pathName && index > -1 ? data[pathName][index].info : undefined;
   }
 
 }));

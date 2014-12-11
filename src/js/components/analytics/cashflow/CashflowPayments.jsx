@@ -28,7 +28,11 @@ const CashflowPayments = React.createClass({
   render: function () {
     if (!this.state.payments) {
       return (
-        <div></div>
+        <div className="ui tertiary segment">
+          <div className="payments-placeholder">
+            Seleziona un punto del grafico per vederne qui i dettagli.
+          </div>
+        </div>
       );
     }
 

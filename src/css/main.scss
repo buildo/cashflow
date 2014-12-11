@@ -13,10 +13,33 @@
   fill: blue !important;
 }
 
-.grid-alert line{
+.grid-alert line {
   stroke: red;
 }
 
-.grid-alert text{
+.grid-alert text {
   fill: red;
+}
+
+.ui.segment.payment-in {
+  .dividing.header {
+    color: green;
+    border-bottom-color: green;//rgb(170, 230, 180);
+    border-bottom-width: 2px;
+  }
+  // background-color: rgba(170, 230, 180, 1);
+}
+
+.ui.segment.payment-out {
+  .dividing.header {
+    color: red;
+    border-bottom-color: red;//rgb(170, 230, 180);
+    border-bottom-width: 2px;
+  }
+  // background-color: rgba(170, 230, 180, 1);
+}
+
+.payments-placeholder {
+  text-align: center;
+  font-size: 1.1rem;
 }
