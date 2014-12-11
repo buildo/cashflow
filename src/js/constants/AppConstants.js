@@ -11,7 +11,12 @@ module.exports = {
     CASHFLOW_UPDATED: null,
     MAIN_CFF_UPDATED: null,
     BANK_CFF_UPDATED: null,
+    CURRENT_USER_UPDATED: null,
     LOADING_MAIN_CFF: null,
+    LOADING_CURRENT_USER: null,
+    LOGIN_STARTED: null,
+    LOGIN_FAILED: null,
+    LOGIN_DONE: null,
   }),
 
   PayloadSources: keyMirror({

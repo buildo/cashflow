@@ -5,7 +5,7 @@
 const React = require('react');
 const SideBar = require('./SideBar.jsx');
 const RouteHandler = require('react-router').RouteHandler;
-const CFFStore = require('../../store/CFFStore.js');
+const CurrentUserStore = require('../../store/CurrentUserStore.js');
 const ServerActions = require('../../actions/ServerActions.js');
 
 const pages = [
@@ -59,24 +59,18 @@ const pages = [
   }
 ];
 
-const getStateFromStores = function () {
-  return {
-    mainCFF: CFFStore.getMainCFF(),
-    bankCFF: CFFStore.getBankCFF()
-  };
-};
 
 const Home = React.createClass({
 
-  getInitialState: function() {
-    return getStateFromStores();
-  },
-
   componentDidMount: function() {
-    ServerActions.updateMain();
+    ServerActions.getCurrentUser();
   },
 
   render: function () {
+    if (!CurrentUserStore.getCurrentUser()) {
+      return <div/>;
+    }
+
     return (
       <div className='ui page grid'>
         <div className='row'>
@@ -94,10 +88,6 @@ const Home = React.createClass({
       </div>
     );
   },
-
-  _onChange: function() {
-    this.setState(getStateFromStores());
-  }
 
 });
 

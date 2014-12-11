@@ -13,8 +13,46 @@ const sendAction = (actionType, data) => {
   });
 };
 
+const handleError = (res) => {
+  switch (res.code) {
+    case 401:
+      sendAction(ActionTypes.LOGIN_DONE, res.data);
+      break;
+
+    case 'error':
+      sendAction(ActionTypes.LOGIN_FAIL, res.data);
+      break;
+  }
+};
+
 // TODO
 const ServerActions = {
+
+  getCurrentUser: () => {
+    sendAction(ActionTypes.LOADING_CURRENT_USER);
+    $.ajax({
+      url: HOST + '/users/me',
+      type: 'GET',
+      headers: {'Authorization': 'Token token=' + TOKEN}
+    })
+    .done((res) => sendAction(ActionTypes.CURRENT_USER_UPDATED, res.data.user))
+    .fail(handleError);
+  },
+
+  login: (email, password) => {
+    sendAction(ActionTypes.LOGIN_STARTED);
+    $.ajax({
+      url: HOST + '/login',
+      type: 'POST',
+      data: {
+        email: email,
+        password: password
+      },
+      headers: {'Content-Type': 'application/json'}
+    })
+    .done((res) => sendAction(ActionTypes.LOGIN_DONE, res.data))
+    .fail(handleError);
+  },
 
   updateMain: () => {
     sendAction(ActionTypes.LOADING_MAIN_CFF);
@@ -22,7 +60,9 @@ const ServerActions = {
       url: HOST + '/cffs/main',
       type: 'GET',
       headers: {'Authorization': 'Token token=' + TOKEN}
-    }).done((res) => sendAction(ActionTypes.MAIN_CFF_UPDATED, res.data.cffs.main));
+    })
+    .done((res) => sendAction(ActionTypes.MAIN_CFF_UPDATED, res.data.cffs.main))
+    .fail(handleError);
   }
 };
 
