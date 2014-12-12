@@ -16,9 +16,7 @@ const getStateFromStores = function () {
 const CashflowMain = React.createClass({
 
   getInitialState: function() {
-    return {
-      isLoading: true
-    };
+    return getStateFromStores();
   },
 
   componentDidMount: function() {

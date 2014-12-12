@@ -8,8 +8,13 @@ const ServerActions = require('../../actions/ServerActions');
 
 const AnalyticsMain = React.createClass({
 
-  componentDidMount: function() {
+  getInitialState: function() {
     ServerActions.updateMain();
+    return {};
+  },
+
+  componentDidMount: function() {
+    // ServerActions.updateMain();
   },
 
   render: function () {
