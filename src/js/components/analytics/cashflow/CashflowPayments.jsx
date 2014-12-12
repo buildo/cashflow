@@ -28,7 +28,7 @@ const CashflowPayments = React.createClass({
   render: function () {
     if (!this.state.payments) {
       return (
-        <div className="ui ignored info message">
+        <div className="ui ignored message">
           <div className="payments-placeholder">
             Seleziona un punto del grafico per vederne qui i dettagli.
           </div>

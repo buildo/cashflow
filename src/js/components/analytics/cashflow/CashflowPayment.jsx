@@ -31,7 +31,7 @@ const CashflowPayment = React.createClass({
     if (payment.flowDirection === 'in') {
       return (
         <div className='ui segment payment-in'>
-          <div className="ui dividing header">
+          <div className="ui dividing green header">
             <i className="money icon"></i>
             <div className="content">
               {payment.description}
@@ -46,7 +46,7 @@ const CashflowPayment = React.createClass({
     } else {
       return (
         <div className='ui segment payment-out'>
-          <div className="ui dividing header">
+          <div className="ui dividing red header">
             <i className="tags icon"></i>
             <div className="content">
               {payment.description}

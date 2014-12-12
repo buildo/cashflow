@@ -16,13 +16,15 @@ window.React = React;
 
 const routes = (
   <Route path='/' handler={MainApp}>
-    <Route name='app' href='/' path='/' handler={Home}>
-      <Route name='analytics' href='/analytics' path='/analytics' handler={AnalyticsMain}>
-        <DefaultRoute handler={CashflowMain} />
-        <Route name='cashflow' href='/analytics/cashflow' path='/analytics/cashflow' handler={CashflowMain} />
+    <Route name='login' handler={LoginMain} />
+    <Route name='app' path='/' handler={Home}>
+      <Route handler={AnalyticsMain}>
+        <Route handler={CashflowMain} />
+      </Route>
+      <Route name='analytics' handler={AnalyticsMain}>
+        <Route name='cashflow' handler={CashflowMain} />
       </Route>
     </Route>
-    <Route name='login' href='/login' path='/login' handler={LoginMain} />
   </Route>
 );
 

@@ -21,24 +21,6 @@
   fill: red;
 }
 
-.ui.segment.payment-in {
-  .dividing.header {
-    color: green;
-    border-bottom-color: green;//rgb(170, 230, 180);
-    border-bottom-width: 2px;
-  }
-  // background-color: rgba(170, 230, 180, 1);
-}
-
-.ui.segment.payment-out {
-  .dividing.header {
-    color: red;
-    border-bottom-color: red;//rgb(170, 230, 180);
-    border-bottom-width: 2px;
-  }
-  // background-color: rgba(170, 230, 180, 1);
-}
-
 .payments-placeholder {
   text-align: center;
   font-size: 1.1rem;
@@ -61,8 +43,8 @@
   align-items: center;
   text-align: center;
 
-  .login-form {
-    width: 200px;
+  #login-form {
+    width: 400px;
     margin: 0 auto;
     .labeled.input {
       display: table;

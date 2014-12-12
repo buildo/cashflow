@@ -5,8 +5,8 @@
 const React = require('react');
 const SideBar = require('./SideBar.jsx');
 const RouteHandler = require('react-router').RouteHandler;
-const CurrentUserStore = require('../../store/CurrentUserStore.js');
-const ServerActions = require('../../actions/ServerActions.js');
+const C = require('../../constants/AppConstants').ActionTypes;
+
 
 const pages = [
   {
@@ -62,15 +62,7 @@ const pages = [
 
 const Home = React.createClass({
 
-  componentDidMount: function() {
-    ServerActions.getCurrentUser();
-  },
-
   render: function () {
-    if (!CurrentUserStore.getCurrentUser()) {
-      return <div/>;
-    }
-
     return (
       <div className='ui page grid'>
         <div className='row'>

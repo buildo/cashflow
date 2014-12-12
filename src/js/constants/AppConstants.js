@@ -17,6 +17,9 @@ module.exports = {
     LOGIN_STARTED: null,
     LOGIN_FAILED: null,
     LOGIN_DONE: null,
+    CHECKING_TOKEN_STATE: null,
+    TOKEN_IS_VALID: null,
+    TOKEN_IS_INVALID: null,
   }),
 
   PayloadSources: keyMirror({
