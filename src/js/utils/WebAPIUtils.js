@@ -1,17 +1,28 @@
 'use strict';
 
 const HOST = 'http://localhost:9000';
-const TOKEN = '"sR2m9QewdRbX2gvi"';
 
-const getMainCFF = () => {
-  $.ajax({
-    url: HOST + '/cffs/main',
-    type: 'GET',
-    headers: {'Authorization': 'Token token=' + TOKEN},
-    succes: console.log
-  });
-};
+const getToken = () => ('"' + localStorage.getItem('cashflow_token') + '"');
 
 module.exports = {
-  getMainCFF: getMainCFF,
+
+  login: (loginFormData) => $.ajax({
+    url: HOST + '/login',
+    type: 'POST',
+    data: JSON.stringify(loginFormData),
+    headers: {'Content-Type': 'application/json'},
+  }),
+
+  getMainCFF: () => $.ajax({
+    url: HOST + '/cffs/main',
+    type: 'GET',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
+  getCurrentUser: () => $.ajax({
+    url: HOST + '/users/me',
+    type: 'GET',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
 };
