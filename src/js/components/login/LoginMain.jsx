@@ -4,11 +4,11 @@
 
 const React = require('react');
 const LoginForm = require('./LoginForm.jsx');
-const CurrentUserStore = require('../../store/CurrentUserStore.js');
+const LoginStore = require('../../store/LoginStore.js');
 
 const getStateFromStores = function () {
   return {
-    loginState: CurrentUserStore.getLoginState(),
+    loginState: LoginStore.getLoginState(),
   };
 };
 
@@ -19,16 +19,13 @@ const LoginMain = React.createClass({
   },
 
   componentDidMount: function() {
-    CurrentUserStore.addChangeListener(this._onChange);
+    LoginStore.addChangeListener(this._onChange);
   },
 
   render: function() {
-
-    const loginForm = <LoginForm loginState={this.state.loginState}/>;
-
     return (
       <div className="login-main">
-        <LoginForm/>
+        <LoginForm loginState={this.state.loginState}/>
       </div>
     );
   },
