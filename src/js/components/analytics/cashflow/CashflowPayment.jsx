@@ -25,9 +25,7 @@ const CashflowPayment = React.createClass({
           <div className='ui segment payment-in'>
             <div className="ui dividing green header">
               <i className="money icon"></i>
-              <div className="content">
-                {payment.description}
-              </div>
+              <h4 className="content">{payment.description}</h4>
             </div>
             <div><strong>Valore:</strong> {payment.grossAmount}{currency}</div>
             <div><strong>Data:</strong> {payment.date}</div>
@@ -41,9 +39,7 @@ const CashflowPayment = React.createClass({
           <div className='ui segment payment-out'>
             <div className="ui dividing red header">
               <i className="tags icon"></i>
-              <div className="content">
-                {payment.description}
-              </div>
+              <h4 className="content">{payment.description}</h4>
             </div>
             <div><strong>Valore:</strong> {payment.grossAmount}{currency}</div>
             <div><strong>Data:</strong> {payment.date}</div>
