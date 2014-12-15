@@ -5,8 +5,9 @@
   "devDependencies": {
     "browserify": "~6.3.3",
     "connect": "~3.3.3",
+    "del": "^1.1.0",
     "es6ify": "~1.5.1",
-    "gulp": "~3.8.10",
+    "gulp": "^3.8.10",
     "gulp-clean": "~0.3.1",
     "gulp-concat": "~2.4.2",
     "gulp-concat-css": "~1.1.1",

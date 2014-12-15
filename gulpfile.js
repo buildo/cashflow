@@ -17,6 +17,7 @@ var sass = require('gulp-sass');
 var concat = require('gulp-concat');
 var runSequence = require('run-sequence');
 var notify = require('gulp-notify');
+var del = require('del');
 
 var SERVER_PORT = 9001;
 var HOST = 'Francesco-Air.local';
@@ -44,10 +45,10 @@ var handleErrors = function(err) {
     this.emit('end');
 };
 
-gulp.task('clean', function() {
-  return gulp.src(PATHS.dist + '/**/*', {
-    read: false
-  }).pipe(clean());
+gulp.task('clean', function (cb) {
+  del([
+    'dist/**',
+  ], cb);
 });
 
 gulp.task('vendor', function() {
