@@ -27,10 +27,11 @@ app.use(bodyParser());
 
 //FIXME: CORS need to be better configured
 app.use(function *(next) {
-  if (app.env == 'development')
+  if (app.env === 'development') {
     this.set('Access-Control-Allow-Origin', '*');
     this.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Override-Status-Code');
     this.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE');
+  }
   yield next;
 });
 
@@ -149,7 +150,7 @@ app.get('/cffs/main', function *() {
   var user = yield utils.getUserByToken(db, token);
   var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
   if (!userMainCFF) {
-    this.throw(400, 'user does not have a database');
+    this.throw(400, 'user does not have a main cff in database');
   }
 
   var linesKeys = Object.keys(userMainCFF.cff.lines);
