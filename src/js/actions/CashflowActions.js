@@ -1,21 +1,23 @@
 'use strict';
 
 const C = require('../constants/AppConstants');
-const Dispatcher = require('../dispatcher/AppDispatcher');
 const ActionTypes = C.ActionTypes;
+const sendAction = require('../utils/ActionUtils.js').sendAction;
+const sendAsyncAction = require('../utils/ActionUtils.js').sendAsyncAction;
+
 
 
 // TODO
 const CashflowActions = {
   selectPoint: (event) => {
-    Dispatcher.handleViewAction({
-      actionType: ActionTypes.CASHFLOW_POINT_SELECTED,
-      data: {
+    sendAction(
+      ActionTypes.CASHFLOW_POINT_SELECTED,
+      {
         pathName: event.name,
         index: event.index
       }
-    });
-  },
+    );
+  }
 };
 
 module.exports = CashflowActions;
