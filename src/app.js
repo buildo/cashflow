@@ -3,33 +3,33 @@
 'use strict';
 
 const React = require('react'),
+  RouterActions = require('./js/actions/RouterActions.js'),
   Router = require('react-router'),
   Route = Router.Route,
   DefaultRoute = Router.DefaultRoute,
-  MainApp = require('./js/components/MainApp.jsx'),
+  Redirect = Router.Redirect,
+  App = require('./js/components/App.jsx'),
   AnalyticsMain = require('./js/components/analytics/AnalyticsMain.jsx'),
   CashflowMain = require('./js/components/analytics/cashflow/CashflowMain.jsx'),
   LoginMain = require('./js/components/login/LoginMain.jsx'),
-  Home = require('./js/components/home/Home.jsx');
-
-window.React = React;
+  Main = require('./js/components/main/Main.jsx');
 
 const routes = (
-  <Route path='/' handler={MainApp}>
-    <Route name='login' handler={LoginMain} />
-    <Route name='app' path='/' handler={Home}>
-      <Route handler={AnalyticsMain}>
-        <Route handler={CashflowMain} />
-      </Route>
-      <Route name='analytics' handler={AnalyticsMain}>
-        <Route name='cashflow' handler={CashflowMain} />
+  <Route name="app" path='/' handler={App}>
+    <Route handler={Main}>
+      <Route name='analytics' path='/analytics' handler={AnalyticsMain}>
+        <Route name='cashflow' path='cashflow' handler={CashflowMain} />
+        <Redirect from='/analytics' to='cashflow'/>
       </Route>
     </Route>
+    <Route name='login' handler={LoginMain} />
   </Route>
 );
 
+window.React = React;
 
-Router.run(routes, (Handler) => {
+Router.run(routes, (Handler, state) => {
+  RouterActions.routeChanged(state);
   React.render(
     <Handler />,
     document.getElementById('main-app'));
