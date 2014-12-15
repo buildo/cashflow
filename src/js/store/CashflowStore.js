@@ -17,7 +17,6 @@ module.exports = _.extend(self, Store(
   // action handlers
   MAIN_CFF_UPDATED: () => {
     const report = CFFStore.getMainReport(cashflowConfigs);
-    console.log(report);
     data = report.cashflow;
     return true;
   },

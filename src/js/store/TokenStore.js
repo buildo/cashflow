@@ -5,7 +5,7 @@ const C = require('../constants/AppConstants').ActionTypes;
 const DataStore = require('./DataStore');
 const Store = require('./Store');
 
-let tokenState = C.CHECKING_TOKEN_STATE;
+let tokenState;
 
 const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
 module.exports = _.extend(self, Store(
@@ -15,7 +15,7 @@ module.exports = _.extend(self, Store(
 
   CHECKING_TOKEN_STATE: () => {
     tokenState = C.CHECKING_TOKEN_STATE;
-    return false;
+    return true;
   },
 
   TOKEN_IS_VALID: () => {

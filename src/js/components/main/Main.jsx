@@ -60,9 +60,11 @@ const pages = [
 ];
 
 
-const Home = React.createClass({
+const Main = React.createClass({
 
   render: function () {
+
+    console.log('RENDER_MAIN');
     return (
       <div className='ui page grid'>
         <div className='row'>
@@ -83,4 +85,4 @@ const Home = React.createClass({
 
 });
 
-module.exports = Home;
+module.exports = Main;

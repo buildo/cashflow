@@ -4,28 +4,32 @@ const _ = require('lodash');
 const C = require('../constants/AppConstants').ActionTypes;
 const DataStore = require('./DataStore');
 const Store = require('./Store');
-const TokenStore = require('./TokenStore');
 
 let loginState;
 
 const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
 module.exports = _.extend(self, Store(
   // waitFor other Stores
-  [TokenStore], {
+  [], {
   // action handlers
 
-  LOGIN_DONE: (actionData) => {
-    loginState = C.LOGIN_DONE;
+  RESET_LOGIN_STATE: () => {
+    loginState = undefined;
     return true;
   },
 
-  LOGIN_FAILED: (actionData) => {
-    loginState = C.LOGIN_FAILED;
+  LOGGED_IN: () => {
+    loginState = C.LOGGED_IN;
     return true;
   },
 
-  LOGIN_STARTED: () => {
-    loginState = C.LOGIN_STARTED;
+  LOGIN_FAIL: () => {
+    loginState = C.LOGIN_FAIL;
+    return true;
+  },
+
+  LOGIN_START: () => {
+    loginState = C.LOGIN_START;
     return true;
   },
 

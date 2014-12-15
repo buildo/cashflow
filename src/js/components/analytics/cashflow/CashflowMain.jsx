@@ -5,27 +5,15 @@
 const React = require('react');
 const CashflowGraph = require('./CashflowGraph.jsx');
 const CashflowPayments = require('./CashflowPayments.jsx');
-const CFFStore = require('../../../store/CFFStore.js');
 
-const getStateFromStores = function () {
-  return {
-    isLoading: CFFStore.isLoading(),
-  };
-};
 
 const CashflowMain = React.createClass({
 
-  getInitialState: function() {
-    return getStateFromStores();
-  },
-
-  componentDidMount: function() {
-    CFFStore.addChangeListener(this._onChange);
-  },
-
   render: function() {
 
-    if (this.state.isLoading) {
+    console.log('RENDER_CASHFLOW');
+
+    if (this.props.isLoadingMainCFF) {
       return (
         <div className="ui segment">
           <div className="ui active inverted dimmer">
@@ -55,10 +43,6 @@ const CashflowMain = React.createClass({
       </div>
     );
   },
-
-  _onChange: function() {
-    this.setState(getStateFromStores());
-  }
 
 });
 

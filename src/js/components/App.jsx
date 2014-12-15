@@ -5,12 +5,12 @@
 const React = require('react');
 const RouteHandler = require('react-router').RouteHandler;
 const Navigation = require('react-router').Navigation;
+const State = require('react-router').State;
 const TokenStore = require('../store/TokenStore.js');
 const ServerActions = require('../actions/ServerActions.js');
-const Home = require('./home/Home.jsx');
-const LoginMain = require('./login/LoginMain.jsx');
+const TokenActions = require('../actions/TokenActions.js');
+const RouterActions = require('../actions/RouterActions.js');
 const C = require('../constants/AppConstants').ActionTypes;
-
 
 const getStateFromStores = function () {
   return {
@@ -18,33 +18,44 @@ const getStateFromStores = function () {
   };
 };
 
-const MainApp = React.createClass({
+const App = React.createClass({
 
-  mixins: [Navigation],
+  mixins: [Navigation, State],
 
   getInitialState: function() {
-    ServerActions.checkTokenState();
     return getStateFromStores();
   },
 
   componentDidMount: function() {
     TokenStore.addChangeListener(this._onChange);
+    ServerActions.checkTokenState();
+  },
+
+  componentWillUnmount: function() {
+    TokenStore.removeChangeListener(this._onChange);
   },
 
   render: function () {
+    console.log('RENDER_ROOT');
 
     switch (this.state.tokenState) {
 
-      case C.CHECKING_TOKEN_STATE:
-        console.log('checking token state');
-        return <div/>;
-
       case C.TOKEN_IS_INVALID:
-        this.replaceWith('login');
+        if (this.getPathname() !== '/login') {
+          this.replaceWith('login');
+          return <div/>;
+        }
         break;
 
       case C.TOKEN_IS_VALID:
+        if (this.getPathname() === '/') {
+          this.replaceWith('/analytics');
+          return <div/>;
+        }
         break;
+
+      default:
+        return <div/>;
     }
 
     return (
@@ -60,4 +71,4 @@ const MainApp = React.createClass({
 
 });
 
-module.exports = MainApp;
+module.exports = App;

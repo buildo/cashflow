@@ -20,7 +20,7 @@ const LoginForm = React.createClass({
         email: loginForm.form('get field', 'email').val(),
         password: loginForm.form('get field', 'password').val()
       };
-      ServerActions.login(loginFormData);
+      ServerActions.attemptLogin(loginFormData);
     };
 
     const validationRules = {
@@ -59,30 +59,22 @@ const LoginForm = React.createClass({
 
   render: function () {
     let alertLoginFailed = '';
-    let isLoading = false;
+    let formClassName = 'ui form segment';
+
     switch (this.props.loginState){
 
-      case C.LOGIN_STARTED:
-        isLoading = true;
+      case C.LOGIN_START:
+        formClassName += ' loading';
         break;
 
-      case C.LOGIN_FAILED:
+      case C.LOGIN_FAIL:
         alertLoginFailed = (
           <div className="login-alert ui info message error">
             <div>wrong email or password</div>
           </div>
         );
         break;
-
-      case C.LOGIN_DONE:
-        this.transitionTo('app');
-        return <div/>;
-
-      default:
-        break;
     }
-
-    const formClassName = 'ui form segment' + (isLoading ? ' loading' : '');
 
     return (
       <div className="ui center aligned" id="login-form">
@@ -99,7 +91,7 @@ const LoginForm = React.createClass({
               <div className="field">
                 <label>Password</label>
                 <div className="ui left icon input">
-                  <input type="password" name="password"/>
+                  <input type="password" placeholder="password" name="password"/>
                   <i className="lock icon"></i>
                 </div>
               </div>
