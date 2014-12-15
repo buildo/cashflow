@@ -3,7 +3,6 @@
 'use strict';
 
 const React = require('react'),
-  RouterActions = require('./js/actions/RouterActions.js'),
   Router = require('react-router'),
   Route = Router.Route,
   DefaultRoute = Router.DefaultRoute,
