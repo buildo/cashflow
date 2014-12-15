@@ -8,7 +8,6 @@ const Navigation = require('react-router').Navigation;
 const State = require('react-router').State;
 const TokenStore = require('../store/TokenStore.js');
 const ServerActions = require('../actions/ServerActions.js');
-const TokenActions = require('../actions/TokenActions.js');
 const RouterActions = require('../actions/RouterActions.js');
 const C = require('../constants/AppConstants').ActionTypes;
 

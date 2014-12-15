@@ -28,6 +28,18 @@ module.exports = _.extend(self, Store(
     return true;
   },
 
+  LOGGED_IN: (actionData) => {
+    localStorage.setItem('cashflow_token', actionData.credentials.token);
+    tokenState = C.TOKEN_IS_VALID;
+    return true;
+  },
+
+  LOGGED_OUT: () => {
+    localStorage.setItem('cashflow_token', '');
+    tokenState = C.TOKEN_IS_INVALID;
+    return true;
+  }
+
 
 }, {
 
