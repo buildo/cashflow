@@ -12,9 +12,8 @@ const SideBar = React.createClass({
 
   render: function () {
 
-    const pages = this.props.pages;
-
-    const pageSelectors = pages.map((page, index) => <PageSelector page={page} key={index}/>);
+    const pageSelectors = this.props.pages.map((page, index) =>
+      <PageSelector page={page} selectedPage={this.props.selectedPage} selectedTab={this.props.selectedTab} key={index}/>);
 
     return (
       <div className='sideBar'>

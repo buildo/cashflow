@@ -10,7 +10,7 @@ const PageSelector = React.createClass({
 
   componentDidMount: function () {
     $(this.refs.pagesAccordion.getDOMNode()).accordion();
-    if(this.props.page.isSelected) {
+    if(this.props.page.id === this.props.selectedPage) {
       $(this.refs.pagesAccordion.getDOMNode()).accordion('toggle', 0);
     }
   },

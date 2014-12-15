@@ -3,16 +3,16 @@
 'use strict';
 
 const React = require('react');
+const Link = require('react-router').Link;
 
 const TabSelector = React.createClass({
-
-  componentDidMount: function () {
-  },
 
   render: function () {
 
     return (
-      <a className='item'>{this.props.tab.name}</a>
+      <Link className="item" to={this.props.tab.id}>
+        {this.props.tab.name}
+      </Link>
     );
   }
 

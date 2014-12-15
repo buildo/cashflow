@@ -22,6 +22,7 @@ module.exports = {
     CHECKING_TOKEN_STATE: null,
     TOKEN_IS_VALID: null,
     TOKEN_IS_INVALID: null,
+    ROUTE_CHANGED: null,
   }),
 
   PayloadSources: keyMirror({

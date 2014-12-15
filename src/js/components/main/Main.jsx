@@ -5,62 +5,89 @@
 const React = require('react');
 const SideBar = require('./SideBar.jsx');
 const RouteHandler = require('react-router').RouteHandler;
+const State = require('react-router').State;
 const C = require('../../constants/AppConstants').ActionTypes;
+const RouteNames = require('../../constants/RouteNames.js');
+const SideBarStore = require('../../store/SideBarStore.js');
 
 
 const pages = [
   {
     name: 'Analytics',
-    isSelected: false,
+    id: RouteNames.ANALYTICS,
     tabs: [
       {
-        name: 'Cashflow'
+        name: 'Cashflow',
+        id: RouteNames.ANALYTICS_CASHFLOW
       },
       {
-        name: 'Progetti'
+        name: 'Progetti',
+        id: RouteNames.ANALYTICS_PROGETTI
       },
       {
-        name: 'Risorse'
+        name: 'Risorse',
+        id: RouteNames.ANALYTICS_RISORSE
       }
     ]
   },
   {
     name: 'Data',
-    isSelected: true,
+    id: RouteNames.DATA,
     tabs: [
       {
-        name: 'Fatture in cloud'
+        name: 'Fatture in cloud',
+        id: RouteNames.DATA_FATTURE_IN_CLOUD
       },
       {
-        name: 'Banca'
+        name: 'Banca',
+        id: RouteNames.DATA_BANCA
       },
       {
-        name: 'Progetti'
+        name: 'Progetti',
+        id: RouteNames.DATA_PROGETTI
       },
       {
-        name: 'Risorse'
+        name: 'Risorse',
+        id: RouteNames.DATA_RISORSE
       }
     ]
   },
   {
     name: 'Magic Match',
-    isSelected: false,
+    id: RouteNames.MATCH,
     tabs: [
       {
-        name: 'Da fare'
+        name: 'Da fare',
+        id: RouteNames.MATCH_DA_FARE
       },
       {
-        name: 'Da salvare'
+        name: 'Da salvare',
+        id: RouteNames.MATCH_DA_SALVARE
       },
       {
-        name: 'Archiviati'
+        name: 'Archiviati',
+        id: RouteNames.MATCH_ARCHIVIATI
       }
     ]
   }
 ];
 
+const getStateFromStores = function () {
+  return {
+    selectedPage: SideBarStore.getSelectedPage(),
+    selectedTab: SideBarStore.getSelectedTab()
+  };
+};
 
 const Main = React.createClass({
+
+  getInitialState: function() {
+    return getStateFromStores();
+  },
+
+  componentDidMount: function() {
+    SideBarStore.addChangeListener(this._onChange);
+  },
 
   render: function () {
 
@@ -73,7 +100,7 @@ const Main = React.createClass({
         </div>
         <div className='row'>
           <div className='three wide Left floated column'>
-            <SideBar pages={pages}/>
+            <SideBar pages={pages} selectedPage={this.state.selectedPage}/>
           </div>
           <div className='thirteen wide Right floated column'>
             <RouteHandler/>
@@ -82,6 +109,10 @@ const Main = React.createClass({
       </div>
     );
   },
+
+  _onChange: function() {
+    this.setState(getStateFromStores());
+  }
 
 });
 
