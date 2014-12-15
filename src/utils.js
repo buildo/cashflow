@@ -18,9 +18,19 @@ var getUserByToken = function*(db, token) {
   return user;
 };
 
+var sortCFFLinesByDate = function (a, b) {
+  const dateStringA = a.invoice ? a.invoice.date : a.payments[0].date;
+  const dateStringB = b.invoice ? b.invoice.date : b.payments[0].date;
+  const dateA = new Date(dateStringA);
+  const dateB = new Date(dateStringB);
+
+  return dateB.getTime() - dateA.getTime();
+}
+
 module.exports = {
   parseAuthorization: parseAuthorization,
   getUserByToken: getUserByToken,
+  sortCFFLinesByDate: sortCFFLinesByDate,
   captchaError: 'captcha',
   passwordError: 'password',
   loginError: 'login',

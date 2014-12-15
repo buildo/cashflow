@@ -167,7 +167,7 @@ app.get('/cffs/main', function *() {
   var correctCFF = {
     sourceId: userMainCFF.cff.sourceId,
     sourceDescription: userMainCFF.cff.sourceDescription,
-    lines: lines,
+    lines: lines.sort(utils.sortCFFLinesByDate),
     stagedLines: stagedLines
   };
 
