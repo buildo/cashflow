@@ -19,6 +19,7 @@ var runSequence = require('run-sequence');
 var notify = require('gulp-notify');
 
 var SERVER_PORT = 9001;
+var HOST = 'Francesco-Air.local';
 var LIVE_RELOAD_PORT = 35729;
 
 var PATHS = {
@@ -129,6 +130,7 @@ gulp.task('server', function() {
     .pipe(webserver({
       livereload: true,
       port: SERVER_PORT,
+      host: HOST,
       open: true
     }));
 });
