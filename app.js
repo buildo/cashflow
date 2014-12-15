@@ -304,15 +304,13 @@ app.get('/cffs/bank', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
   var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
-  var linesMap = userBankCFF && userBankCFF.cff ? userBankCFF.cff.lines : {};
-  var keys = Object.keys(linesMap);
-  var lines = linesKeys.reduce(function(acc, key) {
-    acc.push(linesMap[key]);
-    return acc;
-  }, []);
-  this.objectName = 'bank';
-  userBankCFF.cff.lines = lines;
-  this.body = {cff: userBankCFF.cff || {}};
+  if (!userBankCFF) {
+    this.throw(400, 'user does not have a bank cff in database');
+  }
+  var sortedLines = userBankCFF.cff.lines.sort(utils.sortCFFLinesByDate);
+
+  this.objectName = 'cffs'
+  this.body = {bank: userBankCFF.cff || {}};
 });
 
 app.post('/cffs/bank/pull', function *() {
@@ -351,30 +349,22 @@ app.post('/cffs/bank/pull', function *() {
 
       // retrieve stored lines
       var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
-      var oldLinesMap = userBankCFF && userBankCFF.cff.lines ? userBankCFF.cff.lines : {};
-      var keys = Object.keys(linesMap);
-      var oldLines = linesKeys.reduce(function(acc, key) {
-        acc.push(linesMap[key]);
-        return acc;
-      }, []);
+      var oldLines = userBankCFF && userBankCFF.cff.lines ? userBankCFF.cff.lines : [];
 
-      var closestDateOldLines = oldLines.map(function(line){return line.payments[0].date;})
-        .reduce(function(acc, date){return date < acc ? date : acc;});
+      var filteredOldLines = [];
+      if (oldLines.length > 0) {
+        var closestDateOldLines = oldLines.map(function(line){return line.payments[0].date;})
+          .reduce(function(acc, date){return date < acc ? date : acc;});
+
+        filteredOldLines = oldLines.filter(function(line){return line.payments[0].date < closestDateOldLines});
+      }
+
+      var filteredNewLines = result.bank.cff.lines.filter(function(line){return !closestDateOldLines || line.payments[0].date >= closestDateOldLines});
 
       // merge old lines with newly downloaded ones
-      var filteredOldLines = oldLines.filter(function(line){return line.payments[0].date < closestDateOldLines});
-      var filteredNewLines = result.bank.cff.lines.filter(function(line){return line.payments[0].date >= closestDateOldLines});
       var lines = filteredOldLines.concat(filteredNewLines);
+      result.bank.cff.lines = lines;
 
-      // transform lines from Array to Object
-      var newObjectLines = lines.reduce(function(acc, line) {
-          acc[line.id] = line;
-          return acc;
-        },
-        {}
-      );
-
-      result.bank.cff.lines = newObjectLines;
       yield db.cffs.update({userId: user._id, type: 'bank'}, {$set: {cff:result.bank.cff}}, {upsert: true});
       break;
 
