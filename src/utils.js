@@ -3,7 +3,7 @@ var ObjectId = require('mongodb').ObjectID;
 
 var parseAuthorization = function(authorization) {
   if (!authorization){
-    var err = Error("missing authorization header");
+    var err = Error('missing authorization header');
     err.statusCode = 401;
     throw err;
   }

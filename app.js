@@ -18,14 +18,26 @@ var utils = require('./src/utils.js');
 var saveOnFattureInCloud = require('cff-manager-assistant').saveOnFattureInCloud;
 var db;
 
+var HOST = 'francesco-air.local';
+
 // init router to use app.get()
 app.use(compress());
 app.use(jsendify());
 app.use(bodyParser());
+
+//FIXME: CORS need to be better configured
+app.use(function *(next) {
+  if (app.env == 'development')
+    this.set('Access-Control-Allow-Origin', '*');
+    this.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Override-Status-Code');
+    this.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE');
+  yield next;
+});
+
 app.use(router(app));
 
 comongo.configure({
-  host: 'localhost',
+  host: HOST,
   port: 27017,
   name: 'cashflow',
   pool: 10,
@@ -159,7 +171,7 @@ app.get('/cffs/main', function *() {
   };
 
   this.objectName = 'cffs';
-  this.body = { main: userMainCFF.cff};
+  this.body = { main: correctCFF};
 });
 
 app.post('/cffs/main/pull', function *() {
@@ -206,7 +218,6 @@ app.post('/cffs/main/pull', function *() {
       co(function *() {
         yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff: newCFF}}, {upsert: true});
       });
-      console.log('done');
     });
 });
 
@@ -291,10 +302,15 @@ app.put('/cffs/main/stage/:lineId/payment', function *() {
 app.get('/cffs/bank', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  var refresh = this.query.refresh;
-  var body = {};
   var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
+  var linesMap = userBankCFF && userBankCFF.cff ? userBankCFF.cff.lines : {};
+  var keys = Object.keys(linesMap);
+  var lines = linesKeys.reduce(function(acc, key) {
+    acc.push(linesMap[key]);
+    return acc;
+  }, []);
   this.objectName = 'bank';
+  userBankCFF.cff.lines = lines;
   this.body = {cff: userBankCFF.cff || {}};
 });
 
