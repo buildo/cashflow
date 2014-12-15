@@ -35,6 +35,76 @@ const tooltipContentHandler = function (d, defaultTitleFormat, defaultValueForma
   /* jshint ignore:end */
 };
 
+const initGraph = (data) => {
+  // init graph only if data is not undefined
+  if(!data) {
+    return;
+  }
+  const paths = ['History', 'Best', 'Worst'];
+  // repeat last History value inside Best and Worst to show continued line
+  data.best = [data.history[data.history.length - 1]].concat(data.best);
+  data.worst = [data.history[data.history.length - 1]].concat(data.worst);
+
+  const columnsX = paths.map((path) => [('x-' + path)].concat(data[path.toLowerCase()].map((d) => new Date(d.date).getTime())));
+  const columnsY = paths.map((path) => [path].concat(data[path.toLowerCase()].map((d) => d.grossAmount)));
+
+  let chart = c3.generate({
+    size: {
+      height: 480
+    },
+    data: {
+      xs: {
+        'History': 'x-History',
+        'Best': 'x-Best',
+        'Worst': 'x-Worst',
+      },
+      columns: columnsX.concat(columnsY),
+      selection: {
+        enabled: true,
+        multiple: false,
+        grouped: false
+      },
+      onclick: CashflowActions.selectPoint,
+    },
+    zoom: {
+      enabled: true
+    },
+    subchart: {
+      show: true
+    },
+    axis: {
+      x: {
+        type: 'timeseries',
+        tick: {
+          format: '%d-%m-%y',
+          fit: false,
+        },
+      }
+    },
+    grid: {
+      x: {
+        lines: [{value: new Date().getTime(), class: 'grid-today', text: 'TODAY'}]
+      },
+      y: {
+        lines: [{value: 18000, class: 'grid-alert', text: '18000€'}]
+      }
+    },
+    transition: {
+      duration: 500
+    },
+    color: {
+      pattern: ['blue', 'orange', 'green']
+    },
+    tooltip: {
+      grouped: false,
+      format: {
+        value: (value, ratio, id) => value + ' €',
+      },
+      contents: tooltipContentHandler
+    }
+  });
+};
+
 const getStateFromStores = function () {
   return {
     cashflows: CashflowStore.getCashflowData()
@@ -49,78 +119,15 @@ const CasflowAnalytics = React.createClass({
 
   componentDidMount: function() {
     CashflowStore.addChangeListener(this._onChange);
+    initGraph(CashflowStore.getCashflowData());
   },
 
   render: function() {
 
+    console.log('RENDER_GRAPH');
+
     const data = this.state.cashflows;
-    // init graph only if data is not undefined
-    if(data){
-
-      const paths = ['History', 'Best', 'Worst'];
-      // repeat last History value inside Best and Worst to show continued line
-      data.best = [data.history[data.history.length - 1]].concat(data.best);
-      data.worst = [data.history[data.history.length - 1]].concat(data.worst);
-
-      const columnsX = paths.map((path) => [('x-' + path)].concat(data[path.toLowerCase()].map((d) => new Date(d.date).getTime())));
-      const columnsY = paths.map((path) => [path].concat(data[path.toLowerCase()].map((d) => d.grossAmount)));
-
-      let chart = c3.generate({
-        size: {
-          height: 480
-        },
-        data: {
-          xs: {
-            'History': 'x-History',
-            'Best': 'x-Best',
-            'Worst': 'x-Worst',
-          },
-          columns: columnsX.concat(columnsY),
-          selection: {
-            enabled: true,
-            multiple: false,
-            grouped: false
-          },
-          onclick: CashflowActions.selectPoint,
-        },
-        zoom: {
-          enabled: true
-        },
-        subchart: {
-          show: true
-        },
-        axis: {
-          x: {
-            type: 'timeseries',
-            tick: {
-              format: '%d-%m-%y',
-              fit: false,
-            },
-          }
-        },
-        grid: {
-          x: {
-            lines: [{value: new Date().getTime(), class: 'grid-today', text: 'TODAY'}]
-          },
-          y: {
-            lines: [{value: 18000, class: 'grid-alert', text: '18000€'}]
-          }
-        },
-        transition: {
-          duration: 500
-        },
-        color: {
-          pattern: ['blue', 'orange', 'green']
-        },
-        tooltip: {
-          grouped: false,
-          format: {
-            value: (value, ratio, id) => value + ' €',
-          },
-          contents: tooltipContentHandler
-        }
-      });
-    }
+    initGraph(data);
 
     return (
       <div >
