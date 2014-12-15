@@ -29,7 +29,7 @@ const routes = (
 window.React = React;
 
 Router.run(routes, (Handler, state) => {
-  RouterActions.routeChanged(state);
+  console.log('NEW_ROUTE: ' + state);
   React.render(
     <Handler />,
     document.getElementById('main-app'));

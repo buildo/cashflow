@@ -12,11 +12,6 @@ const LoginActions = {
 
   resetLoginState: (event) => sendAsyncAction(ActionTypes.RESET_LOGIN_STATE),
 
-  attemptLogin: (loginFormData) => {
-    // sendAsyncAction(ActionTypes.LOGIN_START);
-    // ServerActions.attemptLogin(loginFormData);
-  },
-
 };
 
 module.exports = LoginActions;

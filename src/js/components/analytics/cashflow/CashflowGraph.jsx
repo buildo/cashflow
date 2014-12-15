@@ -122,6 +122,10 @@ const CasflowAnalytics = React.createClass({
     initGraph(CashflowStore.getCashflowData());
   },
 
+  componentWillUnmount: function() {
+    CashflowStore.removeChangeListener(this._onChange);
+  },
+
   render: function() {
 
     console.log('RENDER_GRAPH');

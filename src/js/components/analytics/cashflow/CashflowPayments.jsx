@@ -25,6 +25,10 @@ const CashflowPayments = React.createClass({
     CashflowPaymentsStore.addChangeListener(this._onChange);
   },
 
+  componentWillUnmount: function() {
+    CashflowStore.removeChangeListener(this._onChange);
+  },
+
   render: function () {
     if (!this.state.payments) {
       return (
