@@ -20,5 +20,10 @@ var getUserByToken = function*(db, token) {
 
 module.exports = {
   parseAuthorization: parseAuthorization,
-  getUserByToken: getUserByToken
+  getUserByToken: getUserByToken,
+  captchaError: 'captcha',
+  passwordError: 'password',
+  loginError: 'login',
+  unknownError: 'unknown',
+  maxAttempts: 2
 };

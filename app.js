@@ -333,47 +333,69 @@ app.post('/cffs/bank/pull', function *() {
   if (!credentialsBank) {
     this.throw(400, 'bank credentials not found');
   }
-  var status = 'failed';
+  var status = 'trying';
   var result;
   var attempts = 0;
-  while (status === 'failed') {
+  while (status === 'trying') {
     result = yield scrapers.getBank(credentialsBank, inputParameters);
-    switch (result.bank.error) {
-      case undefined:
-        status = 'success';
-        break;
-      case 'requiring captcha':
-        status = 'captcha';
-        break;
-      case 'scraper failed for unknown reason':
-        attempts += 1;
-        if (attempts === 5) {
-          this.throw(500, 'reached maximum number of attempts (' + attempts + ')');
-        }
-        break;
-    }
+    attempts += 1;
+    status = result.bank.status.name === utils.unknownError && attempts < utils.maxAttempts ? 'trying' : result.bank.status.name;
   }
+
+  // console.log(status);
 
   switch (status) {
     case 'success':
+      console.log(result);
+
+      // retrieve stored lines
+      var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
+      var oldLinesMap = userBankCFF && userBankCFF.cff.lines ? userBankCFF.cff.lines : {};
+      var keys = Object.keys(linesMap);
+      var oldLines = linesKeys.reduce(function(acc, key) {
+        acc.push(linesMap[key]);
+        return acc;
+      }, []);
+
+      var closestDateOldLines = oldLines.map(function(line){return line.payments[0].date;})
+        .reduce(function(acc, date){return date < acc ? date : acc;});
+
+      // merge old lines with newly downloaded ones
+      var filteredOldLines = oldLines.filter(function(line){return line.payments[0].date < closestDateOldLines});
+      var filteredNewLines = result.bank.cff.lines.filter(function(line){return line.payments[0].date >= closestDateOldLines});
+      var lines = filteredOldLines.concat(filteredNewLines);
+
       // transform lines from Array to Object
-      console.log(result)
-      var newObjectLines = result.bank.cff.lines.reduce(function(acc, line) {
+      var newObjectLines = lines.reduce(function(acc, line) {
           acc[line.id] = line;
           return acc;
         },
         {}
       );
+
       result.bank.cff.lines = newObjectLines;
       yield db.cffs.update({userId: user._id, type: 'bank'}, {$set: {cff:result.bank.cff}}, {upsert: true});
       break;
-    case 'captcha':
+
+    case utils.unknownError:
+      this.throw(400, 'reached maximum number of attempts (' + attempts + ')');
+      break;
+
+    case utils.captchaError:
       yield db.bankSessions.update({userId: user._id, type: 'bper'}, {$set: {cookies: result.bank.cookies}}, {upsert: true});
       this.objectName = 'captcha';
       console.log(result.bank.captcha);
       var b = new Buffer(result.bank.captcha);
       this.body = {captcha: b.toString('base64')};
       break;
+
+    case utils.passwordError:
+      yield db.users.update({_id: user._id}, {$set: {'credentials.bank': {}}});
+      this.throw(400, result.bank.status.message);
+      break;
+
+    default:
+      this.throw(400, result.bank.status.message);
   }
 });
 
