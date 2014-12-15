@@ -31,7 +31,9 @@ module.exports = _.extend(self, Store(
     return true;
   },
 
-  BANK_CFF_UPDATED: () => {
+  BANK_CFF_UPDATED: (actionData) => {
+    console.log('BANK_CFF', actionData);
+    bank = actionData;
     isLoadingBank = false;
     return true;
   }
@@ -43,6 +45,14 @@ module.exports = _.extend(self, Store(
 
   isLoading() {
     return isLoadingMain || isLoadingBank;
+  },
+
+  isLoadingMain() {
+    return isLoadingMain;
+  },
+
+  isLoadingBank() {
+    return isLoadingBank;
   },
 
   getMainReport(configs) {

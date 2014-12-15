@@ -13,6 +13,7 @@ module.exports = {
     BANK_CFF_UPDATED: null,
     CURRENT_USER_UPDATED: null,
     LOADING_MAIN_CFF: null,
+    LOADING_BANK_CFF: null,
     LOADING_CURRENT_USER: null,
     LOGIN_START: null,
     LOGIN_FAIL: null,

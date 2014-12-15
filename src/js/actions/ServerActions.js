@@ -56,6 +56,13 @@ const ServerActions = {
     WebAPIUtils.getMainCFF()
       .done((res) => sendAction(ActionTypes.MAIN_CFF_UPDATED, res.data.cffs.main))
       .fail(handleError);
+  },
+
+  updateBank: () => {
+    sendAsyncAction(ActionTypes.LOADING_BANK_CFF);
+    WebAPIUtils.getBankCFF()
+      .done((res) => sendAction(ActionTypes.BANK_CFF_UPDATED, res.data.cffs.bank))
+      .fail(handleError);
   }
 };
 

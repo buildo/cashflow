@@ -19,6 +19,12 @@ module.exports = {
     headers: {'Authorization': 'Token token=' + getToken()}
   }),
 
+  getBankCFF: () => $.ajax({
+    url: HOST + '/cffs/bank',
+    type: 'GET',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
   getCurrentUser: () => $.ajax({
     url: HOST + '/users/me',
     type: 'GET',

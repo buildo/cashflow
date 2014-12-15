@@ -12,6 +12,9 @@ const React = require('react'),
   App = require('./js/components/App.jsx'),
   AnalyticsMain = require('./js/components/analytics/AnalyticsMain.jsx'),
   CashflowMain = require('./js/components/analytics/cashflow/CashflowMain.jsx'),
+  DataMain = require('./js/components/data/DataMain.jsx'),
+  BankMain = require('./js/components/data/bank/BankMain.jsx'),
+  FICMain = require('./js/components/data/fatture-in-cloud/FICMain.jsx'),
   LoginMain = require('./js/components/login/LoginMain.jsx'),
   Main = require('./js/components/main/Main.jsx');
 
@@ -24,9 +27,9 @@ const routes = (
         <Route name={RouteNames.ANALYTICS_RISORSE} path='risorse' handler={CashflowMain} />
         <Redirect from='/analytics' to='/analytics/cashflow'/>
       </Route>
-      <Route name={RouteNames.DATA} path='/data' handler={AnalyticsMain}>
-        <Route name={RouteNames.DATA_FATTURE_IN_CLOUD} path='fatture-in-cloud' handler={CashflowMain} />
-        <Route name={RouteNames.DATA_BANCA} path='banca' handler={CashflowMain} />
+      <Route name={RouteNames.DATA} path='/data' handler={DataMain}>
+        <Route name={RouteNames.DATA_FATTURE_IN_CLOUD} path='fatture-in-cloud' handler={FICMain} />
+        <Route name={RouteNames.DATA_BANCA} path='banca' handler={BankMain} />
         <Route name={RouteNames.DATA_PROGETTI} path='progetti' handler={CashflowMain} />
         <Route name={RouteNames.DATA_RISORSE} path='risorse' handler={CashflowMain} />
       </Route>
