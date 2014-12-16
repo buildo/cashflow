@@ -21,12 +21,12 @@ module.exports = _.extend(self, Store(
     return true;
   },
 
-  LOADING_MAIN_CFF: () => {
+  GETTING_MAIN_CFF: () => {
     isLoadingMain = true;
     return true;
   },
 
-  LOADING_BANK_CFF: () => {
+  GETTING_BANK_CFF: () => {
     isLoadingBank = true;
     return true;
   },

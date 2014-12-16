@@ -31,7 +31,7 @@ const handleError = (res) => {
 const ServerActions = {
 
   getCurrentUser: () => {
-    sendAsyncAction(ActionTypes.LOADING_CURRENT_USER);
+    sendAsyncAction(ActionTypes.GETTING_CURRENT_USER);
     WebAPIUtils.getCurrentUser()
       .done((res) => sendAction(ActionTypes.CURRENT_USER_UPDATED, res.data.user))
       .fail(handleError);
@@ -51,17 +51,39 @@ const ServerActions = {
       .fail(handleLoginError);
   },
 
-  updateMain: () => {
-    sendAsyncAction(ActionTypes.LOADING_MAIN_CFF);
+  getMain: () => {
+    sendAsyncAction(ActionTypes.GETTING_MAIN_CFF);
     WebAPIUtils.getMainCFF()
       .done((res) => sendAction(ActionTypes.MAIN_CFF_UPDATED, res.data.cffs.main))
       .fail(handleError);
   },
 
-  updateBank: () => {
-    sendAsyncAction(ActionTypes.LOADING_BANK_CFF);
+  getBank: () => {
+    sendAsyncAction(ActionTypes.GETTING_BANK_CFF);
     WebAPIUtils.getBankCFF()
       .done((res) => sendAction(ActionTypes.BANK_CFF_UPDATED, res.data.cffs.bank))
+      .fail(handleError);
+  },
+
+  getMatchesTodo: () => {
+    sendAsyncAction(ActionTypes.GETTING_MATCHES_TODO);
+    WebAPIUtils.getMatchesTodo()
+      .done((res) => sendAction(ActionTypes.MATCHES_TODO_UPDATED, res.data.matches.todo))
+      .fail(handleError);
+  },
+
+  getMatchesDone: () => {
+    sendAsyncAction(ActionTypes.GETTING_MATCHES_DONE);
+    WebAPIUtils.getMatchesDone()
+      .done((res) => sendAction(ActionTypes.MATCHES_DONE_UPDATED, res.data.matches.todo))
+      .fail(handleError);
+  },
+
+
+  getStagedLines: () => {
+    sendAsyncAction(ActionTypes.GETTING_STAGED_LINES);
+    WebAPIUtils.getStagedLines()
+      .done((res) => sendAction(ActionTypes.STAGED_LINES_UPDATED, res.data.stagedLines))
       .fail(handleError);
   }
 };

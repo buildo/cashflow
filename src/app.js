@@ -17,6 +17,7 @@ const React = require('react'),
   FICMain = require('./js/components/data/fatture-in-cloud/FICMain.jsx'),
   MatchesMain = require('./js/components/matches/MatchesMain.jsx'),
   TodoMain = require('./js/components/matches/to-do/TodoMain.jsx'),
+  StageMain = require('./js/components/matches/stage/StageMain.jsx'),
   LoginMain = require('./js/components/login/LoginMain.jsx'),
   Main = require('./js/components/main/Main.jsx');
 
@@ -37,7 +38,7 @@ const routes = (
       </Route>
       <Route name={RouteNames.MATCH} path='/match' handler={MatchesMain}>
         <Route name={RouteNames.MATCH_DA_FARE} path='da-fare' handler={TodoMain} />
-        <Route name={RouteNames.MATCH_DA_SALVARE} path='da-salvare' handler={CashflowMain} />
+        <Route name={RouteNames.MATCH_DA_SALVARE} path='da-salvare' handler={StageMain} />
         <Route name={RouteNames.MATCH_ARCHIVIATI} path='archiviati' handler={CashflowMain} />
       </Route>
     </Route>

@@ -12,7 +12,7 @@ module.exports = _.extend(self, Store(
   // waitFor other Stores
   [], {
   // action handlers
-  LOADING_CURRENT_USER: (actionData) => {
+  GETTING_CURRENT_USER: (actionData) => {
     currentUser = undefined;
     return true;
   },

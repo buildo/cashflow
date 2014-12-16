@@ -22,7 +22,7 @@ const AnalyticsMain = React.createClass({
   componentDidMount: function() {
     CFFStore.addChangeListener(this._onChange);
     if (!CFFStore.getMainCFF()) {
-      ServerActions.updateMain();
+      ServerActions.getMain();
     }
   },
 

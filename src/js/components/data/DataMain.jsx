@@ -18,11 +18,11 @@ const DataMain = React.createClass({
   componentDidMount: function() {
     CFFStore.addChangeListener(this._onChange);
     if (!CFFStore.getMainCFF()) {
-      ServerActions.updateMain();
+      ServerActions.getMain();
     }
 
     if (!CFFStore.getBankCFF()) {
-      ServerActions.updateBank();
+      ServerActions.getBank();
     }
   },
 
