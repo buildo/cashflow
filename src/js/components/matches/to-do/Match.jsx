@@ -5,14 +5,20 @@
 const React = require('react');
 const MainPayment = require('./MainPayment.jsx');
 const DataPayments = require('./DataPayments.jsx');
+const MatchesTodoActions = require('../../../actions/MatchesTodoActions.js');
 
 const Match = React.createClass({
+
+  setAsSelected: function() {
+    const index = this.props.index;
+    MatchesTodoActions.selectMatch(index);
+  },
 
   render: function() {
 
     if (!this.props.isSelected) {
       return (
-        <div className="ui segment">
+        <div className="ui segment" onClick={this.setAsSelected}>
           PREVIEW
         </div>
       );

@@ -61,13 +61,13 @@ const TodoMain = React.createClass({
     const matching = this.state.matchesTodo.matching.map(function(matches, index) {
       const mainPayment = matches[0].main;
       const matchingDataPayments = matches.map(function(match) {return match.data;});
-      const key = index;
-      return <Match isSelected={key === selectedMatch} mainPayment={mainPayment} matchingDataPayments={matchingDataPayments} dataPayments={dataPayments} key={key}/>;
+      const absIndex = index;
+      return <Match isSelected={absIndex === selectedMatch} mainPayment={mainPayment} matchingDataPayments={matchingDataPayments} dataPayments={dataPayments} index={absIndex} key={absIndex}/>;
     });
 
     const notMatching = this.state.matchesTodo.notMatching.map(function(payment, index) {
-      const key = matching.length + index;
-      return <Match isSelected={key === selectedMatch} mainPayment={payment} matchingDataPayments={[]} dataPayments={dataPayments} key={key}/>;
+      const absIndex = matching.length + index;
+      return <Match isSelected={absIndex === selectedMatch} mainPayment={payment} matchingDataPayments={[]} dataPayments={dataPayments} index={absIndex} key={absIndex}/>;
     });
 
     const matches = matching.concat(notMatching);

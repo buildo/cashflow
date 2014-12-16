@@ -29,6 +29,7 @@ module.exports = _.extend(self, Store(
   },
 
   MATCH_TODO_SELECTED: (actionData) => {
+    console.log('SELECTED_MATCH: ' + actionData);
     selectedMatch = actionData;
     return true;
   }
