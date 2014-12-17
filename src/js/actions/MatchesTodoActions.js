@@ -16,6 +16,13 @@ const MatchesTodoActions = {
     );
   },
 
+  deselectMatch: (index) => {
+    sendAction(
+      ActionTypes.MATCH_TODO_SELECTED,
+      undefined
+    );
+  },
+
   selectPayment: (id) => {
     sendAction(
       ActionTypes.PAYMENT_TODO_SELECTED,

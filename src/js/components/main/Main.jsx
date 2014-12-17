@@ -3,12 +3,12 @@
 'use strict';
 
 const React = require('react');
-const SideBar = require('./SideBar.jsx');
+const TopBar = require('./TopBar.jsx');
 const RouteHandler = require('react-router').RouteHandler;
 const State = require('react-router').State;
 const C = require('../../constants/AppConstants').ActionTypes;
 const RouteNames = require('../../constants/RouteNames.js');
-const SideBarStore = require('../../store/SideBarStore.js');
+const TopBarStore = require('../../store/TopBarStore.js');
 
 
 const pages = [
@@ -74,8 +74,8 @@ const pages = [
 
 const getStateFromStores = function () {
   return {
-    selectedPage: SideBarStore.getSelectedPage(),
-    selectedTab: SideBarStore.getSelectedTab()
+    selectedPage: TopBarStore.getSelectedPage(),
+    selectedTab: TopBarStore.getSelectedTab()
   };
 };
 
@@ -86,7 +86,7 @@ const Main = React.createClass({
   },
 
   componentDidMount: function() {
-    SideBarStore.addChangeListener(this._onChange);
+    TopBarStore.addChangeListener(this._onChange);
   },
 
   render: function () {
@@ -112,7 +112,7 @@ const Main = React.createClass({
       return (
         <div className='ui center aligned'>
           <div className='ui fixed main menu'>
-            <SideBar pages={pages} selectedPage={this.state.selectedPage}/>
+            <TopBar pages={pages} selectedPage={this.state.selectedPage}/>
           </div>
           <div className='main-body'>
             <RouteHandler/>

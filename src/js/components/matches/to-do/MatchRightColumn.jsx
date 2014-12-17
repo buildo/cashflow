@@ -3,10 +3,10 @@
 'use strict';
 
 const React = require('react');
-const DataPayment = require('./DataPayment.jsx');
+const DataPaymentPreview = require('./DataPaymentPreview.jsx');
 
 
-const DataPayments = React.createClass({
+const MatchRightColumn = React.createClass({
 
   componentDidMount: function() {
     const context = $(this.refs.dataPayments.getDOMNode());
@@ -20,9 +20,9 @@ const DataPayments = React.createClass({
     const flowDirection = this.props.flowDirection;
 
     const allPayments = this.props.dataPayments.filter((p) => p.id !== this.props.selectedPaymentId && p.info.flowDirection === flowDirection)
-      .map((dataPayment, index) => <DataPayment dataPayment={dataPayment} flowDirection={flowDirection} key={index}/>);
+      .map((dataPayment, index) => <DataPaymentPreview dataPayment={dataPayment} flowDirection={flowDirection} key={index}/>);
     const matchingPayments = this.props.matchingDataPayments.filter((p) => p.id !== this.props.selectedPaymentId)
-      .map((matchingDataPayment, index) => <DataPayment dataPayment={matchingDataPayment} flowDirection={flowDirection} key={index}/>);
+      .map((matchingDataPayment, index) => <DataPaymentPreview dataPayment={matchingDataPayment} flowDirection={flowDirection} key={index}/>);
 
     return (
       <div ref='dataPayments' className='data-payments'>
@@ -39,4 +39,4 @@ const DataPayments = React.createClass({
 });
 
 
-module.exports = DataPayments;
+module.exports = MatchRightColumn;
