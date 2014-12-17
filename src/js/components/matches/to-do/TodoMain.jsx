@@ -75,10 +75,11 @@ const TodoMain = React.createClass({
     return (
       <div>
         <h4 className='ui top attached inverted header'>
-          TODO
+          Da Fare
         </h4>
         <br></br>
         {matches.length > 0 ? matches : emptyTodo}
+        <br></br>
       </div>
     );
   },

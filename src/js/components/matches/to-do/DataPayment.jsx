@@ -11,7 +11,7 @@ const DataPayment = React.createClass({
     const payment = this.props.dataPayment;
 
     return (
-      <div>
+      <div className='ui segment data-payment'>
         <div><strong>Valore:</strong> {payment.grossAmount}€</div>
         <div><strong>Data:</strong> {payment.date}</div>
       </div>

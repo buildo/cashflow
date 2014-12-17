@@ -16,21 +16,57 @@ const Match = React.createClass({
 
   render: function() {
 
+    const mainPayment = this.props.mainPayment;
+    const matchingDataPayments = this.props.matchingDataPayments;
+    const dataPayments = this.props.dataPayments;
+
+    const lineId = mainPayment.info.lineId;
+    const type = mainPayment.info.flowDirection === 'in' ? 'Invoice' : 'Expense';
+    const idNumber = lineId.replace('exp_', '').replace('inv_', '');
+    const paymentNumber = parseInt(mainPayment.scraperInfo.tranId.replace('tran_', '').replace('_', '')) + 1;
+
     if (!this.props.isSelected) {
       return (
-        <div className="ui segment" onClick={this.setAsSelected}>
-          PREVIEW
+        <div className="ui segment center aligned" onClick={this.setAsSelected}>
+          <div className="ui mini statistic">
+            <div className="value">
+              {type} {idNumber}
+            </div>
+            <div className="label">
+              {paymentNumber}º payment
+            </div>
+          </div>
+          <div className="ui mini statistic">
+            <div className="value">
+              {matchingDataPayments.length}
+            </div>
+            <div className="label">
+              {matchingDataPayments.length === 1 ? 'match' : 'matches'}
+            </div>
+          </div>
         </div>
       );
     }
 
-    const mainPayment = this.props.mainPayment;
-    const matchingDataPayments = this.props.matchingDataPayments;
-    const dataPayments = this.props.dataPayments;
-    // <DataPayments dataPayments={dataPayments}/>
+    console.log(mainPayment);
+
     return (
       <div>
-        <MainPayment mainPayment={mainPayment}/>
+        <div className='ui segment'>
+          <div className='ui two column relaxed fitted grid match selected'>
+            <div className='column'>
+              <MainPayment mainPayment={mainPayment}/>
+            </div>
+            <div className='ui vertical divider' id='match-divider'>
+            O
+            </div>
+            <div className='column'>
+              <DataPayments dataPayments={dataPayments} matchingDataPayments={matchingDataPayments}/>
+            </div>
+          </div>
+        </div>
+        <div className='ui bottom attached'>
+        </div>
       </div>
     );
   },
