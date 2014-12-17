@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const Dispatcher = require('../dispatcher/AppDispatcher.js');
 const DataStore = require('./DataStore');
 const Store = require('./Store');
 const CashflowStore = require('./CashflowStore');
@@ -13,6 +14,7 @@ const resetPointSelection = () => {
 
 const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
 module.exports = _.extend(self, Store(
+  Dispatcher,
   // waitFor other Stores
   [CashflowStore], {
   // action handlers
