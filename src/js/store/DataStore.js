@@ -12,13 +12,15 @@ module.exports = {
   },
   getAll: function() {
     let self = this;
-    return Object.keys(this._data.toJS()).map(function(k) {
-      return self.get(k);
+    return Object.keys(this._data.toJS()).map(function(id) {
+      return _.extend({
+        _id: id
+      }, self.get(id));
     });
   },
   upsert: function(id, obj) {
     let immObj = Immutable.fromJS(obj);
-    if (!Immutable.is(this.get(id + ''), immObj)) {
+    if (!Immutable.is(this.get(id), immObj)) {
       this._data =  this._data.set(id + '', immObj);
       return true;
     }
@@ -47,8 +49,8 @@ module.exports = {
     return false;
   },
   deleteAll: function() {
-    let hasSome = this._data.keys().length() > 0;
+    // let hasSome = this._data.keys().length() > 0;
     this._data = Immutable.Map({});
-    return hasSome;
+    return true;
   }
 };

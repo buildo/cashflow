@@ -4,29 +4,64 @@ const Immutable = require('immutable');
 const _ = require('lodash');
 const DataStore = require('./DataStore');
 
-const getterMethods = ['get'];
+// TODO: clean up optimisitc values on stable inserts?
+const getterMethods = ['get', 'getAll'];
+const setterMethods = ['upsert', 'insert', 'update', 'delete', 'deleteAll'];
+
+const camelCase = function(prefix, name) {
+  return prefix + name.charAt(0).toUpperCase() + name.substring(1);
+};
+
+const omitOptimistic = function(o) {
+  return _.isObject(o) ? _.omit(o, '__optimistic') : o;
+};
 
 const self = _.extend({}, Object.keys(DataStore).reduce((self, prop) => {
   if (getterMethods.indexOf(prop) !== -1) {
     self[prop] = function() {
+      let stableResult = DataStore[prop].apply(this, arguments);
       let optStore = _.extend({}, this, { _data: this._optimisticData });
       let optResult = DataStore[prop].apply(optStore, arguments);
-      // TODO: better policy
-      // potentially merge/patch results
-      return optResult ? optResult : DataStore[prop].apply(this, arguments);
+      if (prop === 'getAll') {
+        // TODO: better policy
+        return _.uniq(stableResult.concat(optResult), '_id');
+      } else {
+        let stableResultImm = Immutable.fromJS(stableResult || {});
+        let resultImm = stableResultImm.mergeDeep(Immutable.fromJS(optResult));
+        let result = resultImm.toJS();
+        // TODO: better policy
+        return _.extend(result, {
+          __optimistic: !Immutable.is(resultImm, stableResultImm)
+        });
+      }
     };
-  } else {
-    self[prop] = function(optimistic) {
-      let args = Array.prototype.splice.call(arguments, 1, arguments.length - 1);
+  } else if (setterMethods.indexOf(prop) !== -1) {
+    self[prop] = function() {
       let selfData = this._data;
+      let optimistic = this.isOptimisticHandling();
       if (optimistic) {
         this._data = this._optimisticData;
       }
-      let ret = DataStore[prop].apply(this, args);
+      let args = Array.prototype.slice.call(arguments, 0);
+      let ret = DataStore[prop].apply(this, args.map(omitOptimistic));
       if (optimistic) {
         this._optimisticData = this._data;
         this._data = selfData;
       }
+      return ret;
+    };
+    self[camelCase('optimistic', prop)] = function() {
+      let prevHandling = this.__optimisticHandling;
+      this.__optimisticHandling = true;
+      let ret = this[prop].apply(this, arguments);
+      this.__optimisticHandling = prevHandling;
+      return ret;
+    };
+    self[camelCase('stable', prop)] = function() {
+      let prevHandling = this.__optimisticHandling;
+      this.__optimisticHandling = false;
+      let ret = this[prop].apply(this, arguments);
+      this.__optimisticHandling = prevHandling;
       return ret;
     };
   }
