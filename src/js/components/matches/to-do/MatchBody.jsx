@@ -15,7 +15,7 @@ const MatchBody = React.createClass({
     return (
       <div>
         <MainPayment mainPayment={this.props.mainPayment}/>
-        {this.props.selectedPayment ? <DataPayment mainPayment={this.props.selectedPayment}/> : ''}
+        {this.props.selectedPayment ? <DataPayment dataPayment={this.props.selectedPayment}/> : ''}
       </div>
     );
   },
