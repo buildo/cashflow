@@ -35,11 +35,13 @@ const routes = (
         <Route name={RouteNames.DATA_BANCA} path='banca' handler={BankMain} />
         <Route name={RouteNames.DATA_PROGETTI} path='progetti' handler={CashflowMain} />
         <Route name={RouteNames.DATA_RISORSE} path='risorse' handler={CashflowMain} />
+        <Redirect from='/data' to='/data/fatture-in-cloud'/>
       </Route>
       <Route name={RouteNames.MATCH} path='/match' handler={MatchesMain}>
         <Route name={RouteNames.MATCH_DA_FARE} path='da-fare' handler={TodoMain} />
         <Route name={RouteNames.MATCH_DA_SALVARE} path='da-salvare' handler={StageMain} />
         <Route name={RouteNames.MATCH_ARCHIVIATI} path='archiviati' handler={CashflowMain} />
+        <Redirect from='/match' to='/match/da-fare'/>
       </Route>
     </Route>
     <Route name={RouteNames.LOGIN} handler={LoginMain} />

@@ -92,22 +92,33 @@ const Main = React.createClass({
   render: function () {
 
     console.log('RENDER_MAIN');
-    return (
-      <div className='ui page grid'>
-        <div className='row'>
-          <div className='column'>
-          </div>
-        </div>
-        <div className='row'>
-          <div className='three wide Left floated column'>
+    // return (
+    //   <div className='ui page grid'>
+    //     <div className='row'>
+    //       <div className='column'>
+    //       </div>
+    //     </div>
+    //     <div className='row'>
+    //       <div className='three wide Left floated column'>
+    //         <SideBar pages={pages} selectedPage={this.state.selectedPage}/>
+    //       </div>
+    //       <div className='thirteen wide Right floated column'>
+    //         <RouteHandler/>
+    //       </div>
+    //     </div>
+    //   </div>
+    // );
+
+      return (
+        <div className='ui center aligned'>
+          <div className='ui fixed main menu'>
             <SideBar pages={pages} selectedPage={this.state.selectedPage}/>
           </div>
-          <div className='thirteen wide Right floated column'>
+          <div className='main-body'>
             <RouteHandler/>
           </div>
         </div>
-      </div>
-    );
+      );
   },
 
   _onChange: function() {
