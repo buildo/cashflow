@@ -13,6 +13,7 @@ module.exports = {
     BANK_CFF_UPDATED: null,
     MATCHES_TODO_UPDATED: null,
     MATCH_TODO_SELECTED: null,
+    PAYMENT_TODO_SELECTED: null,
     MATCHES_DONE_UPDATED: null,
     STAGED_LINES_UPDATED: null,
     CURRENT_USER_UPDATED: null,

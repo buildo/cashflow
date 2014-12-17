@@ -11,7 +11,8 @@ const getStateFromStores = function () {
   return {
     matchesTodo: MatchesTodoStore.getMatchesTodo(),
     isLoading: MatchesTodoStore.isLoading(),
-    selectedMatch: MatchesTodoStore.getSelectedMatch(),
+    selectedMatchIndex: MatchesTodoStore.getSelectedMatchIndex(),
+    selectedPaymentId: MatchesTodoStore.getSelectedPaymentId(),
   };
 };
 
@@ -56,18 +57,19 @@ const TodoMain = React.createClass({
     );
 
     const dataPayments = this.state.matchesTodo.data;
-    const selectedMatch = this.state.selectedMatch;
+    const selectedMatchIndex = this.state.selectedMatchIndex;
+    const selectedPaymentId = this.state.selectedPaymentId;
 
     const matching = this.state.matchesTodo.matching.map(function(matches, index) {
       const mainPayment = matches[0].main;
       const matchingDataPayments = matches.map(function(match) {return match.data;});
       const absIndex = index;
-      return <Match isSelected={absIndex === selectedMatch} mainPayment={mainPayment} matchingDataPayments={matchingDataPayments} dataPayments={dataPayments} index={absIndex} key={absIndex}/>;
+      return <Match isSelected={absIndex === selectedMatchIndex} mainPayment={mainPayment} matchingDataPayments={matchingDataPayments} dataPayments={dataPayments} index={absIndex} selectedPaymentId={selectedPaymentId} key={absIndex}/>;
     });
 
     const notMatching = this.state.matchesTodo.notMatching.map(function(payment, index) {
       const absIndex = matching.length + index;
-      return <Match isSelected={absIndex === selectedMatch} mainPayment={payment} matchingDataPayments={[]} dataPayments={dataPayments} index={absIndex} key={absIndex}/>;
+      return <Match isSelected={absIndex === selectedMatchIndex} mainPayment={payment} matchingDataPayments={[]} dataPayments={dataPayments} index={absIndex} selectedPaymentId={selectedPaymentId} key={absIndex}/>;
     });
 
     const matches = matching.concat(notMatching);

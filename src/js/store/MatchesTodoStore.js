@@ -8,7 +8,8 @@ const CFFManagerAssistantApp = require('cff-manager-assistant');
 
 let matchesTodo;
 let isLoading = true;
-let selectedMatch = 0;
+let selectedMatchIndex = 0;
+let selectedPaymentId;
 
 const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
 module.exports = _.extend(self, Store(
@@ -30,7 +31,14 @@ module.exports = _.extend(self, Store(
 
   MATCH_TODO_SELECTED: (actionData) => {
     console.log('SELECTED_MATCH: ' + actionData);
-    selectedMatch = actionData;
+    selectedMatchIndex = actionData;
+    selectedPaymentId = undefined;
+    return true;
+  },
+
+  PAYMENT_TODO_SELECTED: (actionData) => {
+    console.log('SELECTED_PAYMENT: ' + actionData);
+    selectedPaymentId = actionData;
     return true;
   }
 
@@ -40,8 +48,12 @@ module.exports = _.extend(self, Store(
     return matchesTodo;
   },
 
-  getSelectedMatch() {
-    return selectedMatch;
+  getSelectedMatchIndex() {
+    return selectedMatchIndex;
+  },
+
+  getSelectedPaymentId() {
+    return selectedPaymentId;
   },
 
   isLoading() {

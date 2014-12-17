@@ -19,6 +19,9 @@ const Match = React.createClass({
     const mainPayment = this.props.mainPayment;
     const matchingDataPayments = this.props.matchingDataPayments;
     const dataPayments = this.props.dataPayments;
+    const selectedPaymentId = this.props.selectedPaymentId;
+
+    const selectedPayment = dataPayments.filter((dataPayment) => dataPayment.id === selectedPaymentId)[0];
 
     const lineId = mainPayment.info.lineId;
     const type = mainPayment.info.flowDirection === 'in' ? 'Invoice' : 'Expense';
@@ -48,20 +51,18 @@ const Match = React.createClass({
       );
     }
 
-    console.log(mainPayment);
-
     return (
       <div>
         <div className='ui segment'>
-          <div className='ui two column relaxed fitted grid match selected'>
-            <div className='column'>
-              <MainPayment mainPayment={mainPayment}/>
+          <div className='ui relaxed fitted grid match selected'>
+            <div className='twelve wide Left column'>
+              <MainPayment mainPayment={mainPayment} selectedPayment={selectedPayment}/>
             </div>
             <div className='ui vertical divider' id='match-divider'>
             O
             </div>
-            <div className='column'>
-              <DataPayments dataPayments={dataPayments} matchingDataPayments={matchingDataPayments}/>
+            <div className='four wide Right column'>
+              <DataPayments dataPayments={dataPayments} selectedPaymentId={selectedPaymentId} matchingDataPayments={matchingDataPayments} flowDirection={mainPayment.info.flowDirection}/>
             </div>
           </div>
         </div>

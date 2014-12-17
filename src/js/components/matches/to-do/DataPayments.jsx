@@ -8,19 +8,30 @@ const DataPayment = require('./DataPayment.jsx');
 
 const DataPayments = React.createClass({
 
+  componentDidMount: function() {
+    const context = $(this.refs.dataPayments.getDOMNode());
+
+    $(this.refs.tabItem1.getDOMNode()).tab({context: context});
+    $(this.refs.tabItem2.getDOMNode()).tab({context: context});
+  },
+
   render: function () {
 
-    const allPayments = this.props.dataPayments.map((dataPayment, index) => <DataPayment dataPayment={dataPayment} key={index}/>);
-    const matchingPayments = this.props.matchingDataPayments.map((matchingDataPayment, index) => <DataPayment dataPayment={matchingDataPayment} key={index}/>);
+    const flowDirection = this.props.flowDirection;
+
+    const allPayments = this.props.dataPayments.filter((p) => p.id !== this.props.selectedPaymentId && p.info.flowDirection === flowDirection)
+      .map((dataPayment, index) => <DataPayment dataPayment={dataPayment} flowDirection={flowDirection} key={index}/>);
+    const matchingPayments = this.props.matchingDataPayments.filter((p) => p.id !== this.props.selectedPaymentId)
+      .map((matchingDataPayment, index) => <DataPayment dataPayment={matchingDataPayment} flowDirection={flowDirection} key={index}/>);
 
     return (
-      <div className='data-payments'>
+      <div ref='dataPayments' className='data-payments'>
         <div className="ui two item tabular menu">
-          <a className="item" data-tab="matches">Matches</a>
-          <a className="active item" data-tab="all">All</a>
+          <a ref='tabItem1' className="active item" data-tab="matches">Matches</a>
+          <a ref='tabItem2' className="item" data-tab="all">All</a>
         </div>
-        <div className="ui bottom attached tab" data-tab="matches">{matchingPayments}</div>
-        <div className="ui top attached active tab" data-tab="all">{allPayments}</div>
+        <div className="ui bottom attached active tab" data-tab="matches">{matchingPayments}</div>
+        <div className="ui top attached tab" data-tab="all">{allPayments}</div>
       </div>
     );
   },

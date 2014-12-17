@@ -14,6 +14,20 @@ const MatchesTodoActions = {
       ActionTypes.MATCH_TODO_SELECTED,
       index
     );
+  },
+
+  selectPayment: (id) => {
+    sendAction(
+      ActionTypes.PAYMENT_TODO_SELECTED,
+      id
+    );
+  },
+
+  deselectPayment: (id) => {
+    sendAction(
+      ActionTypes.PAYMENT_TODO_SELECTED,
+      undefined
+    );
   }
 };
 

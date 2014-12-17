@@ -70,12 +70,17 @@
   }
 }
 
+.data-payment {
+  cursor: pointer
+}
+
 .match.selected {
   height: 500px;
 }
 
 #match-divider {
   color: rgba(0, 0, 0, .4);
+  left: 75.5%;
 }
 
 
