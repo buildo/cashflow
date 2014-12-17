@@ -18,6 +18,7 @@ var concat = require('gulp-concat');
 var runSequence = require('run-sequence');
 var notify = require('gulp-notify');
 var del = require('del');
+var watchify = require('watchify');
 
 var SERVER_PORT = 9001;
 var HOST = 'Francesco-Air.local';
@@ -83,9 +84,9 @@ gulp.task('js', ['jshint'], function() {
       experimental: true
     };
 
-    return browserify(filename, {
-      debug: true
-    })
+    watchify.args.debug = true;
+
+    return watchify(browserify(filename, watchify.args))
       .transform(reactify)
       .transform(es6ify.configure(/.jsx?/))
       .bundle();
