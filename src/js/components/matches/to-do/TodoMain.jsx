@@ -4,16 +4,18 @@
 
 const React = require('react');
 const ServerActions = require('../../../actions/ServerActions');
-const MatchesTodoStore = require('../../../store/MatchesTodoStore.js');
+const TodoStore = require('../../../store/TodoStore.js');
 const Match = require('./Match.jsx');
 const MatchPreview = require('./MatchPreview.jsx');
+const utils = require('../../../utils/utils.js');
 
 const getStateFromStores = function () {
   return {
-    matchesTodo: MatchesTodoStore.getMatchesTodo(),
-    isLoading: MatchesTodoStore.isLoading(),
-    selectedMatchIndex: MatchesTodoStore.getSelectedMatchIndex(),
-    selectedPaymentId: MatchesTodoStore.getSelectedPaymentId(),
+    mainMatches: TodoStore.getMainMatches(),
+    dataPayments: TodoStore.getDataPayments(),
+    isLoading: TodoStore.isLoading(),
+    selectedMatchIndex: TodoStore.getSelectedMatchIndex(),
+    selectedPaymentId: TodoStore.getSelectedPaymentId(),
   };
 };
 
@@ -24,12 +26,12 @@ const TodoMain = React.createClass({
   },
 
   componentDidMount: function() {
-    MatchesTodoStore.addChangeListener(this._onChange);
+    TodoStore.addChangeListener(this._onChange);
     ServerActions.getMatchesTodo();
   },
 
   componentWillUnmount: function() {
-    MatchesTodoStore.removeChangeListener(this._onChange);
+    TodoStore.removeChangeListener(this._onChange);
   },
 
   render: function() {
@@ -57,33 +59,23 @@ const TodoMain = React.createClass({
       </div>
     );
 
-    const dataPayments = this.state.matchesTodo.data;
     const selectedMatchIndex = this.state.selectedMatchIndex;
     const selectedPaymentId = this.state.selectedPaymentId;
 
-    const array = this.state.matchesTodo.matching.concat(this.state.matchesTodo.notMatching);
+    const matchPreviews = this.state.mainMatches.sort(utils.sortByMatchesNumber).reduce((acc, match, index) => {
+        if (index === selectedMatchIndex) {
+          return acc;
+        }
+        acc.push(<MatchPreview match={match} index={index} key={index}/>);
+        return acc;
+      },
+      []
+    );
 
-    const mixedMatches = array.map((el, index) => {
-      const isMatch = Array.isArray(el);
-      const mainPayment = isMatch ? el[0].main : el;
-      const matchingDataPayments = isMatch ? el.map((match) => match.data) : [];
-
-      if (index === selectedMatchIndex) {
-        return <Match mainPayment={mainPayment} matchingDataPayments={matchingDataPayments} dataPayments={dataPayments} index={index} selectedPaymentId={selectedPaymentId} key={index}/>;
-      } else {
-        return <MatchPreview mainPayment={mainPayment} matchingDataPayments={matchingDataPayments} index={index} key={index}/>;
-      }
-    });
-
-    console.log(selectedMatchIndex);
-
-    const selectedMatch = selectedMatchIndex > -1 ? mixedMatches.splice(selectedMatchIndex, 1) : undefined;
-    const matches = mixedMatches;
-    console.log(selectedMatch);
-
-    // <div class='ui right rail'>
-    //   {matches}
-    // </div>
+    const selectedMatch = this.state.mainMatches[selectedMatchIndex] ?
+      <Match match={this.state.mainMatches[selectedMatchIndex]} dataPayments={this.state.dataPayments} selectedPaymentId={selectedPaymentId}/>
+      :
+      '';
 
     return (
       <div>
@@ -97,11 +89,11 @@ const TodoMain = React.createClass({
           </div>
           <div className='three wide Right column full height'>
             <div id='match-right-cloumn'>
-              {matches}
+              {matchPreviews}
             </div>
           </div>
         </div>
-        {matches.length === 0 ? emptyTodo : ''}
+        {this.state.mainMatches.length === 0 ? emptyTodo : ''}
         <br></br>
       </div>
     );

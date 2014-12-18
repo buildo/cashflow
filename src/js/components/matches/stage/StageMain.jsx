@@ -4,14 +4,14 @@
 
 const React = require('react');
 const ServerActions = require('../../../actions/ServerActions');
-const StageStore = require('../../../store/StageStore.js');
+const StageDataStore = require('../../../store/StageDataStore.js');
 const CFFStore = require('../../../store/CFFStore.js');
 
 
 const getStateFromStores = function () {
   return {
-    stagedLines: StageStore.getStagedLines() || {},
-    isLoading: StageStore.isLoading()
+    stagedLines: StageDataStore.getStagedLines() || {},
+    isLoading: StageDataStore.isLoading()
   };
 };
 
@@ -22,15 +22,15 @@ const StageMain = React.createClass({
   },
 
   componentDidMount: function() {
-    StageStore.addChangeListener(this._onChange);
+    StageDataStore.addChangeListener(this._onChange);
     CFFStore.addChangeListener(this.CFFStoreChanged);
-    if (!StageStore.getStagedLines()) {
+    if (!StageDataStore.getStagedLines()) {
       ServerActions.getStagedLines();
     }
   },
 
   componentWillUnmount: function() {
-    StageStore.removeChangeListener(this._onChange);
+    StageDataStore.removeChangeListener(this._onChange);
   },
 
   render: function() {

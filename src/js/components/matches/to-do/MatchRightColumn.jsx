@@ -4,7 +4,7 @@
 
 const React = require('react');
 const DataPaymentPreview = require('./DataPaymentPreview.jsx');
-
+const utils = require('../../../utils/utils.js');
 
 const MatchRightColumn = React.createClass({
 
@@ -19,9 +19,9 @@ const MatchRightColumn = React.createClass({
 
     const flowDirection = this.props.flowDirection;
 
-    const allPayments = this.props.dataPayments.filter((p) => p.id !== this.props.selectedPaymentId && p.info.flowDirection === flowDirection)
+    const allPayments = this.props.dataPayments.sort(utils.sortPaymentsByDate).filter((p) => p.id !== this.props.selectedPaymentId && p.info.flowDirection === flowDirection)
       .map((dataPayment, index) => <DataPaymentPreview dataPayment={dataPayment} flowDirection={flowDirection} key={index}/>);
-    const matchingPayments = this.props.matchingDataPayments.filter((p) => p.id !== this.props.selectedPaymentId)
+    const matchingPayments = this.props.matches.filter((p) => p.id !== this.props.selectedPaymentId)
       .map((matchingDataPayment, index) => <DataPaymentPreview dataPayment={matchingDataPayment} flowDirection={flowDirection} key={index}/>);
 
     return (

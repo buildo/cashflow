@@ -3,24 +3,23 @@
 'use strict';
 
 const React = require('react');
-const MatchesTodoActions = require('../../../actions/MatchesTodoActions.js');
+const TodoActions = require('../../../actions/TodoActions.js');
 
 const MatchPreview = React.createClass({
 
   setAsSelected: function() {
     const index = this.props.index;
-    MatchesTodoActions.selectMatch(index);
+    TodoActions.selectMatch(index);
   },
 
   render: function() {
 
-    const mainPayment = this.props.mainPayment;
-    const matchingDataPayments = this.props.matchingDataPayments;
+    const match = this.props.match;
 
-    const lineId = mainPayment.info.lineId;
-    const type = mainPayment.info.flowDirection === 'in' ? 'Invoice' : 'Expense';
+    const lineId = match.info.lineId;
+    const type = match.info.flowDirection === 'in' ? 'Invoice' : 'Expense';
     const idNumber = lineId.replace('exp_', '').replace('inv_', '');
-    const paymentNumber = parseInt(mainPayment.scraperInfo.tranId.replace('tran_', '').replace('_', '')) + 1;
+    const paymentNumber = parseInt(match.scraperInfo.tranId.replace('tran_', '').replace('_', '')) + 1;
 
     return (
       <div className='ui segment center aligned selectable' onClick={this.setAsSelected}>
@@ -34,10 +33,10 @@ const MatchPreview = React.createClass({
         </div>
         <div className='ui mini statistic'>
           <div className='value'>
-            {matchingDataPayments.length}
+            {match.matches.length}
           </div>
           <div className='label'>
-            {matchingDataPayments.length === 1 ? 'match' : 'matches'}
+            {match.matches.length === 1 ? 'match' : 'matches'}
           </div>
         </div>
       </div>

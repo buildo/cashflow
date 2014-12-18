@@ -2,10 +2,8 @@
 
 const _ = require('lodash');
 const Dispatcher = require('../dispatcher/AppDispatcher.js');
-const DataStore = require('./DataStore');
 const Store = require('./Store');
-const CFFStore = require('./CFFStore');
-const CFFManagerAssistantApp = require('cff-manager-assistant');
+const TodoDataStore = require('./TodoDataStore');
 
 let matchesTodo;
 let isLoading = true;
@@ -16,7 +14,7 @@ const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es
 module.exports = _.extend(self, Store(
   Dispatcher,
   // waitFor other Stores
-  [], {
+  [TodoDataStore], {
   // action handlers
   GETTING_MATCHES_TODO: () => {
     matchesTodo = undefined;
@@ -25,8 +23,6 @@ module.exports = _.extend(self, Store(
   },
 
   MATCHES_TODO_UPDATED: (actionData) => {
-    console.log(actionData);
-    matchesTodo = actionData;
     isLoading = false;
     return true;
   },
@@ -46,8 +42,24 @@ module.exports = _.extend(self, Store(
 
 }, {
   // custom getters
-  getMatchesTodo() {
-    return matchesTodo;
+  getMainMatches() {
+    const payments = TodoDataStore.getAll();
+    const dataPayments = payments.filter((p) => p.type === 'data');
+    const mainPayments = payments.filter((p) => p.type === 'certain' || p.type === 'uncertain');
+    return mainPayments.map((mainP) => {
+      mainP.matches = mainP.matches.map((dataPaymentId) => TodoDataStore.get(dataPaymentId));
+      return mainP;
+    });
+  },
+
+  getDataPayments() {
+    const payments = TodoDataStore.getAll();
+    const dataPayments = payments.filter((p) => p.type === 'data');
+    return dataPayments;
+  },
+
+  getPayment(id) {
+
   },
 
   getSelectedMatchIndex() {

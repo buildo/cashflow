@@ -3,7 +3,7 @@
 'use strict';
 
 const React = require('react');
-const MatchesTodoActions = require('../../../actions/MatchesTodoActions.js');
+const TodoActions = require('../../../actions/TodoActions.js');
 const utils = require('../../../utils/utils.js');
 
 const MainPayment = React.createClass({
