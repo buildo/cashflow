@@ -10,14 +10,21 @@ const sortByMatchesNumber = (a, b) => (b.matches.length - a.matches.length);
 const sortPaymentsByDate = (a, b) => {
   const dateA = new Date((a.date || a.expectedDate[0]));
   const dateB = new Date((b.date || b.expectedDate[0]));
-
   return dateB.getTime() - dateA.getTime();
 };
 
-module.exports = {
+const getCurrency = (currencyName) => {
+  const currencies = {
+    EUR: '€',
+    USD: '$',
+    GBP: '£',
+  };
+  return currencies[currencyName];
+};
 
+module.exports = {
   formatDate: formatDate,
   sortPaymentsByDate: sortPaymentsByDate,
   sortByMatchesNumber: sortByMatchesNumber,
-
+  getCurrency: getCurrency
 };

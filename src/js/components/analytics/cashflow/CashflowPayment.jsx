@@ -3,20 +3,14 @@
 'use strict';
 
 const React = require('react');
+const utils = require('../../../utils/utils.js');
 
 const CashflowPayment = React.createClass({
 
   render: function () {
 
     const payment = this.props.payment;
-    // console.log(payment);
-    const currencies = {
-      EUR: '€',
-      USD: '$',
-      GBP: '£',
-    };
-
-    const currency = currencies[payment.currency.name];
+    const currency = utils.getCurrency(payment.currency.name);
 
     switch (payment.flowDirection) {
 

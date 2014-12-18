@@ -11,14 +11,7 @@ const MainPayment = React.createClass({
   render: function() {
     const mainPayment = this.props.mainPayment;
     const isInvoice = mainPayment.info.flowDirection === 'in';
-
-    const currencies = {
-      EUR: '€',
-      USD: '$',
-      GBP: '£',
-    };
-
-    const currency = currencies[mainPayment.info.currency.name];
+    const currency = utils.getCurrency(mainPayment.info.currency.name);
 
     return (
       <div>
