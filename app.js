@@ -16,6 +16,7 @@ var scrapers = require('./src/scrapers.js');
 var jsendify = require('./src/jsendify.js');
 var utils = require('./src/utils.js');
 var saveOnFattureInCloud = require('cff-manager-assistant').saveOnFattureInCloud;
+var getMatches = require('cff-manager-assistant').getMatches;
 var db;
 
 var HOST = 'francesco-air.local';
@@ -42,7 +43,7 @@ comongo.configure({
   port: 27017,
   name: 'cashflow',
   pool: 10,
-  collections: ['users', 'cffs', 'projects', 'resources', 'sessions', 'progresses', 'bankSessions']
+  collections: ['users', 'cffs', 'projects', 'resources', 'sessions', 'progresses', 'bankSessions', 'matches', 'stagedMatches']
 });
 
 // init db
@@ -153,16 +154,8 @@ app.get('/cffs/main', function *() {
     this.throw(400, 'user does not have a main cff in database');
   }
 
-  var linesKeys = Object.keys(userMainCFF.cff.lines);
-  var stagedLinesKeys = Object.keys(userMainCFF.cff.stagedLines);
-  var stagedLines = stagedLinesKeys.reduce(function(acc, key) {
-    acc.push(userMainCFF.cff.stagedLines[key]);
-    return acc;
-  }, []);
-  var lines = linesKeys.reduce(function(acc, key) {
-    acc.push(userMainCFF.cff.lines[key]);
-    return acc;
-  }, []);
+  var lines = utils.getArrayFromObject(userMainCFF.cff.lines);
+  var stagedLines = utils.getArrayFromObject(userMainCFF.cff.stagedLines);
 
   var correctCFF = {
     sourceId: userMainCFF.cff.sourceId,
@@ -187,15 +180,11 @@ app.post('/cffs/main/pull', function *() {
   var oldCFF = {};
   if (userMainCFF) {
     oldCFF = userMainCFF.cff;
-    var stagedLines = oldCFF.stagedLines || [];
-    if (Object.keys(stagedLines).length > 0) {
+    var stagedLines = oldCFF.stagedLines || {};
+    if (utils.getArrayFromObject(stagedLines).length > 0) {
       this.throw(400, 'staged are is not empty');
     }
-    var keys = Object.keys(oldCFF.lines);
-    var oldLines = keys.reduce(function(acc, key) {
-      acc.push(userMainCFF.cff.lines[key]);
-      return acc;
-    }, []);
+    var oldLines = utils.getArrayFromObject(userMainCFF.cff.lines);
     oldCFF.lines = oldLines;
   }
 
@@ -217,6 +206,23 @@ app.post('/cffs/main/pull', function *() {
       };
       // save modified CFF to db
       co(function *() {
+        var matches = yield db.matches.findOne({userId: user._id});
+        // remove matches of no longer existing lines
+        if (matches) {
+          var matchesLinesIDs = Object.keys(matches);
+          var newCFFLinesIDs = Object.keys(newObjectLines);
+
+          matchesLinesIDs.reduce(function(acc, matchLineID) {
+              if (newCFFLinesIDs.indexOf(matchLineID) > -1) {
+                acc[matchLineID] = matches[matchLineID];
+              }
+              return acc;
+            },
+            {}
+          );
+          yield db.matches.update({userId: user._id}, {$set: matches});
+        }
+        // replace mainCFF with new one
         yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff: newCFF}}, {upsert: true});
       });
     });
@@ -234,11 +240,7 @@ app.get('/cffs/main/stage', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
   var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  var keys = Object.keys(userMainCFF.cff.stagedLines);
-  var stagedLines = keys.reduce(function(acc, key) {
-    acc.push(userMainCFF.cff.stagedLines[key]);
-    return acc;
-  }, []);
+  var stagedLines = userMainCFF ? utils.getArrayFromObject(userMainCFF.cff.stagedLines) : [];
   this.objectName = 'stagedLines';
   this.body = stagedLines;
 });
@@ -261,43 +263,6 @@ app.get('/cffs/main/stage/:lineId', function *() {
   }
   this.objectName = 'stagedLine';
   this.body = userMainCFF.cff.stagedLines[stageLineId];
-});
-
-app.put('/cffs/main/stage/:lineId/payment', function *() {
-  var token = utils.parseAuthorization(this.request.header.authorization);
-  var user = yield utils.getUserByToken(db, token);
-  var stageLineId = this.params.lineId;
-  var payment = this.request.body;
-
-  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  if (!userMainCFF) {
-    this.throw(400, 'user does not have a database');
-  }
-  if (!userMainCFF.cff.lines[stageLineId]) {
-    this.throw(400, 'the given id does not correspond to any line');
-  }
-  var stagedLines = userMainCFF.cff.stagedLines;
-  if (!stagedLines[stageLineId]) {
-    // line does not exist yet in the staging area
-    var line = {
-      id: stageLineId,
-      flowDirection: payment.info.flowDirection,
-      payments: [payment]
-    };
-    stagedLines[stageLineId] = line;
-  } else {
-    // line already exists -> check if payment is not already stored, then store it
-    var filteredPayments = stagedLines[stageLineId].payments.filter(function(_payment) {
-      return _payment.scraperInfo.tranId === payment.scraperInfo.tranId;
-    });
-    if (filteredPayments.length > 0) {
-      this.throw(400, 'payment already stored in the staging area');
-    }
-    stagedLines[stageLineId].payments.push(payment);
-  }
-  var setModifier = {$set:{}};
-  setModifier.$set['cff.stagedLines.' + stageLineId] = userMainCFF.cff.lines[stageLineId];
-  yield db.cffs.update({userId: user._id, type: 'main'}, setModifier);
 });
 
 app.get('/cffs/bank', function *() {
@@ -398,14 +363,14 @@ app.post('/cffs/main/commit', function*() {
     this.throw(400, 'fattureincloud credentials not found');
   }
   var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  var keys = Object.keys(userMainCFF.cff.stagedLines);
-  var stagedLines = keys.reduce(function(acc, key) {
-    acc.push(userMainCFF.cff.stagedLines[key]);
-    return acc;
-  }, []);
+  if (!userMainCFF) {
+    this.throw(400, 'main cff not found in database');
+  }
+
+  var stagedLines = utils.getArrayFromObject(userMainCFF.cff.stagedLines)
 
   if (stagedLines.length === 0) {
-    this.throw(400, 'staged are is empty');
+    this.throw(400, 'staged area is empty');
   }
 
   // add payments of same line not staged
@@ -435,6 +400,94 @@ app.post('/cffs/main/commit', function*() {
   });
   userMainCFF.cff.stagedLines = {};
   yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff: userMainCFF.cff}});
+});
+
+app.get('/matches/todo', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var matches = yield db.matches.findOne({userId: user._id});
+  matches = matches || [];
+  var userPaymentsIDs = matches.map(function(match) {return match.main.id});
+  var dataPaymentsIDs = matches.map(function(match) {return match.data.id});
+
+  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
+  var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
+
+  var userPayments = utils.getPaymentsFromCFF(userMainCFF.cff);
+  var dataPayments = utils.getPaymentsFromCFF(userBankCFF.cff);
+
+  var filteredUserPayments = userPayments.filter(function(userPayment) {
+    return userPaymentsIDs.indexOf(userPayment.id) === -1;
+  });
+
+  var filteredDataPayments = dataPayments.filter(function(dataPayment) {
+    return dataPaymentsIDs.indexOf(dataPayment.id) === -1;
+  });
+
+  var payments = {
+    data: dataPayments,
+    main: userPayments
+  };
+
+  this.objectName = 'matches';
+  this.body = {
+    todo: getMatches(payments)
+  };
+});
+
+app.get('/matches/done', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var matches = yield db.matches.findOne({userId: user._id});
+
+  this.objectName = 'matches';
+  this.body = matches || [];
+});
+
+app.put('/matches/stage', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var match = this.request.body;
+  var stageLineId = match.main.info.lineId;
+
+  // update stagedLines
+  var mainPayment = match.main;
+
+  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
+  if (!userMainCFF) {
+    this.throw(400, 'user does not have a database');
+  }
+  if (!userMainCFF.cff.lines[stageLineId]) {
+    this.throw(400, 'the given id does not correspond to any line');
+  }
+  var stagedLines = userMainCFF.cff.stagedLines;
+  if (!stagedLines[stageLineId]) {
+    // line does not exist yet in the staging area
+    var line = {
+      id: stageLineId,
+      flowDirection: mainPayment.info.flowDirection,
+      payments: [mainPayment]
+    };
+    stagedLines[stageLineId] = line;
+  } else {
+    // line already exists -> check if mainPayment is not already stored, then store it
+    var filteredPayments = stagedLines[stageLineId].payments.filter(function(_payment) {
+      return _payment.scraperInfo.tranId === mainPayment.scraperInfo.tranId;
+    });
+    if (filteredPayments.length > 0) {
+      this.throw(400, 'payment already stored in the staging area');
+    }
+    stagedLines[stageLineId].payments.push(mainPayment);
+  }
+  var setModifier = {$set:{}};
+  setModifier.$set['cff.stagedLines.' + stageLineId] = userMainCFF.cff.lines[stageLineId];
+  yield db.cffs.update({userId: user._id, type: 'main'}, setModifier);
+
+  // update stagedMatches
+  var stagedMatches = yield db.stagedMatches.findOne({userId: user._id});
+  var setModifier = {$set:{}};
+  setModifier.$set[mainPayment.id] = match;
+  yield db.stagedMatches.update({userId: user._id}, setModifier, {upsert: true});
 });
 
 app.get('/projects', function *() {

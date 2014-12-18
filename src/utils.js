@@ -25,12 +25,63 @@ var sortCFFLinesByDate = function (a, b) {
   const dateB = new Date(dateStringB);
 
   return dateB.getTime() - dateA.getTime();
+};
+
+var getPaymentsFromCFF = function (cff) {
+  if (!cff) {
+    return [];
+  }
+
+  if (!Array.isArray(cff.lines)) {
+    cff.lines = Object.keys(cff.lines).reduce(function(acc, key) {
+        acc.push(cff.lines[key]);
+        return acc;
+      },
+      []
+    );
+  }
+
+  var lines = cff.lines.map(function(line) {
+    line.sourceId = cff.sourceId;
+    return line;
+  });
+
+  var payments = lines.map(function(line, index) {
+    var info = Object.keys(line).reduce(function(acc, key) {
+        if (key !== 'payments') {
+
+          acc[key === 'id' ? 'lineId' : key] = line[key];
+        }
+        return acc;
+      },
+      {}
+    );
+    return line.payments.map(function(payment) {
+      payment.info = info;
+      payment.id = payment.scraperInfo ? info.lineId + payment.scraperInfo.tranId : info.lineId + 'tran_0_';
+      return payment;
+    });
+  });
+
+  return [].concat.apply([], payments);
+};
+
+var getArrayFromObject = function(obj) {
+  return Object.keys(obj).reduce(function(acc, key) {
+      acc.push(obj[key]);
+      return acc;
+    },
+    []
+  );
 }
+
 
 module.exports = {
   parseAuthorization: parseAuthorization,
   getUserByToken: getUserByToken,
   sortCFFLinesByDate: sortCFFLinesByDate,
+  getPaymentsFromCFF: getPaymentsFromCFF,
+  getArrayFromObject: getArrayFromObject,
   captchaError: 'captcha',
   passwordError: 'password',
   loginError: 'login',
