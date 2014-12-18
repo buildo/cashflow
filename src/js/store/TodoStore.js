@@ -5,7 +5,6 @@ const Dispatcher = require('../dispatcher/AppDispatcher.js');
 const Store = require('./Store');
 const TodoDataStore = require('./TodoDataStore');
 
-let matchesTodo;
 let isLoading = true;
 let selectedMatchIndex = 0;
 let selectedPaymentId;
@@ -16,13 +15,12 @@ module.exports = _.extend(self, Store(
   // waitFor other Stores
   [TodoDataStore], {
   // action handlers
-  GETTING_MATCHES_TODO: () => {
-    matchesTodo = undefined;
+  GETTING_MATCHES: () => {
     isLoading = true;
     return true;
   },
 
-  MATCHES_TODO_UPDATED: (actionData) => {
+  MATCHES_UPDATED: (actionData) => {
     isLoading = false;
     return true;
   },

@@ -4,14 +4,13 @@
 
 const React = require('react');
 const ServerActions = require('../../../actions/ServerActions');
-const StageDataStore = require('../../../store/StageDataStore.js');
-const CFFStore = require('../../../store/CFFStore.js');
-
+const StageStore = require('../../../store/StageStore.js');
+const Match = require('./Match.jsx');
 
 const getStateFromStores = function () {
   return {
-    stagedLines: StageDataStore.getStagedLines() || {},
-    isLoading: StageDataStore.isLoading()
+    stagedMatches: StageStore.getStagedMatches() || {},
+    isLoading: StageStore.isLoading()
   };
 };
 
@@ -22,15 +21,11 @@ const StageMain = React.createClass({
   },
 
   componentDidMount: function() {
-    StageDataStore.addChangeListener(this._onChange);
-    CFFStore.addChangeListener(this.CFFStoreChanged);
-    if (!StageDataStore.getStagedLines()) {
-      ServerActions.getStagedLines();
-    }
+    StageStore.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function() {
-    StageDataStore.removeChangeListener(this._onChange);
+    StageStore.removeChangeListener(this._onChange);
   },
 
   render: function() {
@@ -58,22 +53,17 @@ const StageMain = React.createClass({
       </div>
     );
 
-    const stagedLines = <div/>; // TODO
+    const matches = this.state.stagedMatches.map((match, index) =>
+      <Match match={match} key={index}/>);
 
     return (
       <div>
         <h4 className='ui top attached inverted header'>
           STAGE
         </h4>
-        {this.state.stagedLines.length > 0 ? stagedLines : emptyStage}
+        {this.state.stagedMatches.length > 0 ? matches : emptyStage}
       </div>
     );
-  },
-
-  CFFStoreChanged: function() {
-    if (!CFFStore.isLoading()) {
-      ServerActions.getStagedLines();
-    }
   },
 
   _onChange: function() {

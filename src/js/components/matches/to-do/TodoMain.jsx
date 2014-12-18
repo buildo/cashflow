@@ -3,7 +3,6 @@
 'use strict';
 
 const React = require('react');
-const ServerActions = require('../../../actions/ServerActions');
 const TodoStore = require('../../../store/TodoStore.js');
 const Match = require('./Match.jsx');
 const MatchPreview = require('./MatchPreview.jsx');
@@ -27,7 +26,6 @@ const TodoMain = React.createClass({
 
   componentDidMount: function() {
     TodoStore.addChangeListener(this._onChange);
-    ServerActions.getMatchesTodo();
   },
 
   componentWillUnmount: function() {

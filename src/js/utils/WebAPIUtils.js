@@ -13,12 +13,6 @@ module.exports = {
     headers: {'Content-Type': 'application/json'},
   }),
 
-  getStagedLines: () => $.ajax({
-    url: HOST + '/cffs/main/stage',
-    type: 'GET',
-    headers: {'Authorization': 'Token token=' + getToken()}
-  }),
-
   getMainCFF: () => $.ajax({
     url: HOST + '/cffs/main',
     type: 'GET',
@@ -31,14 +25,8 @@ module.exports = {
     headers: {'Authorization': 'Token token=' + getToken()}
   }),
 
-  getMatchesTodo: () => $.ajax({
-    url: HOST + '/matches/todo',
-    type: 'GET',
-    headers: {'Authorization': 'Token token=' + getToken()}
-  }),
-
-  getMatchesDone: () => $.ajax({
-    url: HOST + '/matches/done',
+  getMatches: () => $.ajax({
+    url: HOST + '/matches',
     type: 'GET',
     headers: {'Authorization': 'Token token=' + getToken()}
   }),

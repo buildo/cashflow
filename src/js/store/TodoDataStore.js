@@ -11,11 +11,10 @@ module.exports = _.extend(self, Store.Data, Store(
   [], {
   // action handlers
 
-  MATCHES_TODO_UPDATED: (actionData) => {
-    console.log(actionData);
+  MATCHES_UPDATED: (actionData) => {
     self.deleteAll();
-    const dataPayments = actionData.data;
-    const mainPayments = actionData.main;
+    const dataPayments = actionData.todo.data;
+    const mainPayments = actionData.todo.main;
 
     // insert payments
     mainPayments.concat(dataPayments).forEach((p) => self.insert(p.id, p));

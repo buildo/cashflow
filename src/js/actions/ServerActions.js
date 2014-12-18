@@ -65,27 +65,13 @@ const ServerActions = {
       .fail(handleError);
   },
 
-  getMatchesTodo: () => {
-    sendAsyncAction(ActionTypes.GETTING_MATCHES_TODO);
-    WebAPIUtils.getMatchesTodo()
-      .done((res) => sendAction(ActionTypes.MATCHES_TODO_UPDATED, res.data.matches.todo))
+  getMatches: () => {
+    sendAsyncAction(ActionTypes.GETTING_MATCHES);
+    WebAPIUtils.getMatches()
+      .done((res) => sendAction(ActionTypes.MATCHES_UPDATED, res.data.matches))
       .fail(handleError);
   },
 
-  getMatchesDone: () => {
-    sendAsyncAction(ActionTypes.GETTING_MATCHES_DONE);
-    WebAPIUtils.getMatchesDone()
-      .done((res) => sendAction(ActionTypes.MATCHES_DONE_UPDATED, res.data.matches.todo))
-      .fail(handleError);
-  },
-
-
-  getStagedLines: () => {
-    sendAsyncAction(ActionTypes.GETTING_STAGED_LINES);
-    WebAPIUtils.getStagedLines()
-      .done((res) => sendAction(ActionTypes.STAGED_LINES_UPDATED, res.data.stagedLines))
-      .fail(handleError);
-  }
 };
 
 module.exports = ServerActions;

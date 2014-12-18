@@ -2,11 +2,7 @@
 
 const _ = require('lodash');
 const Dispatcher = require('../dispatcher/AppDispatcher.js');
-const DataStore = require('./DataStore');
 const Store = require('./Store');
-
-let stagedLines;
-let isLoading = false;
 
 const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
 module.exports = _.extend(self, Store.Optimistic, Store(
@@ -16,15 +12,11 @@ module.exports = _.extend(self, Store.Optimistic, Store(
 
   {
   // action handlers
-  GETTING_STAGED_LINES: () => {
-    isLoading = true;
-    return true;
-  },
-
-  STAGED_LINES_UPDATED: (actionData) => {
-    stagedLines = actionData;
-    console.log(stagedLines);
-    isLoading = false;
+  MATCHES_UPDATED: (actionData) => {
+    console.log(actionData);
+    self.deleteAll();
+    // insert payments
+    actionData.stage.forEach((match) => self.insert((match.main.id + match.data.id), match));
     return true;
   },
 
@@ -34,12 +26,41 @@ module.exports = _.extend(self, Store.Optimistic, Store(
 
 }, {
   // custom getters
-  getStagedLines() {
-    return stagedLines;
+  getAll() {
+    return [{
+      main: {
+        date: '2014-08-18',
+        grossAmount: 4042.99,
+        id: '90e4c3b834f69ddfbe3550bfcd1edda0b2b4e057_0',
+        method: "Bonifico - IT76G0538712800000002134722",
+        info: {
+          description: "PAGAM. DELEGA UNIFICATA DELEGA F24 - CBI DEL : 18.08.2014",
+          flowDirection: "out",
+          lineId: "90e4c3b834f69ddfbe3550bfcd1edda0b2b4e057",
+          sourceId: "BPER",
+          company: {
+            description: "CBI s.r.l.",
+            id: 235269
+          },
+          currency: {
+            conversion: 1,
+            name: "EUR"
+          }
+        }
+      },
+      data: {
+        date: '2014-08-18',
+        grossAmount: 4042.99,
+        id: '90e4c3b834f69ddfbe3550bfcd1edda0b2b4e057_0',
+        info: {
+          description: "PAGAM. DELEGA UNIFICATA DELEGA F24 - CBI DEL : 18.08.2014",
+          flowDirection: "out",
+          lineId: "90e4c3b834f69ddfbe3550bfcd1edda0b2b4e057",
+          sourceId: "BPER"
+        }
+      }
+    }];
+    // return self.getAll();
   },
-
-  isLoading() {
-    return isLoading;
-  }
 
 }));
