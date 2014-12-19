@@ -31,7 +31,7 @@ app.use(function *(next) {
   if (app.env === 'development') {
     this.set('Access-Control-Allow-Origin', '*');
     this.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Override-Status-Code');
-    this.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE');
+    this.set('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS, DELETE');
   }
   yield next;
 });
@@ -329,48 +329,76 @@ app.post('/cffs/bank/pull', function *() {
 app.post('/cffs/main/commit', function*() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
+
+  var stagedMatchesDB = yield db.stagedMatches.findOne({userId: user._id});
+  var stagedMatches = utils.getArrayFromObject(stagedMatchesDB.stagedMatches);
+  if (stagedMatches.length === 0) {
+    this.throw(400, 'stage area is empty');
+  }
+
   var credentialsFattureInCloud = user.credentials.fattureincloud;
   if (!credentialsFattureInCloud) {
     this.throw(400, 'fattureincloud credentials not found');
   }
+
   var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  if (!userMainCFF) {
-    this.throw(400, 'main cff not found in database');
-  }
+  var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
 
-  var stagedLines = utils.getArrayFromObject(userMainCFF.cff.stagedLines);
-
-  if (stagedLines.length === 0) {
-    this.throw(400, 'staged area is empty');
-  }
-
-  // add payments of same line not staged
-  stagedLines.map(function (stagedLine) {
-    var paymentsIDs = stagedLine.payments.reduce(function (acc, _payment) {
-      acc += ';' + _payment.scraperInfo.tranId;
+  var payments = utils.getPaymentsFromCFF(userMainCFF.cff).concat(utils.getPaymentsFromCFF(userBankCFF.cff));
+  var paymentsMap = payments.reduce(function(acc, payment) {
+      acc[payment.id] = payment;
       return acc;
-    }, '');
+    },
+    {}
+  );
 
-    userMainCFF.cff.lines[stagedLine.id].payments.forEach(function(_payment) {
-      if (paymentsIDs.indexOf(_payment.scraperInfo.tranId) === -1) {
-        stagedLine.payments.push(_payment);
+  var stagedPayments = stagedMatches.filter(function(match) {
+    return !(paymentsMap[match.main].date === paymentsMap[match.data].date &&
+      (paymentsMap[match.main].grossAmount - paymentsMap[match.data].grossAmount) < 0.01);
+  }).map(function(match) {return paymentsMap[match.main]});
+
+  var stagedLines = stagedPayments.reduce(function(acc, payment) {
+      if (!acc[payment.info.lineId]) {
+        const newLine = payment.info;
+        newLine.id = newLine.lineId;
+        newLine.payments = [payment];
+        acc[newLine.id] = newLine;
+      } else {
+        acc[payment.info.lineId].payments.push(payment);
+      }
+      return acc;
+    },
+    {}
+  );
+
+  console.log(userMainCFF.cff.lines);
+
+  var stagedPaymentsIDs = stagedPayments.reduce(function(acc, payment) {return acc + payment.id}, '');
+
+  // add stagedPayments of same line not staged
+  stagedLines = utils.getArrayFromObject(stagedLines).map(function (stagedLine) {
+    userMainCFF.cff.lines[stagedLine.id].payments.forEach(function(payment) {
+      if (stagedPaymentsIDs.indexOf(payment.id) === -1) {
+        stagedLine.payments.push(payment);
       }
     });
   });
 
-  const result = yield saveOnFattureInCloud(stagedLines, credentialsFattureInCloud);
-  if (result.error) {
-    this.throw(500, 'upload to fatture in cloud failed');
-  }
-  result.forEach(function(res) {
-    if (res.newId !== res.oldId) {
-      userMainCFF.cff.lines[res.oldId].id = res.newId;
-      userMainCFF.cff.lines[res.newId] = userMainCFF.cff.lines[res.oldId];
-      delete userMainCFF.cff.lines[res.oldId];
-    }
-  });
-  userMainCFF.cff.stagedLines = {};
-  yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff: userMainCFF.cff}});
+  console.log(stagedLines);
+
+  // const result = yield saveOnFattureInCloud(stagedLines, credentialsFattureInCloud);
+  // if (result.error) {
+  //   this.throw(500, 'upload to fatture in cloud failed');
+  // }
+  // result.forEach(function(res) {
+  //   if (res.newId !== res.oldId) {
+  //     userMainCFF.cff.lines[res.oldId].id = res.newId;
+  //     userMainCFF.cff.lines[res.newId] = userMainCFF.cff.lines[res.oldId];
+  //     delete userMainCFF.cff.lines[res.oldId];
+  //   }
+  // });
+  // userMainCFF.cff.stagedLines = {};
+  // yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff: userMainCFF.cff}});
 });
 
 app.get('/matches', function *() {
@@ -410,16 +438,22 @@ app.get('/matches', function *() {
   });
 
   const stage = stagedMatches.map(function(match) {
+    const main = mainPayments.filter(function(p) {return p.id === match.main})[0];
+    const data = dataPayments.filter(function(p) {return p.id === match.data})[0];
     return {
-      main: mainPayments.filter(function(p) {return p.id === match.main})[0],
-      data: dataPayments.filter(function(p) {return p.id === match.data})[0]
+      id: main.id + data.id,
+      main: main,
+      data: data
     };
   });
 
   const done = matches.map(function(match) {
+    const main = mainPayments.filter(function(p) {return p.id === match.main})[0];
+    const data = dataPayments.filter(function(p) {return p.id === match.data})[0];
     return {
-      main: mainPayments.filter(function(p) {return p.id === match.main})[0],
-      data: dataPayments.filter(function(p) {return p.id === match.data})[0]
+      id: main.id + data.id,
+      main: main,
+      data: data
     };
   });
 
@@ -434,6 +468,26 @@ app.get('/matches', function *() {
 app.post('/matches/stage/clear', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
+  yield db.stagedMatches.update({userId: user._id}, {userId: user._id, stagedMatches: {}}, {upsert: true});
+});
+
+app.delete('/matches/stage/:matchId', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var matchId = this.params.matchId;
+  var unsetModifier = {$unset: {}};
+  unsetModifier.$unset['stagedMatches.' + matchId] = '';
+  yield db.stagedMatches.update({userId: user._id}, unsetModifier);
+});
+
+app.post('/matches/stage/commit', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var stagedMatchesDB = yield db.stagedMatches.findOne({userId: user._id});
+  var stagedMatches = utils.getArrayFromObjects(stagedMatchesDB.stagedMatches);
+  if (stagedMatches.length > 0) {
+    this.throw(400, 'stage area is empty');
+  }
   yield db.stagedMatches.update({userId: user._id}, {userId: user._id, stagedMatches: {}}, {upsert: true});
 });
 
