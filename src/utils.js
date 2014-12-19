@@ -58,7 +58,6 @@ var getPaymentsFromCFF = function (cff) {
     );
     return line.payments.map(function(payment) {
       payment.info = info;
-      payment.id = payment.scraperInfo ? info.lineId + payment.scraperInfo.tranId : info.lineId + 'tran_0_';
       return payment;
     });
   });

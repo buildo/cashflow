@@ -236,35 +236,6 @@ app.get('/cffs/main/pull/progress', function *() {
   this.body = fattureInCloudProgress;
 });
 
-app.get('/cffs/main/stage', function *() {
-  var token = utils.parseAuthorization(this.request.header.authorization);
-  var user = yield utils.getUserByToken(db, token);
-  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  var stagedLines = userMainCFF ? utils.getArrayFromObject(userMainCFF.cff.stagedLines) : [];
-  this.objectName = 'stagedLines';
-  this.body = stagedLines;
-});
-
-app.post('/cffs/main/stage/clear', function *() {
-  var token = utils.parseAuthorization(this.request.header.authorization);
-  var user = yield utils.getUserByToken(db, token);
-  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  userMainCFF.cff.stagedLines = {};
-  yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff:userMainCFF.cff}});
-});
-
-app.get('/cffs/main/stage/:lineId', function *() {
-  var token = utils.parseAuthorization(this.request.header.authorization);
-  var user = yield utils.getUserByToken(db, token);
-  var stageLineId = this.params.lineId;
-  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  if (!userMainCFF.cff.stagedLines[stageLineId]) {
-    this.throw(400, 'the given id does not correspond to any staged line');
-  }
-  this.objectName = 'stagedLine';
-  this.body = userMainCFF.cff.stagedLines[stageLineId];
-});
-
 app.get('/cffs/bank', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
@@ -274,7 +245,7 @@ app.get('/cffs/bank', function *() {
   }
   var sortedLines = userBankCFF.cff.lines.sort(utils.sortCFFLinesByDate);
 
-  this.objectName = 'cffs'
+  this.objectName = 'cffs';
   this.body = {bank: userBankCFF.cff || {}};
 });
 
@@ -321,10 +292,10 @@ app.post('/cffs/bank/pull', function *() {
         var closestDateOldLines = oldLines.map(function(line){return line.payments[0].date;})
           .reduce(function(acc, date){return date < acc ? date : acc;});
 
-        filteredOldLines = oldLines.filter(function(line){return line.payments[0].date < closestDateOldLines});
+        filteredOldLines = oldLines.filter(function(line){return line.payments[0].date < closestDateOldLines;});
       }
 
-      var filteredNewLines = result.bank.cff.lines.filter(function(line){return !closestDateOldLines || line.payments[0].date >= closestDateOldLines});
+      var filteredNewLines = result.bank.cff.lines.filter(function(line){return !closestDateOldLines || line.payments[0].date >= closestDateOldLines;});
 
       // merge old lines with newly downloaded ones
       var lines = filteredOldLines.concat(filteredNewLines);
@@ -367,7 +338,7 @@ app.post('/cffs/main/commit', function*() {
     this.throw(400, 'main cff not found in database');
   }
 
-  var stagedLines = utils.getArrayFromObject(userMainCFF.cff.stagedLines)
+  var stagedLines = utils.getArrayFromObject(userMainCFF.cff.stagedLines);
 
   if (stagedLines.length === 0) {
     this.throw(400, 'staged area is empty');
