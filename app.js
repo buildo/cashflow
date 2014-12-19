@@ -373,91 +373,111 @@ app.post('/cffs/main/commit', function*() {
   yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff: userMainCFF.cff}});
 });
 
-app.get('/matches/todo', function *() {
+app.get('/matches', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  var matches = yield db.matches.findOne({userId: user._id});
-  matches = matches || [];
-  var userPaymentsIDs = matches.map(function(match) {return match.main.id});
-  var dataPaymentsIDs = matches.map(function(match) {return match.data.id});
-
   var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
   var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
 
-  var userPayments = utils.getPaymentsFromCFF(userMainCFF.cff);
+  if (!userMainCFF || !userBankCFF) {
+    this.throw(400, 'database is incomplete, please run scrapers.');
+  }
+
+  var matchesDB = yield db.matches.findOne({userId: user._id});
+  var stagedMatchesDB = yield db.stagedMatches.findOne({userId: user._id});
+
+  var matches = matchesDB ? utils.getArrayFromObject(matchesDB.matches) : [];
+  var stagedMatches = stagedMatchesDB ? utils.getArrayFromObject(stagedMatchesDB.stagedMatches) : [];
+
+  var mainPaymentsIDs = matches.concat(stagedMatches).map(function(match) {return match.main;});
+  var dataPaymentsIDs = matches.concat(stagedMatches).map(function(match) {return match.data;});
+
+  var mainPayments = utils.getPaymentsFromCFF(userMainCFF.cff);
   var dataPayments = utils.getPaymentsFromCFF(userBankCFF.cff);
 
-  var filteredUserPayments = userPayments.filter(function(userPayment) {
-    return userPaymentsIDs.indexOf(userPayment.id) === -1;
+  var filteredMainPayments = mainPayments.filter(function(mainPayment) {
+    return mainPaymentsIDs.indexOf(mainPayment.id) === -1;
   });
 
   var filteredDataPayments = dataPayments.filter(function(dataPayment) {
     return dataPaymentsIDs.indexOf(dataPayment.id) === -1;
   });
 
-  var payments = {
-    data: dataPayments,
-    main: userPayments
-  };
+  // create body
+  const todo = getMatches({
+    data: filteredDataPayments,
+    main: filteredMainPayments
+  });
+
+  const stage = stagedMatches.map(function(match) {
+    return {
+      main: mainPayments.filter(function(p) {return p.id === match.main})[0],
+      data: dataPayments.filter(function(p) {return p.id === match.data})[0]
+    };
+  });
+
+  const done = matches.map(function(match) {
+    return {
+      main: mainPayments.filter(function(p) {return p.id === match.main})[0],
+      data: dataPayments.filter(function(p) {return p.id === match.data})[0]
+    };
+  });
 
   this.objectName = 'matches';
   this.body = {
-    todo: getMatches(payments)
+    todo: todo,
+    stage: stage,
+    done: done
   };
 });
 
-app.get('/matches/done', function *() {
+app.post('/matches/stage/clear', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  var matches = yield db.matches.findOne({userId: user._id});
-
-  this.objectName = 'matches';
-  this.body = matches || [];
+  yield db.stagedMatches.update({userId: user._id}, {userId: user._id, stagedMatches: {}}, {upsert: true});
 });
 
-app.put('/matches/stage', function *() {
+app.put('/matches/stage/mainPaymentId/:mainPaymentId/dataPaymentId/:dataPaymentId', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  var match = this.request.body;
-  var stageLineId = match.main.info.lineId;
-
-  // update stagedLines
-  var mainPayment = match.main;
+  var mainPaymentId = this.params.mainPaymentId;
+  var dataPaymentId = this.params.dataPaymentId;
 
   var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
+  var bankMainCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
+
   if (!userMainCFF) {
-    this.throw(400, 'user does not have a database');
+    this.throw(400, 'user does not have a main CFF');
   }
-  if (!userMainCFF.cff.lines[stageLineId]) {
-    this.throw(400, 'the given id does not correspond to any line');
+  if (!bankMainCFF) {
+    this.throw(400, 'user does not have a data CFF');
   }
-  var stagedLines = userMainCFF.cff.stagedLines;
-  if (!stagedLines[stageLineId]) {
-    // line does not exist yet in the staging area
-    var line = {
-      id: stageLineId,
-      flowDirection: mainPayment.info.flowDirection,
-      payments: [mainPayment]
-    };
-    stagedLines[stageLineId] = line;
-  } else {
-    // line already exists -> check if mainPayment is not already stored, then store it
-    var filteredPayments = stagedLines[stageLineId].payments.filter(function(_payment) {
-      return _payment.scraperInfo.tranId === mainPayment.scraperInfo.tranId;
-    });
-    if (filteredPayments.length > 0) {
-      this.throw(400, 'payment already stored in the staging area');
-    }
-    stagedLines[stageLineId].payments.push(mainPayment);
+
+  var mainPayment = utils.getPaymentsFromCFF(userMainCFF.cff).filter(function(p) {
+    return p.id === mainPaymentId;
+  });
+  var dataPayment = utils.getPaymentsFromCFF(bankMainCFF.cff).filter(function(p) {
+    return p.id === dataPaymentId;
+  });
+
+  if (!mainPayment) {
+    this.throw(400, 'the given mainPaymentId does not correspond to any payment');
   }
-  var setModifier = {$set:{}};
-  setModifier.$set['cff.stagedLines.' + stageLineId] = userMainCFF.cff.lines[stageLineId];
-  yield db.cffs.update({userId: user._id, type: 'main'}, setModifier);
+  if (!dataPayment) {
+    this.throw(400, 'the given dataPaymentId does not correspond to any payment');
+  }
+
+  var stagedMatchesDB = (yield db.stagedMatches.findOne({userId: user._id}));
+  var stagedMatches = stagedMatchesDB ? stagedMatchesDB.stagedMatches : {};
+  var matchId = mainPaymentId + dataPaymentId;
+
+  if (stagedMatches[matchId]) {
+    this.throw(400, 'you already have a match with these IDs');
+  }
 
   // update stagedMatches
-  var stagedMatches = yield db.stagedMatches.findOne({userId: user._id});
   var setModifier = {$set:{}};
-  setModifier.$set[mainPayment.id] = match;
+  setModifier.$set['stagedMatches.' + matchId] = {main: mainPaymentId, data: dataPaymentId};
   yield db.stagedMatches.update({userId: user._id}, setModifier, {upsert: true});
 });
 
