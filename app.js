@@ -149,23 +149,19 @@ app.post('/users/credentials/bank', function *(next) {
 app.get('/cffs/main', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  if (!userMainCFF) {
+  var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
+  if (mainLines.length === 0) {
     this.throw(400, 'user does not have a main cff in database');
   }
 
-  var lines = utils.getArrayFromObject(userMainCFF.cff.lines);
-  var stagedLines = utils.getArrayFromObject(userMainCFF.cff.stagedLines);
-
-  var correctCFF = {
-    sourceId: userMainCFF.cff.sourceId,
-    sourceDescription: userMainCFF.cff.sourceDescription,
-    lines: lines.sort(utils.sortCFFLinesByDate),
-    stagedLines: stagedLines
+  var cff = {
+    sourceId: mainLines[0].sourceId,
+    sourceDescription: mainLines[0].sourceDescription,
+    lines: mainLines.sort(utils.sortCFFLinesByDate),
   };
 
   this.objectName = 'cffs';
-  this.body = { main: correctCFF};
+  this.body = { main: cff};
 });
 
 app.post('/cffs/main/pull', function *() {
@@ -176,54 +172,29 @@ app.post('/cffs/main/pull', function *() {
   if (!credentialsFattureInCloud) {
     this.throw(400, 'fattureincloud credentials not found');
   }
-  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  var oldCFF = {};
-  if (userMainCFF) {
-    oldCFF = userMainCFF.cff;
-    var stagedLines = oldCFF.stagedLines || {};
-    if (utils.getArrayFromObject(stagedLines).length > 0) {
-      this.throw(400, 'staged are is not empty');
-    }
-    var oldLines = utils.getArrayFromObject(userMainCFF.cff.lines);
-    oldCFF.lines = oldLines;
-  }
+  var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
+  var oldCFF = mainLines.length === 0 ? {} :
+    {
+      sourceId: mainLines[0].sourceId,
+      sourceDescription: mainLines[0].sourceDescription,
+      lines: mainLines
+    };
 
   scrapers.getFattureInCloud(db, user._id, credentialsFattureInCloud, oldCFF)
     .done(function(result) {
-      // transform lines from Array to Object
-      var newObjectLines = result.fattureInCloud.cff.lines.reduce(function(acc, line) {
-          acc[line.id] = line;
-          return acc;
-        },
-        {}
-      );
-
-      var newCFF = {
-        sourceId: result.fattureInCloud.cff.sourceId,
-        sourceDescription: result.fattureInCloud.cff.sourceDescription,
-        lines: newObjectLines,
-        stagedLines: {}
-      };
-      // save modified CFF to db
       co(function *() {
-        var matches = yield db.matches.findOne({userId: user._id});
-        // remove matches of no longer existing lines
-        if (matches) {
-          var matchesLinesIDs = Object.keys(matches);
-          var newCFFLinesIDs = Object.keys(newObjectLines);
-
-          matchesLinesIDs.reduce(function(acc, matchLineID) {
-              if (newCFFLinesIDs.indexOf(matchLineID) > -1) {
-                acc[matchLineID] = matches[matchLineID];
-              }
-              return acc;
-            },
-            {}
-          );
-          yield db.matches.update({userId: user._id}, {$set: matches});
-        }
-        // replace mainCFF with new one
-        yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff: newCFF}}, {upsert: true});
+        var cff = result.fattureInCloud.cff;
+        yield cff.lines.map(function(line) {
+          line.sourceId = cff.sourceId;
+          line.sourceDescription = cff.sourceDescription;
+          var regExp = new RegExp(line.id, '');
+          // save new line
+          return {
+            insert: db.cffs.update({userId: user._id, type: 'main', _id: line.id}, {$set: {line: line}}, {upsert: true}),
+            removeMatches: db.matches.remove({userId: user._id, _id: {$regex: regExp}}),
+            removeStagedMatches: db.stagedMatches.remove({userId: user._id, _id: {$regex: regExp}})
+          };
+        });
       });
     });
 });
@@ -239,14 +210,18 @@ app.get('/cffs/main/pull/progress', function *() {
 app.get('/cffs/bank', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
-  if (!userBankCFF) {
+  var bankLines = yield db.cffs.find({userId: user._id, type: 'bank'}).toArray();
+  if (bankLines.length === 0) {
     this.throw(400, 'user does not have a bank cff in database');
   }
-  var sortedLines = userBankCFF.cff.lines.sort(utils.sortCFFLinesByDate);
-
+  var sortedLines = bankLines.sort(utils.sortCFFLinesByDate);
+  var cff = {
+    sourceId: sortedLines[0].sourceId,
+    sourceDescription: sortedLines[0].sourceDescription,
+    lines: sortedLines
+  };
   this.objectName = 'cffs';
-  this.body = {bank: userBankCFF.cff || {}};
+  this.body = {bank: cff};
 });
 
 app.post('/cffs/bank/pull', function *() {
@@ -284,8 +259,7 @@ app.post('/cffs/bank/pull', function *() {
       console.log(result);
 
       // retrieve stored lines
-      var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
-      var oldLines = userBankCFF && userBankCFF.cff.lines ? userBankCFF.cff.lines : [];
+      var oldLines = yield db.cffs.find({userId: user._id, type: 'bank'}).toArray();
 
       var filteredOldLines = [];
       if (oldLines.length > 0) {
@@ -296,12 +270,18 @@ app.post('/cffs/bank/pull', function *() {
       }
 
       var filteredNewLines = result.bank.cff.lines.filter(function(line){return !closestDateOldLines || line.payments[0].date >= closestDateOldLines;});
-
       // merge old lines with newly downloaded ones
-      var lines = filteredOldLines.concat(filteredNewLines);
-      result.bank.cff.lines = lines;
-
-      yield db.cffs.update({userId: user._id, type: 'bank'}, {$set: {cff:result.bank.cff}}, {upsert: true});
+      var cff = result.bank.cff;
+      yield filteredNewLines.map(function(line) {
+        line.sourceId = cff.sourceId;
+        line.sourceDescription = cff.sourceDescription;
+        var regExp = new RegExp(line.id, '');
+        // save new line
+        return {
+          insert: db.cffs.insert({userId: user._id, type: 'bank', _id: line.id, line: line})
+        };
+      });
+      console.log('FINE');
       break;
 
     case utils.unknownError:
@@ -326,12 +306,12 @@ app.post('/cffs/bank/pull', function *() {
   }
 });
 
-app.post('/cffs/main/commit', function*() {
+app.post('/matches/stage/commit', function*() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
 
-  var stagedMatchesDB = yield db.stagedMatches.findOne({userId: user._id});
-  var stagedMatches = utils.getArrayFromObject(stagedMatchesDB.stagedMatches);
+  var stagedMatches = yield db.stagedMatches.find({userId: user._id}).toArray();
+
   if (stagedMatches.length === 0) {
     this.throw(400, 'stage area is empty');
   }
@@ -341,10 +321,10 @@ app.post('/cffs/main/commit', function*() {
     this.throw(400, 'fattureincloud credentials not found');
   }
 
-  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
+  var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
+  var bankLines = yield db.cffs.find({userId: user._id, type: 'bank'}).toArray();
 
-  var payments = utils.getPaymentsFromCFF(userMainCFF.cff).concat(utils.getPaymentsFromCFF(userBankCFF.cff));
+  var payments = utils.getPaymentsFromLines(mainLines).concat(utils.getPaymentsFromLines(bankLines));
   var paymentsMap = payments.reduce(function(acc, payment) {
       acc[payment.id] = payment;
       return acc;
@@ -371,20 +351,20 @@ app.post('/cffs/main/commit', function*() {
     {}
   );
 
-  console.log(userMainCFF.cff.lines);
 
   var stagedPaymentsIDs = stagedPayments.reduce(function(acc, payment) {return acc + payment.id}, '');
 
   // add stagedPayments of same line not staged
   stagedLines = utils.getArrayFromObject(stagedLines).map(function (stagedLine) {
-    userMainCFF.cff.lines[stagedLine.id].payments.forEach(function(payment) {
-      if (stagedPaymentsIDs.indexOf(payment.id) === -1) {
-        stagedLine.payments.push(payment);
-      }
+    co(function *() {
+      var line = yield db.cffs.findOne({userId: user._id, _id: stagedLine.id});
+      line.payments.forEach(function(payment) {
+        if (stagedPaymentsIDs.indexOf(payment.id) === -1) {
+          stagedLine.payments.push(payment);
+        }
+      });
     });
   });
-
-  console.log(stagedLines);
 
   // const result = yield saveOnFattureInCloud(stagedLines, credentialsFattureInCloud);
   // if (result.error) {
@@ -404,24 +384,22 @@ app.post('/cffs/main/commit', function*() {
 app.get('/matches', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  var userBankCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
 
-  if (!userMainCFF || !userBankCFF) {
+  var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
+  var bankLines = yield db.cffs.find({userId: user._id, type: 'bank'}).toArray();
+
+  if (mainLines.length === 0 || bankLines.length === 0) {
     this.throw(400, 'database is incomplete, please run scrapers.');
   }
 
-  var matchesDB = yield db.matches.findOne({userId: user._id});
-  var stagedMatchesDB = yield db.stagedMatches.findOne({userId: user._id});
-
-  var matches = matchesDB ? utils.getArrayFromObject(matchesDB.matches) : [];
-  var stagedMatches = stagedMatchesDB ? utils.getArrayFromObject(stagedMatchesDB.stagedMatches) : [];
+  var matches = yield db.matches.find({userId: user._id}).toArray();
+  var stagedLines = yield db.stagedLines.find({userId: user._id}).toArray();
 
   var mainPaymentsIDs = matches.concat(stagedMatches).map(function(match) {return match.main;});
   var dataPaymentsIDs = matches.concat(stagedMatches).map(function(match) {return match.data;});
 
-  var mainPayments = utils.getPaymentsFromCFF(userMainCFF.cff);
-  var dataPayments = utils.getPaymentsFromCFF(userBankCFF.cff);
+  var mainPayments = utils.getPaymentsFromLines(mainLines);
+  var dataPayments = utils.getPaymentsFromLines(bankLines);
 
   var filteredMainPayments = mainPayments.filter(function(mainPayment) {
     return mainPaymentsIDs.indexOf(mainPayment.id) === -1;
@@ -468,16 +446,14 @@ app.get('/matches', function *() {
 app.post('/matches/stage/clear', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  yield db.stagedMatches.update({userId: user._id}, {userId: user._id, stagedMatches: {}}, {upsert: true});
+  yield db.stagedMatches.remove({userId: user._id});
 });
 
 app.delete('/matches/stage/:matchId', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
   var matchId = this.params.matchId;
-  var unsetModifier = {$unset: {}};
-  unsetModifier.$unset['stagedMatches.' + matchId] = '';
-  yield db.stagedMatches.update({userId: user._id}, unsetModifier);
+  yield db.stagedMatches.remove({userId: user._id, _id: matchId});
 });
 
 app.post('/matches/stage/commit', function *() {
@@ -488,7 +464,10 @@ app.post('/matches/stage/commit', function *() {
   if (stagedMatches.length > 0) {
     this.throw(400, 'stage area is empty');
   }
-  yield db.stagedMatches.update({userId: user._id}, {userId: user._id, stagedMatches: {}}, {upsert: true});
+
+  // TODO: save on fatture in cloud and on matchesDB;
+
+  yield db.stagedMatches.remove({userId: user._id});
 });
 
 app.put('/matches/stage/mainPaymentId/:mainPaymentId/dataPaymentId/:dataPaymentId', function *() {
@@ -497,20 +476,20 @@ app.put('/matches/stage/mainPaymentId/:mainPaymentId/dataPaymentId/:dataPaymentI
   var mainPaymentId = this.params.mainPaymentId;
   var dataPaymentId = this.params.dataPaymentId;
 
-  var userMainCFF = yield db.cffs.findOne({userId: user._id, type: 'main'});
-  var bankMainCFF = yield db.cffs.findOne({userId: user._id, type: 'bank'});
+  var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
+  var bankLines = yield db.cffs.find({userId: user._id, type: 'bank'}).toArray();
 
-  if (!userMainCFF) {
+  if (mainLines.length === 0) {
     this.throw(400, 'user does not have a main CFF');
   }
-  if (!bankMainCFF) {
+  if (bankLines.length === 0) {
     this.throw(400, 'user does not have a data CFF');
   }
 
-  var mainPayment = utils.getPaymentsFromCFF(userMainCFF.cff).filter(function(p) {
+  var mainPayment = utils.getPaymentsFromLines(mainLines).filter(function(p) {
     return p.id === mainPaymentId;
   });
-  var dataPayment = utils.getPaymentsFromCFF(bankMainCFF.cff).filter(function(p) {
+  var dataPayment = utils.getPaymentsFromLines(bankLines).filter(function(p) {
     return p.id === dataPaymentId;
   });
 
@@ -521,18 +500,12 @@ app.put('/matches/stage/mainPaymentId/:mainPaymentId/dataPaymentId/:dataPaymentI
     this.throw(400, 'the given dataPaymentId does not correspond to any payment');
   }
 
-  var stagedMatchesDB = (yield db.stagedMatches.findOne({userId: user._id}));
-  var stagedMatches = stagedMatchesDB ? stagedMatchesDB.stagedMatches : {};
-  var matchId = mainPaymentId + dataPaymentId;
-
-  if (stagedMatches[matchId]) {
-    this.throw(400, 'you already have a match with these IDs');
-  }
-
-  // update stagedMatches
-  var setModifier = {$set:{}};
-  setModifier.$set['stagedMatches.' + matchId] = {main: mainPaymentId, data: dataPaymentId};
-  yield db.stagedMatches.update({userId: user._id}, setModifier, {upsert: true});
+  yield db.stagedMatches.insert({
+    userId: user._id,
+    _id: mainPaymentId + dataPaymentId,
+    main: mainPaymentId,
+    data: dataPaymentId
+  });
 });
 
 app.get('/projects', function *() {
