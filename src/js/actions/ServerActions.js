@@ -1,6 +1,7 @@
 'use strict';
 
 const C = require('../constants/AppConstants');
+const Immutable = require('immutable');
 const ActionTypes = C.ActionTypes;
 const WebAPIUtils = require('../utils/WebAPIUtils.js');
 const sendAction = require('../utils/ActionUtils.js').sendAction;
@@ -71,6 +72,22 @@ const ServerActions = {
       .done((res) => sendAction(ActionTypes.MATCHES_UPDATED, res.data.matches))
       .fail(handleError);
   },
+
+  saveMatch: (data) => {
+    data = data.toJS();
+    sendAsyncAction(ActionTypes.SAVED_MATCH_OPTIMISTIC, data);
+    WebAPIUtils.saveMatch(data.match)
+      .done((res) => sendAction(ActionTypes.SAVED_MATCH, data))
+      .fail((res) => sendAction(ActionTypes.SAVED_MATCH_UNDO, data));
+  },
+
+  deleteStagedMatch: (match) => {
+    match = match.toJS();
+    sendAsyncAction(ActionTypes.DELETING_STAGED_MATCH);
+    WebAPIUtils.deleteStagedMatch(match)
+      .done((res) => sendAction(ActionTypes.STAGED_MATCH_DELETED, match))
+      .fail(handleError);
+  }
 
 };
 

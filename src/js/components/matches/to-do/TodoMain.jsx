@@ -4,6 +4,7 @@
 
 const React = require('react');
 const TodoStore = require('../../../store/TodoStore.js');
+const TodoDataStore = require('../../../store/TodoDataStore.js');
 const Match = require('./Match.jsx');
 const MatchPreview = require('./MatchPreview.jsx');
 const utils = require('../../../utils/utils.js');
@@ -26,10 +27,12 @@ const TodoMain = React.createClass({
 
   componentDidMount: function() {
     TodoStore.addChangeListener(this._onChange);
+    TodoDataStore.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function() {
     TodoStore.removeChangeListener(this._onChange);
+    TodoDataStore.addChangeListener(this._onChange);
   },
 
   render: function() {

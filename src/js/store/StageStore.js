@@ -24,6 +24,10 @@ module.exports = _.extend(self, Store(
     return true;
   },
 
+  SAVED_MATCH: () => {
+    selectedMatchIndex = 0;
+  },
+
   MATCH_STAGE_SELECTED: (actionData) => {
     console.log('SELECTED_MATCH: ' + actionData);
     selectedMatchIndex = actionData;

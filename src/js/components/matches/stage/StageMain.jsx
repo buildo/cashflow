@@ -5,6 +5,7 @@
 const React = require('react');
 const ServerActions = require('../../../actions/ServerActions');
 const StageStore = require('../../../store/StageStore.js');
+const StageDataStore = require('../../../store/StageDataStore.js');
 const Match = require('./Match.jsx');
 
 const getStateFromStores = function () {
@@ -22,10 +23,12 @@ const StageMain = React.createClass({
 
   componentDidMount: function() {
     StageStore.addChangeListener(this._onChange);
+    StageDataStore.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function() {
     StageStore.removeChangeListener(this._onChange);
+    StageDataStore.removeChangeListener(this._onChange);
   },
 
   render: function() {

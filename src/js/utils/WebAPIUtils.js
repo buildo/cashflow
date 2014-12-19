@@ -1,7 +1,6 @@
 'use strict';
 
 const HOST = 'http://francesco-air.local:9000';
-
 const getToken = () => ('"' + localStorage.getItem('cashflow_token') + '"');
 
 module.exports = {
@@ -34,6 +33,18 @@ module.exports = {
   getCurrentUser: () => $.ajax({
     url: HOST + '/users/me',
     type: 'GET',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
+  saveMatch: (match) => $.ajax({
+    url: HOST + '/matches/stage/mainPaymentId/' + match.main.id + '/dataPaymentId/'  + match.data.id,
+    type: 'PUT',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
+  deleteStagedMatch: (match) => $.ajax({
+    url: HOST + '/matches/stage/' + match.id,
+    type: 'DELETE',
     headers: {'Authorization': 'Token token=' + getToken()}
   }),
 

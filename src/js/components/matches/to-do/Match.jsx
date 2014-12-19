@@ -3,9 +3,11 @@
 'use strict';
 
 const React = require('react');
+const Immutable = require('immutable');
 const MatchBody = require('./MatchBody.jsx');
 const MatchRightColumn = require('./MatchRightColumn.jsx');
 const TodoActions = require('../../../actions/TodoActions.js');
+const ServerActions = require('../../../actions/ServerActions.js');
 
 const Match = React.createClass({
 
@@ -14,10 +16,23 @@ const Match = React.createClass({
   },
 
   saveMatchToStageArea: function() {
-    const match = {
-      main: this.props.match.id,
-      data: this.props.selectedPaymentId
-    };
+    const dataPayments = Immutable.fromJS(this.props.dataPayments);
+    const selectedPaymentId = this.props.selectedPaymentId;
+    const selectedPayment = dataPayments.find((dataPayment) => dataPayment.get('id') === selectedPaymentId);
+    const main = Immutable.fromJS(this.props.match);
+
+    const actionData = Immutable.fromJS({
+      main: main,
+      data: selectedPayment,
+      match: {
+        id: (this.props.match.id + this.props.selectedPaymentId),
+        main: main.remove('matches'),
+        data: selectedPayment.remove('matches')
+      }
+    });
+
+    // console.log(actionData.toJS());
+    ServerActions.saveMatch(actionData);
   },
 
   render: function() {

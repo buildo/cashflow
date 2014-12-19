@@ -25,6 +25,11 @@ module.exports = _.extend(self, Store(
     return true;
   },
 
+  SAVED_MATCH: () => {
+    selectedMatchIndex = undefined;
+    selectedPaymentId = undefined;
+  },
+
   MATCH_TODO_SELECTED: (actionData) => {
     console.log('SELECTED_MATCH: ' + actionData);
     selectedMatchIndex = actionData;
@@ -45,7 +50,8 @@ module.exports = _.extend(self, Store(
     const dataPayments = payments.filter((p) => p.type === 'data');
     const mainPayments = payments.filter((p) => p.type === 'certain' || p.type === 'uncertain');
     return mainPayments.map((mainP) => {
-      mainP.matches = mainP.matches.map((dataPaymentId) => TodoDataStore.get(dataPaymentId));
+      mainP.matches = dataPayments.filter((dataPayment) =>
+        mainP.matches.filter((matchedId) => dataPayment.id === matchedId).length > 0);
       return mainP;
     });
   },
