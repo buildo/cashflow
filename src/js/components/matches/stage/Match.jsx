@@ -17,29 +17,22 @@ const Match = React.createClass({
     ServerActions.deleteStagedMatch(match);
   },
 
-  updateFattureInCloud: function() {
-  },
-
   render: function() {
 
     const match = this.props.match;
 
     return (
-      <div>
         <div className='ui segment'>
           <div>
             <MainPayment mainPayment={match.main}/>
+            <br></br>
             <DataPayment dataPayment={match.data}/>
           </div>
           <div className='ui bottom attached'>
-            <div className='ui buttons'>
-              <div className='ui negative button' onClick={this.deleteStagedMatch}>Elimina</div>
-              <div className='or'></div>
-              <div className='ui positive button' onClick={this.updateFattureInCloud}>Salva modifiche su Fatture In Cloud</div>
-            </div>
+            <br></br>
+            <div className='ui negative button' onClick={this.deleteStagedMatch}>Elimina</div>
           </div>
         </div>
-      </div>
     );
   },
 

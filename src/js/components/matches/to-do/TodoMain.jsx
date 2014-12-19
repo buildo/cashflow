@@ -32,7 +32,7 @@ const TodoMain = React.createClass({
 
   componentWillUnmount: function() {
     TodoStore.removeChangeListener(this._onChange);
-    TodoDataStore.addChangeListener(this._onChange);
+    TodoDataStore.removeChangeListener(this._onChange);
   },
 
   render: function() {

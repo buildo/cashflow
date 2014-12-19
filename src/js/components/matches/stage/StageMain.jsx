@@ -31,6 +31,10 @@ const StageMain = React.createClass({
     StageDataStore.removeChangeListener(this._onChange);
   },
 
+  commitMatches: function() {
+    ServerActions.commitMatches();
+  },
+
   render: function() {
 
     if (this.state.isLoading) {
@@ -59,11 +63,14 @@ const StageMain = React.createClass({
     const matches = this.state.stagedMatches.map((match, index) =>
       <Match match={match} key={index}/>);
 
+    const commitButton = <div className='ui right align positive button' onClick={this.commitMatches}>Salva modifiche su Fatture In Cloud</div>;
+
     return (
       <div>
         <h4 className='ui top attached inverted header'>
           STAGE
         </h4>
+        {this.state.stagedMatches.length > 0 ? commitButton : ''}
         {this.state.stagedMatches.length > 0 ? matches : emptyStage}
       </div>
     );

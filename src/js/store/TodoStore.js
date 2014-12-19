@@ -28,6 +28,7 @@ module.exports = _.extend(self, Store(
   SAVED_MATCH: () => {
     selectedMatchIndex = undefined;
     selectedPaymentId = undefined;
+    return true;
   },
 
   MATCH_TODO_SELECTED: (actionData) => {
