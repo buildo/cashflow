@@ -15,14 +15,15 @@ const MatchPreview = React.createClass({
   render: function() {
 
     const match = this.props.match;
-
+    const isSelected = this.props.isSelected;
+    const divClasses = isSelected ? 'ui segment green center aligned selectable' : 'ui segment center aligned selectable';
     const lineId = match.info.lineId;
     const type = match.info.flowDirection === 'in' ? 'Invoice' : 'Expense';
     const idNumber = lineId.replace('exp_', '').replace('inv_', '');
     const paymentNumber = parseInt(match.scraperInfo.tranId.replace('tran_', '').replace('_', '')) + 1;
 
     return (
-      <div className='ui segment center aligned selectable' onClick={this.setAsSelected}>
+      <div className={divClasses} onClick={this.setAsSelected}>
         <div className='ui mini statistic'>
           <div className='value'>
             {type} {idNumber}

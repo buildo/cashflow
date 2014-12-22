@@ -18,6 +18,11 @@ module.exports = _.extend(self, Store(
     return true;
   },
 
+  STAGED_MATCHES_COMMITTED: () => {
+    isMatchesOutdated = true;
+    return true;
+  },
+
   GETTING_MATCHES: () => {
     isMatchesOutdated = false;
     return true;

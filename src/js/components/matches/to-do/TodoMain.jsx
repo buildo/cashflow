@@ -63,15 +63,9 @@ const TodoMain = React.createClass({
     const selectedMatchIndex = this.state.selectedMatchIndex;
     const selectedPaymentId = this.state.selectedPaymentId;
 
-    const matchPreviews = this.state.mainMatches.sort(utils.sortByMatchesNumber).reduce((acc, match, index) => {
-        if (index === selectedMatchIndex) {
-          return acc;
-        }
-        acc.push(<MatchPreview match={match} index={index} key={index}/>);
-        return acc;
-      },
-      []
-    );
+    const matchPreviews = this.state.mainMatches.sort(utils.sortByMatchesNumber).map((match, index) => {
+      return <MatchPreview match={match} isSelected={index === selectedMatchIndex} index={index} key={index}/>;
+    });
 
     const selectedMatch = this.state.mainMatches[selectedMatchIndex] ?
       <Match match={this.state.mainMatches[selectedMatchIndex]} dataPayments={this.state.dataPayments} selectedPaymentId={selectedPaymentId}/>

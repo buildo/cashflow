@@ -89,6 +89,10 @@ const Main = React.createClass({
     TopBarStore.addChangeListener(this._onChange);
   },
 
+  componentWillUnmount: function() {
+    TopBarStore.removeChangeListener(this._onChange);
+  },
+
   render: function () {
 
     console.log('RENDER_MAIN');

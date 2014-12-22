@@ -32,14 +32,12 @@ module.exports = _.extend(self, Store(
   },
 
   MATCH_TODO_SELECTED: (actionData) => {
-    console.log('SELECTED_MATCH: ' + actionData);
     selectedMatchIndex = actionData;
     selectedPaymentId = undefined;
     return true;
   },
 
   PAYMENT_TODO_SELECTED: (actionData) => {
-    console.log('SELECTED_PAYMENT: ' + actionData);
     selectedPaymentId = actionData;
     return true;
   }
