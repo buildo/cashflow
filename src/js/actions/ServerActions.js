@@ -87,6 +87,13 @@ const ServerActions = {
     WebAPIUtils.deleteStagedMatch(match)
       .done((res) => sendAction(ActionTypes.STAGED_MATCH_DELETED, match))
       .fail(handleError);
+  },
+
+  commitMatches: () => {
+    sendAsyncAction(ActionTypes.COMMITTING_STAGED_MATCHES);
+    WebAPIUtils.commitMatches()
+      .done((res) => sendAction(ActionTypes.STAGED_MATCHES_COMMITTED, res))
+      .fail(handleError);
   }
 
 };

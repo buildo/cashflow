@@ -48,4 +48,10 @@ module.exports = {
     headers: {'Authorization': 'Token token=' + getToken()}
   }),
 
+  commitMatches: (match) => $.ajax({
+    url: HOST + '/matches/stage/commit',
+    type: 'POST',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
 };

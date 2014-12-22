@@ -24,6 +24,8 @@ module.exports = {
     GETTING_MAIN_CFF: null,
     GETTING_BANK_CFF: null,
     GETTING_CURRENT_USER: null,
+    COMMITTING_STAGED_MATCHES: null,
+    STAGED_MATCHES_COMMITTED: null,
     LOGIN_START: null,
     LOGIN_FAIL: null,
     LOGGED_IN: null,
