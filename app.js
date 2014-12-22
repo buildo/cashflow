@@ -311,7 +311,7 @@ app.post('/matches/stage/commit', function*() {
     this.throw(400, 'stage area is empty');
   }
 
-  var credentialsFattureInCloud = user.credentials.fattureincloud;
+  var credentialsFattureInCloud = yield db.credentials.findOne({userId: user._id, type: 'main'});
   if (!credentialsFattureInCloud) {
     this.throw(400, 'fattureincloud credentials not found');
   }
@@ -328,10 +328,15 @@ app.post('/matches/stage/commit', function*() {
   );
 
   var stagedPaymentsToCommit = stagedMatches.filter(function(match) {
-    console.log(paymentsMap[match.main]);
     return !(paymentsMap[match.main].date === paymentsMap[match.data].date &&
       (paymentsMap[match.main].grossAmount - paymentsMap[match.data].grossAmount) < 0.01);
-  }).map(function(match) {return paymentsMap[match.main]});
+  }).map(function(match) {
+    var payment = paymentsMap[match.main];
+    var dataPayment = paymentsMap[match.data];
+    payment.grossAmount = dataPayment.grossAmount;
+    payment.date = dataPayment.date;
+    return payment;
+  });
 
   var stagedLinesToCommit = stagedPaymentsToCommit.reduce(function(acc, payment) {
       if (!acc[payment.info.lineId]) {
@@ -349,30 +354,49 @@ app.post('/matches/stage/commit', function*() {
 
   var stagedPaymentsIDs = stagedPaymentsToCommit.reduce(function(acc, payment) {return acc + payment.id}, '');
   // add stagedPayments of same line not staged
-  stagedLinesToCommit = utils.getArrayFromObject(stagedLinesToCommit).map(function (stagedLine) {
-    co(function *() {
-      var line = yield db.cffs.findOne({userId: user._id, _id: stagedLine.id});
-      line.payments.forEach(function(payment) {
-        if (stagedPaymentsIDs.indexOf(payment.id) === -1) {
-          stagedLine.payments.push(payment);
-        }
-      });
+  var completeLines = yield utils.getArrayFromObject(stagedLinesToCommit).map(function (stagedLine) {
+    return db.cffs.findOne({userId: user._id, _id: stagedLine.id});
+  });
+  completeLines.forEach(function(docLine) {
+    docLine.line.payments.forEach(function(payment) {
+      if (stagedPaymentsIDs.indexOf(payment.id) === -1) {
+        stagedLinesToCommit[docLine._id].payments.push(payment);
+      }
     });
   });
 
-  // const result = yield saveOnFattureInCloud(stagedLines, credentialsFattureInCloud);
-  // if (result.error) {
-  //   this.throw(500, 'upload to fatture in cloud failed');
-  // }
-  // result.forEach(function(res) {
-  //   if (res.newId !== res.oldId) {
-  //     userMainCFF.cff.lines[res.oldId].id = res.newId;
-  //     userMainCFF.cff.lines[res.newId] = userMainCFF.cff.lines[res.oldId];
-  //     delete userMainCFF.cff.lines[res.oldId];
-  //   }
-  // });
-  // userMainCFF.cff.stagedLines = {};
-  // yield db.cffs.update({userId: user._id, type: 'main'}, {$set: {cff: userMainCFF.cff}});
+  stagedLinesToCommit = utils.getArrayFromObject(stagedLinesToCommit);
+
+  var getNewPaymentId = function(paymentId, oldLineId, newLineId) {
+    return paymentId.replace(oldLineId, newLineId);
+  };
+
+  var errorLinesIDs = [];
+  var results = yield saveOnFattureInCloud(stagedLinesToCommit, credentialsFattureInCloud.credentials);
+  results.forEach(function(res) {
+    console.log(res);
+    co(function *() {
+      if (res.error) {
+        errorLinesIDs.push(res.id);
+      } else {
+        var line = stagedLinesToCommit.filter(function(line) {return line.id === res.oldId})[0];
+        line.payments = line.payments.map(function(p) {
+          p.id = p.id.replace(res.oldId, res.newId);
+          return p;
+        });
+        line.id = res.newId;
+        yield db.cffs.insert({userId: user._id, type: 'main', _id: line.id, line: line});
+        yield db.cffs.remove({_id: res.oldId});
+        var regExp = new RegExp(res.oldId, '');
+        var matches = yield db.stagedMatches.find({userId: user._id, main: {'$regex': regExp}}).toArray();
+        yield matches.map(function(match) {return db.stagedMatches.remove({_id: match._id})});
+        yield matches.map(function(match) {
+          match.main = match.main.replace(res.oldId, res.newId);
+          return db.matches.insert(match);
+        });
+      }
+    });
+  });
 });
 
 app.get('/matches', function *() {

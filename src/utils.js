@@ -78,7 +78,6 @@ var getCffFromDocumentLines = function(docLines) {
   };
 };
 
-
 module.exports = {
   parseAuthorization: parseAuthorization,
   getUserByToken: getUserByToken,
