@@ -19,8 +19,10 @@ var getUserByToken = function*(db, token) {
 };
 
 var sortCFFLinesByDate = function (a, b) {
-  const dateStringA = a.invoice ? a.invoice.date : a.payments[0].date;
-  const dateStringB = b.invoice ? b.invoice.date : b.payments[0].date;
+  const lineA = a.line;
+  const lineB = b.line;
+  const dateStringA = lineA.invoice ? lineA.invoice.date : lineA.payments[0].date;
+  const dateStringB = lineB.invoice ? lineB.invoice.date : lineB.payments[0].date;
   const dateA = new Date(dateStringA);
   const dateB = new Date(dateStringB);
 

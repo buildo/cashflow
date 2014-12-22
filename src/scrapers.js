@@ -47,7 +47,7 @@ var bper = require('bper').scrapeBPER;
 //   }
 // };
 
-var progressFattureInCloud = function(db, userId, progressObject) {
+var setProgressFattureInCloud = function(db, userId, progressObject) {
   co(function *() {
     var _progress = {
       authentication: progressObject.login.authentication,
@@ -69,6 +69,10 @@ var banks = [
   {
     id: 'bper',
     scraper: bper
+  },
+  {
+    id: 'bper-credit-card',
+    scraper: scrapeBperCreditCard
   }
 ];
 
@@ -81,7 +85,7 @@ var getBperCreditCard = function (credentialsBperCreditCard) {
 
 var getFattureInCloud = function (db, userId, credentialsFattureInCloud, oldCFF) {
   var progressCallback = function (progressObject) {
-    progressFattureInCloud(db, userId, progressObject);
+    setProgressFattureInCloud(db, userId, progressObject);
   };
   return scrapeFattureInCloud(credentialsFattureInCloud, progressCallback, oldCFF)
     .then(function(fattureInCloudReport) {
@@ -89,9 +93,9 @@ var getFattureInCloud = function (db, userId, credentialsFattureInCloud, oldCFF)
     });
 };
 
-var getBank = function (credentialsBank, inputParameters) {
-  var scraper = banks.filter(function(bankObj) {return bankObj.id === credentialsBank.id;})[0].scraper;
-  return scraper(credentialsBank, inputParameters)
+var getBank = function (bankCredentials, inputParameters) {
+  var scraper = banks.filter(function(bankObj) {return bankObj.id === bankCredentials.bankId;})[0].scraper;
+  return scraper(bankCredentials, inputParameters)
     .then(function(bankReport) {return _Promise.resolve({bank: bankReport});});
 };
 

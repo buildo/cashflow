@@ -179,7 +179,9 @@ app.post('/cffs/main/pull', function *() {
       sourceDescription: mainLines[0].sourceDescription,
       lines: mainLines
     };
+  // fatture in cloud non deve essere bloccante, usare /progress per conoscere stato avanzamento
 
+  // TODO: rimuovere linee non piú esistenti
   scrapers.getFattureInCloud(db, user._id, credentialsFattureInCloud, oldCFF)
     .done(function(result) {
       co(function *() {
@@ -191,8 +193,8 @@ app.post('/cffs/main/pull', function *() {
           // save new line
           return {
             insert: db.cffs.update({userId: user._id, type: 'main', _id: line.id}, {$set: {line: line}}, {upsert: true}),
-            removeMatches: db.matches.remove({userId: user._id, _id: {$regex: regExp}}),
-            removeStagedMatches: db.stagedMatches.remove({userId: user._id, _id: {$regex: regExp}})
+            removeMatches: db.matches.remove({userId: user._id, _id: {'$regex': regExp}}),
+            removeStagedMatches: db.stagedMatches.remove({userId: user._id, _id: {'$regex': regExp}})
           };
         });
       });
