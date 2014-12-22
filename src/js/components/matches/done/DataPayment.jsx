@@ -11,10 +11,11 @@ const DataPayment = React.createClass({
 
     const dataPayment = this.props.dataPayment;
     const isInvoice = dataPayment.info.flowDirection === 'in';
+    const currency = utils.getCurrency(dataPayment.info.currency.name);
 
     return (
       <div>
-        <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{dataPayment.grossAmount}€</div>
+        <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{dataPayment.grossAmount}{currency}</div>
         <div><strong>Data:</strong> {utils.formatDate(dataPayment.date)}</div>
         <div><strong>Descrizione:</strong> {dataPayment.info.description}</div>
       </div>

@@ -16,13 +16,14 @@ const MainPayment = React.createClass({
 
     const dataPayment = this.props.dataPayment;
     const isInvoice = dataPayment.info.flowDirection === 'in';
+    const currency = utils.getCurrency(dataPayment.info.currency.name);
 
     return (
       <div className='ui segment'>
         <div className="ui top right attached label">
           <i className="delete icon" onClick={this.deselectPayment}></i>
         </div>
-        <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{dataPayment.grossAmount}€</div>
+        <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{dataPayment.grossAmount}{currency}</div>
         <div><strong>Data:</strong> {utils.formatDate(dataPayment.date)}</div>
         <div><strong>Descrizione:</strong> {dataPayment.info.description}</div>
       </div>

@@ -18,12 +18,13 @@ const DataPayment = React.createClass({
     const payment = this.props.dataPayment;
     const isSelected = this.props.isSelected;
     const isInvoice = this.props.flowDirection === 'in';
+    const currency = utils.getCurrency(payment.info.currency.name);
 
     const divClasses = isSelected ? 'ui segment green selectable data-payment' : 'ui segment selectable data-payment';
 
     return (
       <div className={divClasses} onClick={this.setAsSelected}>
-        <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{payment.grossAmount}€</div>
+        <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{payment.grossAmount}{currency}</div>
         <div><strong>Data:</strong> {utils.formatDate(payment.date)}</div>
       </div>
     );
