@@ -19,7 +19,7 @@ var saveOnFattureInCloud = require('cff-manager-assistant').saveOnFattureInCloud
 var getMatches = require('cff-manager-assistant').getMatches;
 var db;
 
-var HOST = 'francesco-air.local';
+var HOST = 'localhost';
 
 // init router to use app.get()
 app.use(compress());
@@ -328,8 +328,9 @@ app.post('/matches/stage/commit', function*() {
   );
 
   var stagedPaymentsToCommit = stagedMatches.filter(function(match) {
-    return !(paymentsMap[match.main].date === paymentsMap[match.data].date &&
-      (paymentsMap[match.main].grossAmount - paymentsMap[match.data].grossAmount) < 0.01);
+    var main = paymentsMap[match.main];
+    var data = paymentsMap[match.data];
+    return !(main.date === data.date && (main.grossAmount - data.grossAmount) < 0.01) && main.info.currency.name === data.info.currency.name;
   }).map(function(match) {
     var payment = paymentsMap[match.main];
     var dataPayment = paymentsMap[match.data];
