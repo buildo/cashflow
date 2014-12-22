@@ -1,6 +1,6 @@
 'use strict';
 
-const HOST = 'http://francesco-air.local:9000';
+const HOST = 'http://localhost:9000';
 const getToken = () => ('"' + localStorage.getItem('cashflow_token') + '"');
 
 module.exports = {

@@ -21,7 +21,7 @@ var del = require('del');
 var watchify = require('watchify');
 
 var SERVER_PORT = 9001;
-var HOST = 'Francesco-Air.local';
+var HOST = 'localhost';
 var LIVE_RELOAD_PORT = 35729;
 
 var PATHS = {
