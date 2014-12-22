@@ -18,6 +18,7 @@ const React = require('react'),
   MatchesMain = require('./js/components/matches/MatchesMain.jsx'),
   TodoMain = require('./js/components/matches/to-do/TodoMain.jsx'),
   StageMain = require('./js/components/matches/stage/StageMain.jsx'),
+  DoneMain = require('./js/components/matches/done/DoneMain.jsx'),
   LoginMain = require('./js/components/login/LoginMain.jsx'),
   Main = require('./js/components/main/Main.jsx');
 
@@ -40,7 +41,7 @@ const routes = (
       <Route name={RouteNames.MATCH} path='/match' handler={MatchesMain}>
         <Route name={RouteNames.MATCH_DA_FARE} path='da-fare' handler={TodoMain} />
         <Route name={RouteNames.MATCH_DA_SALVARE} path='da-salvare' handler={StageMain} />
-        <Route name={RouteNames.MATCH_ARCHIVIATI} path='archiviati' handler={CashflowMain} />
+        <Route name={RouteNames.MATCH_ARCHIVIATI} path='archiviati' handler={DoneMain} />
         <Redirect from='/match' to='/match/da-fare'/>
       </Route>
     </Route>

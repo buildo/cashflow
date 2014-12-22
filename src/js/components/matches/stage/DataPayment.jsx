@@ -5,7 +5,7 @@
 const React = require('react');
 const utils = require('../../../utils/utils.js');
 
-const MainPayment = React.createClass({
+const DataPayment = React.createClass({
 
   render: function() {
 
@@ -23,4 +23,4 @@ const MainPayment = React.createClass({
 
 });
 
-module.exports = MainPayment;
+module.exports = DataPayment;

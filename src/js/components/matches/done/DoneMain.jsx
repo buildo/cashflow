@@ -4,27 +4,31 @@
 
 const React = require('react');
 const ServerActions = require('../../../actions/ServerActions');
-const MatchesDoneStore = require('../../../store/MatchesDoneStore.js');
+const DoneStore = require('../../../store/DoneStore.js');
+const DoneDataStore = require('../../../store/DoneDataStore.js');
+const Match = require('./Match.jsx');
 
 const getStateFromStores = function () {
   return {
-    matchesDone: MatchesDoneStore.getMatchesDone(),
-    isLoading: MatchesDoneStore.isLoading(),
+    matches: DoneStore.getMatches() || {},
+    isLoading: DoneStore.isLoading()
   };
 };
 
-const TodoMain = React.createClass({
+const DoneMain = React.createClass({
 
   getInitialState: function() {
     return getStateFromStores();
   },
 
   componentDidMount: function() {
-    MatchesDoneStore.addChangeListener(this._onChange);
+    DoneStore.addChangeListener(this._onChange);
+    DoneDataStore.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function() {
-    MatchesDoneStore.removeChangeListener(this._onChange);
+    DoneStore.removeChangeListener(this._onChange);
+    DoneDataStore.removeChangeListener(this._onChange);
   },
 
   render: function() {
@@ -44,22 +48,23 @@ const TodoMain = React.createClass({
       );
     }
 
-    const emptyDone = (
+    const empty = (
       <div className="ui ignored message">
         <div className="stage-placeholder">
-          Non hai nessun pagamento da sincronizzare :)
+          Non hai nessun match salvato.
         </div>
       </div>
     );
 
-    const matches = <div/>; // TODO
+    const matches = this.state.matches.map((match, index) =>
+      <Match match={match} key={index}/>);
 
     return (
       <div>
         <h4 className='ui top attached inverted header'>
-          TODO
+          ARCHIVIATI
         </h4>
-        {this.state.matchesDone.length > 0 ? matches : emptyDone.length > 0}
+        {this.state.matches.length > 0 ? matches : empty}
       </div>
     );
   },
@@ -70,4 +75,4 @@ const TodoMain = React.createClass({
 
 });
 
-module.exports = TodoMain;
+module.exports = DoneMain;

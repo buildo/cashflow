@@ -4,7 +4,6 @@
 
 const React = require('react');
 const Immutable = require('immutable');
-const StageActions = require('../../../actions/StageActions.js');
 const MainPayment = require('./MainPayment.jsx');
 const DataPayment = require('./DataPayment.jsx');
 const ServerActions = require('../../../actions/ServerActions.js');

@@ -15,8 +15,8 @@ const MainPayment = React.createClass({
 
     return (
       <div>
-        <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{mainPayment.grossAmount}{currency}</div>
-        <div><strong>Data:</strong> {utils.formatDate(mainPayment.date)}</div>
+        <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{mainPayment.grossAmount || mainPayment.expectedGrossAmount[0]}{currency}</div>
+        <div><strong>Data:</strong> {utils.formatDate(mainPayment.date || mainPayment.expectedDate[0])}</div>
         <div><strong>{isInvoice ? 'Cliente' : 'Fornitore'}:</strong> {mainPayment.info.company.description}</div>
         <div><strong>Metodo:</strong> {mainPayment.method}</div>
         <div><strong>Descrizione:</strong> {mainPayment.info.description}</div>
