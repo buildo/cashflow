@@ -43,7 +43,7 @@ comongo.configure({
   port: 27017,
   name: 'cashflow',
   pool: 10,
-  collections: ['users', 'cffs', 'projects', 'resources', 'sessions', 'progresses', 'bankSessions', 'matches', 'stagedMatches']
+  collections: ['users', 'credentials', 'cffs', 'projects', 'resources', 'sessions', 'progresses', 'bankSessions', 'matches', 'stagedMatches']
 });
 
 // init db
@@ -125,7 +125,7 @@ app.post('/users/credentials/fattureincloud', function *() {
   if(!user){
     // error
   }
-  yield db.users.update({_id: user._id}, {$set: {'credentials.fattureincloud': {email: email, password: password}}});
+  yield db.credentials.update({userId: user._id, type: 'main'}, {$set: {email: email, password: password}}, {upsert : true});
 });
 
 app.post('/users/credentials/bank', function *(next) {
@@ -142,7 +142,7 @@ app.post('/users/credentials/bank', function *(next) {
   if(!user){
     // error
   }
-  yield db.users.update({_id: user._id}, {$set: {'credentials.bank': {id:bankId, user: bankUserId, password: password}}});
+  yield db.credentials.update({userId: user._id, type: 'bank', bankId: bankId}, {$set: {user: bankUserId, password: password}}, {upsert : true});
 });
 
 // CFFS
@@ -168,7 +168,7 @@ app.post('/cffs/main/pull', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
   // fai partire scrapers, aggiorna.
-  var credentialsFattureInCloud = user.credentials.fattureincloud;
+  var credentialsFattureInCloud = yield db.credentials.findOne({userId: user._id, type: 'main'});
   if (!credentialsFattureInCloud) {
     this.throw(400, 'fattureincloud credentials not found');
   }
