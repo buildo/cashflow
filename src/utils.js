@@ -76,6 +76,11 @@ var getArrayFromObject = function(obj) {
   );
 }
 
+var getTodayFormatted = function() {
+  var today = new Date();
+  return [today.getFullYear(), ('0' + (today.getMonth() + 1)).slice(-2), ('0' + today.getDate()).slice(-2)].join('-');
+};
+
 
 module.exports = {
   parseAuthorization: parseAuthorization,
@@ -83,6 +88,7 @@ module.exports = {
   sortCFFLinesByDate: sortCFFLinesByDate,
   getPaymentsFromCFF: getPaymentsFromCFF,
   getArrayFromObject: getArrayFromObject,
+  getTodayFormatted: getTodayFormatted,
   captchaError: 'captcha',
   passwordError: 'password',
   loginError: 'login',

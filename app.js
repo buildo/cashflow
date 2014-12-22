@@ -235,77 +235,95 @@ app.post('/cffs/bank/pull', function *() {
   };
 
   if (captcha) {
-    var bankSession = yield db.bankSessions.findOne({userId: user._id, type: 'bper'});
+    var bankSession = yield db.bankSessions.findOne({userId: user._id, bankId: 'bper'});
     inputParameters.captcha = captcha;
     inputParameters.cookies = bankSession.cookies;
     console.log(captcha, bankSession.cookies);
   }
   // fai partire scrapers, aggiorna.
-  var credentialsBank = user.credentials.bank;
-  if (!credentialsBank) {
+  var bankCredentialsArray = yield db.credentials.find({userId: user._id, type: 'bank'}).toArray();
+  if (bankCredentialsArray.length === 0) {
     this.throw(400, 'bank credentials not found');
   }
-  var status = 'trying';
-  var result;
-  var attempts = 0;
-  while (status === 'trying') {
-    result = yield scrapers.getBank(credentialsBank, inputParameters);
-    attempts += 1;
-    status = result.bank.status.name === utils.unknownError && attempts < utils.maxAttempts ? 'trying' : result.bank.status.name;
-  }
 
-  // console.log(status);
-
-  switch (status) {
-    case 'success':
-      console.log(result);
-
-      // retrieve stored lines
-      var oldLines = yield db.cffs.find({userId: user._id, type: 'bank'}).toArray();
-
-      var filteredOldLines = [];
-      if (oldLines.length > 0) {
-        var closestDateOldLines = oldLines.map(function(line){return line.payments[0].date;})
-          .reduce(function(acc, date){return date < acc ? date : acc;});
-
-        filteredOldLines = oldLines.filter(function(line){return line.payments[0].date < closestDateOldLines;});
+  var reports = yield bankCredentialsArray.map(function(bankCredentials) {
+    return co(function *() {
+      var status = 'trying';
+      var result;
+      var attempts = 0;
+      while (status === 'trying') {
+        result = yield scrapers.getBank(bankCredentials, inputParameters);
+        attempts += 1;
+        status = result.bank.status.name === utils.unknownError && attempts < utils.maxAttempts ? 'trying' : result.bank.status.name;
       }
+      return {
+        bankId: bankCredentials.bankId,
+        status: status,
+        attempts: attempts,
+        result: result
+      };
+    });
+  });
 
-      var filteredNewLines = result.bank.cff.lines.filter(function(line){return !closestDateOldLines || line.payments[0].date >= closestDateOldLines;});
-      // merge old lines with newly downloaded ones
-      var cff = result.bank.cff;
-      yield filteredNewLines.map(function(line) {
-        line.sourceId = cff.sourceId;
-        line.sourceDescription = cff.sourceDescription;
-        var regExp = new RegExp(line.id, '');
-        // save new line
-        return {
-          insert: db.cffs.insert({userId: user._id, type: 'bank', _id: line.id, line: line})
-        };
-      });
-      console.log('FINE');
-      break;
+  reports.forEach(function(report) {
+    co(function *() {
+      switch (report.status) {
+        case 'success':
+          console.log('success');
+          // retrieve stored lines
+          var oldLines = yield db.cffs.find({userId: user._id, type: 'bank', bankId: report.bankId}).toArray();
+          if (oldLines.length > 0) {
+            var closestDateOldLines = oldLines.map(function(lineDoc){return lineDoc.line.payments[0].date;})
+              .reduce(function(acc, date){return date > acc ? date : acc;});
+          }
+          var cff = report.result.bank.cff;
+          var filteredNewLines = cff.lines.filter(function(line){
+            var date = line.payments[0].date;
+            return !closestDateOldLines || date > closestDateOldLines || date === utils.getTodayFormatted();
+          });
+          var filteredOldLines =  closestDateOldLines !== utils.getTodayFormatted() ? [] :
+            oldLines.filter(function(lineDoc) {return lineDoc.line.payments[0].date === closestDateOldLines});
 
-    case utils.unknownError:
-      this.throw(400, 'reached maximum number of attempts (' + attempts + ')');
-      break;
+          // remove today lines (avoid conflicts)
+          yield filteredOldLines.map(function(lineDoc) {
+            return {
+              remove: db.cffs.remove({_id: lineDoc._id})
+            }
+          });
 
-    case utils.captchaError:
-      yield db.bankSessions.update({userId: user._id, type: 'bper'}, {$set: {cookies: result.bank.cookies}}, {upsert: true});
-      this.objectName = 'captcha';
-      console.log(result.bank.captcha);
-      var b = new Buffer(result.bank.captcha);
-      this.body = {captcha: b.toString('base64')};
-      break;
+          // save new lines
+          yield filteredNewLines.map(function(line) {
+            line.sourceId = cff.sourceId;
+            line.sourceDescription = cff.sourceDescription;
+            return {
+              insert: db.cffs.insert({userId: user._id, type: 'bank', bankId: report.bankId, _id: line.id, line: line})
+            };
+          });
+          break;
 
-    case utils.passwordError:
-      yield db.users.update({_id: user._id}, {$set: {'credentials.bank': {}}});
-      this.throw(400, result.bank.status.message);
-      break;
+        case utils.unknownError:
+          this.throw(400, 'reached maximum number of attempts (' + report.attempts + ')');
+          break;
 
-    default:
-      this.throw(400, result.bank.status.message);
-  }
+        case utils.captchaError:
+          var result = report.result;
+          yield db.bankSessions.update({userId: user._id, bankId: 'bper'}, {$set: {cookies: result.bank.cookies}}, {upsert: true});
+          this.objectName = 'captcha';
+          console.log(result.bank.captcha);
+          var b = new Buffer(result.bank.captcha);
+          this.body = {captcha: b.toString('base64')};
+          break;
+
+        case utils.passwordError:
+          yield db.credentials.remove({_id: user._id, type: 'bank', bankId: report.bankId});
+          this.throw(400, report.result.bank.status.message);
+          break;
+
+        default:
+          this.throw(400, report.result.bank.status.message);
+      }
+    });
+  });
 });
 
 app.post('/matches/stage/commit', function*() {
