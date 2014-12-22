@@ -49,6 +49,10 @@ module.exports = _.extend(function(
       return _optimisticHandling;
     },
 
+    setOptimisticHandling(value) {
+      _optimisticHandling = value;
+    },
+
     actionHandler(payload) {
       let tokens = (waitFor || []).map( s => s.dispatchToken ).filter( _.identity );
       Dispatcher.waitFor(tokens);

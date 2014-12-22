@@ -21,11 +21,14 @@ module.exports = _.extend(self, Store.Optimistic, Store(
 
   SAVED_MATCH: (actionData, optimistic, undo) => {
     const match = actionData.match;
-    return undo ? self.remove(match.id) : self.upsert(match.id, match);
+    if (!optimistic) {
+      console.log(self.optimisticDelete(match.id));
+    }
+    return undo ? self.delete(match.id) : self.upsert(match.id, match);
   },
 
   DELETED_STAGED_MATCH: (actionData) => {
-    return self.remove(actionData.id);
+    // return self.delete(actionData.id);
   },
 
 }, {

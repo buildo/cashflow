@@ -51,17 +51,17 @@ const self = _.extend({}, Object.keys(DataStore).reduce((self, prop) => {
       return ret;
     };
     self[camelCase('optimistic', prop)] = function() {
-      let prevHandling = this.__optimisticHandling;
-      this.__optimisticHandling = true;
-      let ret = this[prop].apply(this, arguments);
-      this.__optimisticHandling = prevHandling;
+      let prevHandling = this.isOptimisticHandling();
+      this.setOptimisticHandling(true);
+      let ret = self[prop].apply(this, arguments);
+      this.setOptimisticHandling(prevHandling);
       return ret;
     };
     self[camelCase('stable', prop)] = function() {
-      let prevHandling = this.__optimisticHandling;
-      this.__optimisticHandling = false;
-      let ret = this[prop].apply(this, arguments);
-      this.__optimisticHandling = prevHandling;
+      let prevHandling = this.isOptimisticHandling();
+      this.setOptimisticHandling(false);
+      let ret = self[prop].apply(this, arguments);
+      this.setOptimisticHandling(prevHandling);
       return ret;
     };
   }
