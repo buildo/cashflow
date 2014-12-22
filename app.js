@@ -340,7 +340,8 @@ app.post('/matches/stage/commit', function*() {
 
   var stagedLinesToCommit = stagedPaymentsToCommit.reduce(function(acc, payment) {
       if (!acc[payment.info.lineId]) {
-        const newLine = payment.info;
+        const newLine = JSON.parse(JSON.stringify(payment.info));
+        delete payment.info;
         newLine.id = newLine.lineId;
         newLine.payments = [payment];
         acc[newLine.id] = newLine;
@@ -374,7 +375,6 @@ app.post('/matches/stage/commit', function*() {
   var errorLinesIDs = [];
   var results = yield saveOnFattureInCloud(stagedLinesToCommit, credentialsFattureInCloud.credentials);
   results.forEach(function(res) {
-    console.log(res);
     co(function *() {
       if (res.error) {
         errorLinesIDs.push(res.id);
@@ -385,14 +385,15 @@ app.post('/matches/stage/commit', function*() {
           return p;
         });
         line.id = res.newId;
+        var toReturn = {};
         yield db.cffs.insert({userId: user._id, type: 'main', _id: line.id, line: line});
         yield db.cffs.remove({_id: res.oldId});
         var regExp = new RegExp(res.oldId, '');
         var matches = yield db.stagedMatches.find({userId: user._id, main: {'$regex': regExp}}).toArray();
-        yield matches.map(function(match) {return db.stagedMatches.remove({_id: match._id})});
+        yield matches.map(function(match) {return {remove: db.stagedMatches.remove({_id: match._id + 'x'})}});
         yield matches.map(function(match) {
           match.main = match.main.replace(res.oldId, res.newId);
-          return db.matches.insert(match);
+          return {insert: db.matches.insert(match)};
         });
       }
     });
