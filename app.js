@@ -112,37 +112,22 @@ app.get('/users/me', function *() {
 });
 
 // CREDENTIALS
-app.post('/users/credentials/fattureincloud', function *() {
+app.post('/users/credentials', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  var email = this.request.body.email;
-  var password = this.request.body.password;
-
-  if (!email || !password) {
-    this.throw(400, 'email, and password must be set in request body');
-  }
-
-  if(!user){
-    // error
-  }
-  yield db.credentials.update({userId: user._id, type: 'main'}, {$set: {email: email, password: password}}, {upsert : true});
-});
-
-app.post('/users/credentials/bank', function *(next) {
-  var token = utils.parseAuthorization(this.request.header.authorization);
-  var user = yield utils.getUserByToken(db, token);
+  console.log(this.request.body);
+  var type = this.request.body.type;
   var bankId = this.request.body.bankId;
-  var bankUserId = this.request.body.bankUserId;
-  var password = this.request.body.password;
+  var credentials = this.request.body.credentials;
 
-  if (!bankUserId || !password) {
-    this.throw(400, 'email, and password must be set in request body');
+  if (!credentials) {
+    this.throw(400, 'credentials are missing or incorrect');
   }
 
   if(!user){
     // error
   }
-  yield db.credentials.update({userId: user._id, type: 'bank', bankId: bankId}, {$set: {user: bankUserId, password: password}}, {upsert : true});
+  yield db.credentials.update({userId: user._id, type: type}, {$set: {credentials: credentials, bankId: bankId}}, {upsert : true});
 });
 
 // CFFS

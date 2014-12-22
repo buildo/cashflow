@@ -87,7 +87,7 @@ var getFattureInCloud = function (db, userId, credentialsFattureInCloud, oldCFF)
   var progressCallback = function (progressObject) {
     setProgressFattureInCloud(db, userId, progressObject);
   };
-  return scrapeFattureInCloud(credentialsFattureInCloud, progressCallback, oldCFF)
+  return scrapeFattureInCloud(credentialsFattureInCloud.credentials, progressCallback, oldCFF)
     .then(function(fattureInCloudReport) {
       return _Promise.resolve({fattureInCloud: fattureInCloudReport});
     });
@@ -95,7 +95,7 @@ var getFattureInCloud = function (db, userId, credentialsFattureInCloud, oldCFF)
 
 var getBank = function (bankCredentials, inputParameters) {
   var scraper = banks.filter(function(bankObj) {return bankObj.id === bankCredentials.bankId;})[0].scraper;
-  return scraper(bankCredentials, inputParameters)
+  return scraper(bankCredentials.credentials, inputParameters)
     .then(function(bankReport) {return _Promise.resolve({bank: bankReport});});
 };
 
