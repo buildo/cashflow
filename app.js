@@ -190,7 +190,8 @@ app.get('/cffs/bank', function *() {
   if (bankLines.length === 0) {
     this.throw(400, 'user does not have a bank cff in database');
   }
-  var sortedLines = bankLines.sort(utils.sortCFFLinesByDate);
+  var lines = bankLines.map(function(docLine) {return docLine.line});
+  var sortedLines = lines.sort(utils.sortCFFLinesByDate);
   var cff = {
     sourceId: sortedLines[0].sourceId,
     sourceDescription: sortedLines[0].sourceDescription,
@@ -326,12 +327,13 @@ app.post('/matches/stage/commit', function*() {
     {}
   );
 
-  var stagedPayments = stagedMatches.filter(function(match) {
+  var stagedPaymentsToCommit = stagedMatches.filter(function(match) {
+    console.log(paymentsMap[match.main]);
     return !(paymentsMap[match.main].date === paymentsMap[match.data].date &&
       (paymentsMap[match.main].grossAmount - paymentsMap[match.data].grossAmount) < 0.01);
   }).map(function(match) {return paymentsMap[match.main]});
 
-  var stagedLines = stagedPayments.reduce(function(acc, payment) {
+  var stagedLinesToCommit = stagedPaymentsToCommit.reduce(function(acc, payment) {
       if (!acc[payment.info.lineId]) {
         const newLine = payment.info;
         newLine.id = newLine.lineId;
@@ -345,11 +347,9 @@ app.post('/matches/stage/commit', function*() {
     {}
   );
 
-
-  var stagedPaymentsIDs = stagedPayments.reduce(function(acc, payment) {return acc + payment.id}, '');
-
+  var stagedPaymentsIDs = stagedPaymentsToCommit.reduce(function(acc, payment) {return acc + payment.id}, '');
   // add stagedPayments of same line not staged
-  stagedLines = utils.getArrayFromObject(stagedLines).map(function (stagedLine) {
+  stagedLinesToCommit = utils.getArrayFromObject(stagedLinesToCommit).map(function (stagedLine) {
     co(function *() {
       var line = yield db.cffs.findOne({userId: user._id, _id: stagedLine.id});
       line.payments.forEach(function(payment) {
@@ -448,20 +448,6 @@ app.delete('/matches/stage/:matchId', function *() {
   var user = yield utils.getUserByToken(db, token);
   var matchId = this.params.matchId;
   yield db.stagedMatches.remove({userId: user._id, _id: matchId});
-});
-
-app.post('/matches/stage/commit', function *() {
-  var token = utils.parseAuthorization(this.request.header.authorization);
-  var user = yield utils.getUserByToken(db, token);
-  var stagedMatchesDB = yield db.stagedMatches.findOne({userId: user._id});
-  var stagedMatches = utils.getArrayFromObjects(stagedMatchesDB.stagedMatches);
-  if (stagedMatches.length > 0) {
-    this.throw(400, 'stage area is empty');
-  }
-
-  // TODO: save on fatture in cloud and on matchesDB;
-
-  yield db.stagedMatches.remove({userId: user._id});
 });
 
 app.put('/matches/stage/mainPaymentId/:mainPaymentId/dataPaymentId/:dataPaymentId', function *() {
