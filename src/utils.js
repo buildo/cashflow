@@ -19,33 +19,21 @@ var getUserByToken = function*(db, token) {
 };
 
 var sortCFFLinesByDate = function (a, b) {
-  const lineA = a.line;
-  const lineB = b.line;
-  const dateStringA = lineA.invoice ? lineA.invoice.date : lineA.payments[0].date;
-  const dateStringB = lineB.invoice ? lineB.invoice.date : lineB.payments[0].date;
+  const dateStringA = a.invoice ? a.invoice.date : a.payments[0].date;
+  const dateStringB = b.invoice ? b.invoice.date : b.payments[0].date;
   const dateA = new Date(dateStringA);
   const dateB = new Date(dateStringB);
 
   return dateB.getTime() - dateA.getTime();
 };
 
-var getPaymentsFromCFF = function (cff) {
-  if (!cff) {
+var getPaymentsFromDocumentLines = function (docLines) {
+  if (docLines.length === 0) {
     return [];
   }
 
-  if (!Array.isArray(cff.lines)) {
-    cff.lines = Object.keys(cff.lines).reduce(function(acc, key) {
-        acc.push(cff.lines[key]);
-        return acc;
-      },
-      []
-    );
-  }
-
-  var lines = cff.lines.map(function(line) {
-    line.sourceId = cff.sourceId;
-    return line;
+  var lines = docLines.map(function(docLine) {
+    return docLine.line;
   });
 
   var payments = lines.map(function(line, index) {
@@ -81,14 +69,24 @@ var getTodayFormatted = function() {
   return [today.getFullYear(), ('0' + (today.getMonth() + 1)).slice(-2), ('0' + today.getDate()).slice(-2)].join('-');
 };
 
+var getCffFromDocumentLines = function(docLines) {
+  var lines = docLines.map(function(docLine) {return docLine.line});
+  return {
+    sourceId: lines[0].sourceId,
+    sourceDescription: lines[0].sourceDescription,
+    lines: lines.sort(sortCFFLinesByDate),
+  };
+};
+
 
 module.exports = {
   parseAuthorization: parseAuthorization,
   getUserByToken: getUserByToken,
   sortCFFLinesByDate: sortCFFLinesByDate,
-  getPaymentsFromCFF: getPaymentsFromCFF,
+  getPaymentsFromDocumentLines: getPaymentsFromDocumentLines,
   getArrayFromObject: getArrayFromObject,
   getTodayFormatted: getTodayFormatted,
+  getCffFromDocumentLines: getCffFromDocumentLines,
   captchaError: 'captcha',
   passwordError: 'password',
   loginError: 'login',

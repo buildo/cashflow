@@ -154,14 +154,8 @@ app.get('/cffs/main', function *() {
     this.throw(400, 'user does not have a main cff in database');
   }
 
-  var cff = {
-    sourceId: mainLines[0].sourceId,
-    sourceDescription: mainLines[0].sourceDescription,
-    lines: mainLines.sort(utils.sortCFFLinesByDate),
-  };
-
   this.objectName = 'cffs';
-  this.body = { main: cff};
+  this.body = { main: utils.getCffFromDocumentLines(mainLines)};
 });
 
 app.post('/cffs/main/pull', function *() {
@@ -173,12 +167,7 @@ app.post('/cffs/main/pull', function *() {
     this.throw(400, 'fattureincloud credentials not found');
   }
   var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
-  var oldCFF = mainLines.length === 0 ? {} :
-    {
-      sourceId: mainLines[0].sourceId,
-      sourceDescription: mainLines[0].sourceDescription,
-      lines: mainLines
-    };
+  var oldCFF = mainLines.length === 0 ? {} : utils.getCffFromDocumentLines(mainLines);
   // fatture in cloud non deve essere bloccante, usare /progress per conoscere stato avanzamento
 
   // TODO: rimuovere linee non piú esistenti
@@ -344,7 +333,7 @@ app.post('/matches/stage/commit', function*() {
   var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
   var bankLines = yield db.cffs.find({userId: user._id, type: 'bank'}).toArray();
 
-  var payments = utils.getPaymentsFromLines(mainLines).concat(utils.getPaymentsFromLines(bankLines));
+  var payments = utils.getPaymentsFromDocumentLines(mainLines).concat(utils.getPaymentsFromDocumentLines(bankLines));
   var paymentsMap = payments.reduce(function(acc, payment) {
       acc[payment.id] = payment;
       return acc;
@@ -413,13 +402,13 @@ app.get('/matches', function *() {
   }
 
   var matches = yield db.matches.find({userId: user._id}).toArray();
-  var stagedLines = yield db.stagedLines.find({userId: user._id}).toArray();
+  var stagedMatches = yield db.stagedMatches.find({userId: user._id}).toArray();
 
   var mainPaymentsIDs = matches.concat(stagedMatches).map(function(match) {return match.main;});
   var dataPaymentsIDs = matches.concat(stagedMatches).map(function(match) {return match.data;});
 
-  var mainPayments = utils.getPaymentsFromLines(mainLines);
-  var dataPayments = utils.getPaymentsFromLines(bankLines);
+  var mainPayments = utils.getPaymentsFromDocumentLines(mainLines);
+  var dataPayments = utils.getPaymentsFromDocumentLines(bankLines);
 
   var filteredMainPayments = mainPayments.filter(function(mainPayment) {
     return mainPaymentsIDs.indexOf(mainPayment.id) === -1;
@@ -506,10 +495,10 @@ app.put('/matches/stage/mainPaymentId/:mainPaymentId/dataPaymentId/:dataPaymentI
     this.throw(400, 'user does not have a data CFF');
   }
 
-  var mainPayment = utils.getPaymentsFromLines(mainLines).filter(function(p) {
+  var mainPayment = utils.getPaymentsFromDocumentLines(mainLines).filter(function(p) {
     return p.id === mainPaymentId;
   });
-  var dataPayment = utils.getPaymentsFromLines(bankLines).filter(function(p) {
+  var dataPayment = utils.getPaymentsFromDocumentLines(bankLines).filter(function(p) {
     return p.id === dataPaymentId;
   });
 
