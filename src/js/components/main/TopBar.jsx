@@ -3,16 +3,12 @@
 'use strict';
 
 const React = require('react');
-const PageSelector = require('./PageSelector.jsx');
 const Link = require('react-router').Link;
 
 
-const SideBar = React.createClass({
+const TopBar = React.createClass({
 
   render: function () {
-
-    // const pageSelectors = this.props.pages.map((page, index) =>
-    //   <PageSelector page={page} selectedPage={this.props.selectedPage} selectedTab={this.props.selectedTab} key={index}/>);
 
     const selectedPage = this.props.selectedPage;
     const pages = this.props.pages.map((page, index) => {
@@ -60,19 +56,8 @@ const SideBar = React.createClass({
         </div>
       </div>
     );
-
-    // return (
-    //   <div className='sideBar'>
-    //     <h4 className='ui top attached inverted header'>
-    //       PAGES
-    //     </h4>
-    //     <div className='ui top attached fluid vertical menu'>
-    //       {pageSelectors}
-    //     </div>
-    //   </div>
-    // );
   }
 
 });
 
-module.exports = SideBar;
+module.exports = TopBar;

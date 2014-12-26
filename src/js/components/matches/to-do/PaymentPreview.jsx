@@ -24,8 +24,8 @@ const DataPayment = React.createClass({
 
     return (
       <div className={divClasses} onClick={this.setAsSelected}>
-        <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{payment.grossAmount}{currency}</div>
-        <div><strong>Data:</strong> {utils.formatDate(payment.date)}</div>
+        <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{payment.grossAmount || payment.expectedGrossAmount[0]}{currency}</div>
+        <div><strong>Data:</strong> {utils.formatDate(payment.date || payment.expectedDate[0])}</div>
       </div>
     );
   },

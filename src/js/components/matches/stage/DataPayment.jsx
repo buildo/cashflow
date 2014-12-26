@@ -17,6 +17,7 @@ const DataPayment = React.createClass({
       <div>
         <div><strong>Valore:</strong> {isInvoice ? '' : '-'}{dataPayment.grossAmount}{currency}</div>
         <div><strong>Data:</strong> {utils.formatDate(dataPayment.date)}</div>
+        <div><strong>Metodo:</strong> {dataPayment.method}</div>
         <div><strong>Descrizione:</strong> {dataPayment.info.description}</div>
       </div>
     );

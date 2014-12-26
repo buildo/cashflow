@@ -29,7 +29,10 @@ const MatchPreview = React.createClass({
       <div className={divClasses} onClick={this.setAsSelected}>
         <div className='ui mini statistic'>
           <div className='value'>
-            {type} {date}
+            {type}
+          </div>
+          <div className='value'>
+            {date}
           </div>
           <div className='label'>
             {paymentNumber}º payment
