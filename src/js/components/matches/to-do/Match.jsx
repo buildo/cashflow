@@ -16,9 +16,9 @@ const Match = React.createClass({
   },
 
   saveMatchToStageArea: function() {
-    const dataPayments = Immutable.fromJS(this.props.dataPayments);
+    const secondaryPayments = Immutable.fromJS(this.props.secondaryPayments);
     const selectedPaymentId = this.props.selectedPaymentId;
-    const selectedPayment = dataPayments.find((dataPayment) => dataPayment.get('id') === selectedPaymentId);
+    const selectedPayment = secondaryPayments.find((secondaryPayment) => secondaryPayment.get('id') === selectedPaymentId);
     const main = Immutable.fromJS(this.props.match);
 
     const actionData = Immutable.fromJS({
@@ -39,10 +39,9 @@ const Match = React.createClass({
 
     const match = this.props.match;
     const matches = this.props.match.matches;
-    const dataPayments = this.props.dataPayments;
+    const secondaryPayments = this.props.secondaryPayments;
     const selectedPaymentId = this.props.selectedPaymentId;
-    const selectedPayment = dataPayments.filter((dataPayment) => dataPayment.id === selectedPaymentId)[0];
-
+    const selectedPayment = secondaryPayments.find((secondaryPayment) => secondaryPayment.id === selectedPaymentId);
     const saveButtonClasses = selectedPaymentId ? 'ui positive button' : 'ui disabled positive button';
 
     return (
@@ -51,13 +50,13 @@ const Match = React.createClass({
           <div>
             <div className='ui relaxed fitted grid match selected'>
               <div className='twelve wide Left column'>
-                <MatchBody mainPayment={match} selectedPayment={selectedPayment}/>
+                <MatchBody match={match} selectedPayment={selectedPayment}/>
               </div>
               <div className='ui vertical divider' id='match-divider'>
               O
               </div>
               <div className='four wide Right column'>
-                <MatchRightColumn dataPayments={dataPayments} selectedPaymentId={selectedPaymentId} matches={matches} flowDirection={match.info.flowDirection}/>
+                <MatchRightColumn secondaryPayments={secondaryPayments} selectedPaymentId={selectedPaymentId} matches={matches} flowDirection={match.info.flowDirection}/>
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@ const Store = require('./Store');
 const TodoDataStore = require('./TodoDataStore');
 
 let isLoading = true;
+let pointOfView = 'main';
 let selectedMatchIndex = 0;
 let selectedPaymentId;
 
@@ -31,6 +32,13 @@ module.exports = _.extend(self, Store(
     return true;
   },
 
+  INVERT_MATCHES_POV: () => {
+    pointOfView = pointOfView === 'main' ? 'data' : 'main';
+    selectedMatchIndex = undefined;
+    selectedPaymentId = undefined;
+    return true;
+  },
+
   MATCH_TODO_SELECTED: (actionData) => {
     selectedMatchIndex = actionData;
     selectedPaymentId = undefined;
@@ -44,21 +52,27 @@ module.exports = _.extend(self, Store(
 
 }, {
   // custom getters
-  getMainMatches() {
+
+  getMatches() {
     const payments = TodoDataStore.getAll();
     const dataPayments = payments.filter((p) => p.type === 'data');
     const mainPayments = payments.filter((p) => p.type === 'certain' || p.type === 'uncertain');
-    return mainPayments.map((mainP) => {
-      mainP.matches = dataPayments.filter((dataPayment) =>
-        mainP.matches.filter((matchedId) => dataPayment.id === matchedId).length > 0);
-      return mainP;
+    const primaryPayments = pointOfView === 'main' ? mainPayments : dataPayments;
+    const secondaryPayments = pointOfView === 'main' ? dataPayments : mainPayments;
+    return primaryPayments.map((primaryP) => {
+      primaryP.matches = secondaryPayments.filter((secondaryPayment) =>
+        primaryP.matches.filter((matchedId) => secondaryPayment.id === matchedId).length > 0);
+      return primaryP;
     });
   },
 
-  getDataPayments() {
+  getSecondaryPayments() {
     const payments = TodoDataStore.getAll();
-    const dataPayments = payments.filter((p) => p.type === 'data');
-    return dataPayments;
+    if (pointOfView === 'data') {
+      return payments.filter((p) => p.type === 'certain' || p.type === 'uncertain');
+    } else {
+      return payments.filter((p) => p.type === 'data');
+    }
   },
 
   getPayment(id) {

@@ -18,6 +18,7 @@ module.exports = {
     DELETING_STAGED_MATCH: null,
     STAGED_MATCH_DELETED: null,
     PAYMENT_TODO_SELECTED: null,
+    INVERT_MATCHES_POV: null,
     MATCHES_UPDATED: null,
     CURRENT_USER_UPDATED: null,
     GETTING_MATCHES: null,

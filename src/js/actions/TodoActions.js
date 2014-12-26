@@ -8,7 +8,7 @@ const sendAsyncAction = require('../utils/ActionUtils.js').sendAsyncAction;
 
 
 // TODO
-const MatchesTodoActions = {
+const TodoActions = {
   selectMatch: (index) => {
     sendAction(
       ActionTypes.MATCH_TODO_SELECTED,
@@ -35,7 +35,14 @@ const MatchesTodoActions = {
       ActionTypes.PAYMENT_TODO_SELECTED,
       undefined
     );
+  },
+
+  invertMatchesPOV: () => {
+    sendAction(
+      ActionTypes.INVERT_MATCHES_POV,
+      undefined
+    );
   }
 };
 
-module.exports = MatchesTodoActions;
+module.exports = TodoActions;

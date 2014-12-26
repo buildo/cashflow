@@ -4,18 +4,17 @@
 
 const React = require('react');
 const TodoActions = require('../../../actions/TodoActions.js');
-const MainPayment = require('./MainPayment.jsx');
-const DataPayment = require('./DataPayment.jsx');
+const Payment = require('./Payment.jsx');
 const utils = require('../../../utils/utils.js');
 
 const MatchBody = React.createClass({
 
   render: function() {
-
+    console.log(this.props.selectedPayment);
     return (
       <div>
-        <MainPayment mainPayment={this.props.mainPayment}/>
-        {this.props.selectedPayment ? <DataPayment dataPayment={this.props.selectedPayment}/> : ''}
+        <Payment payment={this.props.match} isPrimary={true}/>
+        {this.props.selectedPayment ? <Payment payment={this.props.selectedPayment} isPrimary={false}/> : ''}
       </div>
     );
   },

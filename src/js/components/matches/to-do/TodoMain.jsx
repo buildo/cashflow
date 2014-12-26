@@ -3,6 +3,7 @@
 'use strict';
 
 const React = require('react');
+const TodoActions = require('../../../actions/TodoActions');
 const TodoStore = require('../../../store/TodoStore.js');
 const TodoDataStore = require('../../../store/TodoDataStore.js');
 const Match = require('./Match.jsx');
@@ -11,8 +12,8 @@ const utils = require('../../../utils/utils.js');
 
 const getStateFromStores = function () {
   return {
-    mainMatches: TodoStore.getMainMatches(),
-    dataPayments: TodoStore.getDataPayments(),
+    matches: TodoStore.getMatches(),
+    secondaryPayments: TodoStore.getSecondaryPayments(),
     isLoading: TodoStore.isLoading(),
     selectedMatchIndex: TodoStore.getSelectedMatchIndex(),
     selectedPaymentId: TodoStore.getSelectedPaymentId(),
@@ -33,6 +34,10 @@ const TodoMain = React.createClass({
   componentWillUnmount: function() {
     TodoStore.removeChangeListener(this._onChange);
     TodoDataStore.removeChangeListener(this._onChange);
+  },
+
+  invertMainData: function() {
+    TodoActions.invertMatchesPOV();
   },
 
   render: function() {
@@ -63,14 +68,16 @@ const TodoMain = React.createClass({
     const selectedMatchIndex = this.state.selectedMatchIndex;
     const selectedPaymentId = this.state.selectedPaymentId;
 
-    const matchPreviews = this.state.mainMatches.sort(utils.sortByMatchesNumber).map((match, index) => {
+    const matchPreviews = this.state.matches.sort(utils.sortByMatchesNumber).map((match, index) => {
       return <MatchPreview match={match} isSelected={index === selectedMatchIndex} index={index} key={index}/>;
     });
 
-    const selectedMatch = this.state.mainMatches[selectedMatchIndex] ?
-      <Match match={this.state.mainMatches[selectedMatchIndex]} dataPayments={this.state.dataPayments} selectedPaymentId={selectedPaymentId}/>
+    const selectedMatch = this.state.matches[selectedMatchIndex] ?
+      <Match match={this.state.matches[selectedMatchIndex]} secondaryPayments={this.state.secondaryPayments} selectedPaymentId={selectedPaymentId}/>
       :
       '';
+
+    const pointOfViewButton = <div className='ui right align positive button' onClick={this.invertMainData}>Inverti punto di vista</div>;
 
     return (
       <div>
@@ -78,6 +85,7 @@ const TodoMain = React.createClass({
           Da Fare
         </h4>
         <br></br>
+        {pointOfViewButton}
         <div className='ui relaxed fitted grid'>
           <div className='thirteen wide Left column'>
             {selectedMatch}
@@ -88,7 +96,7 @@ const TodoMain = React.createClass({
             </div>
           </div>
         </div>
-        {this.state.mainMatches.length === 0 ? emptyTodo : ''}
+        {this.state.matches.length === 0 ? emptyTodo : ''}
         <br></br>
       </div>
     );

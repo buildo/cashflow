@@ -19,7 +19,7 @@ module.exports = [
           // modify payDate
           payDate.setDate(payDate.getDate() + (monthDays * monthsDiff) + monthDays); // accumulo al giorno corretto, pagamento il mese dopo.
           const newDate = [payDate.getFullYear(), ('0' + (payDate.getMonth() + 1)).slice(-2), ('0' + payDate.getDate()).slice(-2)].join('-');
-          console.log(monthsDiff, newDate);
+          // console.log(monthsDiff, newDate);
           return payment.set('date', newDate);
         }
         return payment;

@@ -3,13 +3,13 @@
 'use strict';
 
 const React = require('react');
-const DataPaymentPreview = require('./DataPaymentPreview.jsx');
+const PaymentPreview = require('./PaymentPreview.jsx');
 const utils = require('../../../utils/utils.js');
 
 const MatchRightColumn = React.createClass({
 
   componentDidMount: function() {
-    const context = $(this.refs.dataPayments.getDOMNode());
+    const context = $(this.refs.secondaryPayments.getDOMNode());
 
     $(this.refs.tabItem1.getDOMNode()).tab({context: context});
     $(this.refs.tabItem2.getDOMNode()).tab({context: context});
@@ -19,14 +19,14 @@ const MatchRightColumn = React.createClass({
 
     const flowDirection = this.props.flowDirection;
 
-    const allPayments = this.props.dataPayments.sort(utils.sortPaymentsByDate).filter((p) => p.id !== this.props.selectedPaymentId && p.info.flowDirection === flowDirection)
-      .map((dataPayment, index) => <DataPaymentPreview dataPayment={dataPayment} flowDirection={flowDirection} key={index}/>);
+    const allPayments = this.props.secondaryPayments.sort(utils.sortPaymentsByDate).filter((p) => p.id !== this.props.selectedPaymentId && p.info.flowDirection === flowDirection)
+      .map((payment, index) => <PaymentPreview payment={payment} flowDirection={flowDirection} key={index}/>);
     // const matchingPayments = this.props.matches.filter((p) => p.id !== this.props.selectedPaymentId)
     const matchingPayments = this.props.matches.map(
-      (matchingDataPayment, index) => <DataPaymentPreview dataPayment={matchingDataPayment} isSelected={matchingDataPayment.id === this.props.selectedPaymentId} flowDirection={flowDirection} key={index}/>);
+      (matchingPayment, index) => <PaymentPreview payment={matchingPayment} isSelected={matchingPayment.id === this.props.selectedPaymentId} flowDirection={flowDirection} key={index}/>);
 
     return (
-      <div ref='dataPayments' className='data-payments'>
+      <div ref='secondaryPayments' className='data-payments'>
         <div className="ui two item tabular menu">
           <a ref='tabItem1' className="active item" data-tab="matches">Matches</a>
           <a ref='tabItem2' className="item" data-tab="all">All</a>
