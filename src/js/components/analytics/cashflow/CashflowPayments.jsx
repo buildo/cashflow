@@ -46,6 +46,7 @@ const CashflowPayments = React.createClass({
     return (
       <div>
         {payments}
+        <br></br>
       </div>
     );
   },
