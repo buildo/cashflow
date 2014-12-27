@@ -45,6 +45,10 @@ module.exports = _.extend(self, Store(
     return main;
   },
 
+  getBankCFF() {
+    return bank;
+  },
+
   isLoading() {
     return isLoadingMain || isLoadingBank;
   },
@@ -55,16 +59,5 @@ module.exports = _.extend(self, Store(
 
   isLoadingBank() {
     return isLoadingBank;
-  },
-
-  getMainReport(configs) {
-    const _inputCFFs = [main];
-    const _configs = configs;
-    let _heuristics;
-    return reportApp.processInputs(_inputCFFs, _configs, _heuristics);
-  },
-
-  getBankCFF() {
-    return bank;
   }
 }));

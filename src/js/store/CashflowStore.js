@@ -14,9 +14,15 @@ let cashflowConfigs = {  // so views can know current state
   filterParamters: {}
 };
 
-const updateData = () => {
+const updateData = (isLoading) => {
+  if (isLoading) {
+    data = undefined;
+    return;
+  }
   const mainCFF = CFFStore.getMainCFF();
-  const inputCFFs = [mainCFF];
+  const costsCFF = CFFStore.getBankCFF();
+  costsCFF.lines = costsCFF.lines.filter((line) => line.payments[0].methodType === 'cost');
+  const inputCFFs = [mainCFF, costsCFF];
   const report = reportApp.processInputs(inputCFFs, cashflowConfigs, heuristics);
   data = report.cashflow;
 };
@@ -28,14 +34,19 @@ module.exports = _.extend(self, Store(
   [CFFStore], {
   // action handlers
   MAIN_CFF_UPDATED: () => {
-    updateData();
+    updateData(CFFStore.isLoading());
+    return true;
+  },
+
+  BANK_CFF_UPDATED: () => {
+    updateData(CFFStore.isLoading());
     return true;
   },
 
   CASHFLOW_CONFIGS_UPDATED: (actionData) => {
     cashflowConfigs.startValue = actionData.startValue;
     cashflowConfigs.filterParamters = actionData.filterParamters;
-    updateData();
+    updateData(CFFStore.isLoading());
     return true;
   }
 

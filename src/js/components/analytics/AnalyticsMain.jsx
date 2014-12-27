@@ -24,6 +24,9 @@ const AnalyticsMain = React.createClass({
     if (!CFFStore.getMainCFF()) {
       ServerActions.getMain();
     }
+    if (!CFFStore.getBankCFF()) {
+      ServerActions.getBank();
+    }
   },
 
   componentWillUnmount: function() {
