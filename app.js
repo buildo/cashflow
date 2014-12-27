@@ -426,7 +426,7 @@ app.get('/matches', function *() {
   });
 
   var filteredDataPayments = dataPayments.filter(function(dataPayment) {
-    return dataPaymentsIDs.indexOf(dataPayment.id) === -1;
+    return dataPaymentsIDs.indexOf(dataPayment.id) === -1 && dataPayment.methodType !== 'cost' && dataPayment.methodType !== 'ignore';
   });
 
   // create body
