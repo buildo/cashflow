@@ -11,6 +11,7 @@ const sendAsyncAction = require('../utils/ActionUtils.js').sendAsyncAction;
 const LoginActions = {
 
   resetLoginState: (event) => sendAsyncAction(ActionTypes.RESET_LOGIN_STATE),
+  logOut: () => sendAction(ActionTypes.LOGGED_OUT)
 
 };
 

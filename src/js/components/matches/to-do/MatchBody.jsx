@@ -10,7 +10,6 @@ const utils = require('../../../utils/utils.js');
 const MatchBody = React.createClass({
 
   render: function() {
-    console.log(this.props.selectedPayment);
     return (
       <div>
         <Payment payment={this.props.match} isPrimary={true}/>
