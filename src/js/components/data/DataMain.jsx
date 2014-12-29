@@ -26,6 +26,10 @@ const DataMain = React.createClass({
     }
   },
 
+  componentWillUnmount: function() {
+    CFFStore.removeChangeListener(this._onChange);
+  },
+
   render: function () {
     console.log('RENDER_DATA');
     return (

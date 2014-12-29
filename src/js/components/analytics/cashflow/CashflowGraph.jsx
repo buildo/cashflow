@@ -67,7 +67,7 @@ const initGraph = (data) => {
       onclick: CashflowActions.selectPoint,
     },
     zoom: {
-      enabled: true
+      enabled: false
     },
     subchart: {
       show: true

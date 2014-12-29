@@ -10,38 +10,27 @@ const CashflowPayment = React.createClass({
   render: function () {
 
     const payment = this.props.payment;
+    const isIncome = payment.flowDirection === 'in';
+
     const currency = utils.getCurrency(payment.currency.name);
+    const iconClasses = isIncome ? 'money icon' : 'tags icon';
+    const divClasses = isIncome ? 'ui dividing green header' : 'ui dividing red header';
 
-    switch (payment.flowDirection) {
+    const client = typeof payment.company === 'undefined' ? '' :
+      <div><strong>{isIncome ? 'Cliente' : 'Fornitore'}:</strong> {payment.company.description}</div>;
 
-      case 'in':
-        return (
-          <div className='ui segment payment-in'>
-            <div className="ui dividing green header">
-              <i className="money icon"></i>
-              <h4 className="content">{payment.description}</h4>
-            </div>
-            <div><strong>Valore:</strong> {payment.grossAmount}{currency}</div>
-            <div><strong>Data:</strong> {payment.date}</div>
-            <div><strong>Cliente:</strong> {payment.company.description}</div>
-            <div><strong>Metodo:</strong> {payment.method}</div>
-          </div>
-        );
-
-      case 'out':
-        return (
-          <div className='ui segment payment-out'>
-            <div className="ui dividing red header">
-              <i className="tags icon"></i>
-              <h4 className="content">{payment.description}</h4>
-            </div>
-            <div><strong>Valore:</strong> {payment.grossAmount}{currency}</div>
-            <div><strong>Data:</strong> {payment.date}</div>
-            <div><strong>Fornitore:</strong> {payment.company.description}</div>
-            <div><strong>Metodo:</strong> {payment.method}</div>
-          </div>
-        );
-    }
+    return (
+      <div className='ui segment payment-in'>
+        <div className={divClasses}>
+          <i className={iconClasses}></i>
+          <h4 className='content'>{payment.description}</h4>
+        </div>
+        <div><strong>Valore:</strong> {payment.grossAmount}{currency}</div>
+        <div><strong>Data:</strong> {payment.date}</div>
+        {client}
+        <div><strong>Metodo:</strong> {payment.method ? payment.method : payment.methodType}</div>
+      </div>
+    );
   }
 
 });
