@@ -6,6 +6,7 @@ const React = require('react');
 const c3 = require('c3');
 const CashflowStore = require('../../../store/CashflowStore.js');
 const CashflowActions = require('../../../actions/CashflowActions.js');
+const utils = require('../../../utils/utils.js');
 
 const tooltipContentHandler = function (d, defaultTitleFormat, defaultValueFormat, color) {
   /* jshint ignore:start */
@@ -47,6 +48,11 @@ const initGraph = (data) => {
 
   const columnsX = paths.map((path) => [('x-' + path)].concat(data[path.toLowerCase()].map((d) => new Date(d.date).getTime())));
   const columnsY = paths.map((path) => [path].concat(data[path.toLowerCase()].map((d) => d.grossAmount)));
+  const leftDate = utils.shiftDate(data.history[data.history.length - 1].date, -7);
+
+  const bestSize = data.best.length;
+  const worstSize = data.worst.length;
+  const rightDate = utils.shiftDate(data.best[bestSize - 1].date > data.worst[worstSize - 1].date ? data.best[bestSize - 1].date : data.worst[worstSize - 1].date, 7);
 
   let chart = c3.generate({
     size: {
@@ -79,6 +85,7 @@ const initGraph = (data) => {
           format: '%d-%m-%y',
           fit: false,
         },
+        extent: [leftDate, rightDate]
       }
     },
     grid: {

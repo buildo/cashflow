@@ -22,9 +22,19 @@ const getCurrency = (currencyName) => {
   return currencies[currencyName];
 };
 
+const shiftDate = (dateString, numberOfDays) => {
+  if (typeof dateString === 'undefined') {
+    return undefined;
+  }
+  const date = new Date(dateString);
+  date.setDate(date.getDate() + numberOfDays);
+  return [date.getFullYear(), ('0' + (date.getMonth() + 1)).slice(-2), ('0' + date.getDate()).slice(-2)].join('-');
+};
+
 module.exports = {
   formatDate: formatDate,
   sortPaymentsByDate: sortPaymentsByDate,
   sortByMatchesNumber: sortByMatchesNumber,
-  getCurrency: getCurrency
+  getCurrency: getCurrency,
+  shiftDate: shiftDate
 };
