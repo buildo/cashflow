@@ -301,6 +301,36 @@ app.post('/cffs/bank/pull', function *() {
   });
 });
 
+app.get('/cffs/manual', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var manualLines = yield db.cffs.find({userId: user._id, type: 'manual'}).toArray();
+  var cff = {};
+  if (manualLines.length > 0) {
+    var lines = manualLines.map(function(docLine) {return docLine.line});
+    var sortedLines = lines.sort(utils.sortCFFLinesByDate);
+    cff = {
+      sourceId: sortedLines[0].sourceId,
+      sourceDescription: sortedLines[0].sourceDescription,
+      lines: sortedLines
+    };
+  }
+  this.objectName = 'cffs';
+  this.body = {manual: cff};
+});
+
+app.post('/cffs/manual', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var manualCFF = this.request.body;
+  yield db.cffs.remove({userId: user._id, type: 'manual'});
+  yield manualCFF.lines.map(function(line) {
+    line.sourceId = manualCFF.sourceId;
+    line.sourceDescription = manualCFF.sourceDescription;
+    return db.cffs.insert({userId: user._id, type: 'manual', line: line});
+  });
+});
+
 app.post('/matches/stage/commit', function*() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
