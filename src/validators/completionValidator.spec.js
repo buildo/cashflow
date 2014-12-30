@@ -46,7 +46,7 @@ describe('validateCompletion', () => {
       {},
       {
         expectedGrossAmount: [5, 12],
-        expectedDate: ['2014-2-15','2014-2-20']
+        expectedDate: ['2014-02-15','2014-02-20']
       }
     ];
     cff.lines[0].flowDirection = 'in';
@@ -59,7 +59,7 @@ describe('validateCompletion', () => {
 
     expect(Array.isArray(errors)).to.be.true;
     expect(errors).to.have.length(1);
-    expect(errors).to.contain.an.item.with.property('msg', 'one or more payments are incomplete');
+    expect(errors).to.contain.an.item.with.property('msg', 'one or more payments are incomplete or invalid');
     expect(errors).to.contain.an.item.with.property('lineId', 'client1');
   });
 
@@ -67,7 +67,7 @@ describe('validateCompletion', () => {
     cff.lines[0].payments = [
       {
         expectedGrossAmount: [5, 12],
-        expectedDate: ['2016-2-15','2016-2-20']
+        expectedDate: ['2016-02-15','2016-02-20']
       }
     ];
     cff.lines[0].flowDirection = 'in';
@@ -89,11 +89,11 @@ describe('validateCompletion', () => {
     cff.lines[0].payments = [
       {
         expectedGrossAmount: [10, 10],
-        expectedDate: ['2016-2-15','2016-2-20']
+        expectedDate: ['2016-02-15','2016-02-20']
       },
       {
         grossAmount: 8,
-        expectedDate: ['2016-2-15','2016-2-20']
+        expectedDate: ['2016-02-15','2016-02-20']
       }
     ];
     cff.lines[0].flowDirection = 'in';

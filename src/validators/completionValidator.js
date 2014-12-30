@@ -22,10 +22,16 @@ const validateCompletion = (cff) => {
     [
       {
         condition: (line) => {
-          return line.get('payments').every((payment) => (payment.has('date') || payment.has('expectedDate')) &&
-            (payment.has('grossAmount') || payment.has('expectedGrossAmount')));
+          return line.get('payments').every((payment) => {
+            const dateRegExp = /\d\d\d\d-\d\d-\d\d/;
+            const dates = Immutable.List().concat(payment.get('date') || payment.get('expectedDate'));
+            const isDatesValid = dates.every((date) => dateRegExp.exec(date));
+            const amounts = Immutable.List().concat(payment.get('grossAmount') || payment.get('expectedGrossAmount'));
+            const isAmountsValid = amounts.every((amount) => typeof amount === 'number');
+            return isDatesValid && isAmountsValid;
+          });
         },
-        msg: 'one or more payments are incomplete'
+        msg: 'one or more payments are incomplete or invalid'
       }
     ]
   ]);
@@ -39,6 +45,7 @@ const validateCompletion = (cff) => {
         const error = Immutable.Map(
           {
             lineId: line.get('id') || 'UNKNOWN_LINE_ID',
+            mergedFrom: line.get('mergedFrom'),
             msg: validator.get('msg'),
           }
         );

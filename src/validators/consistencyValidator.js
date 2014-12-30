@@ -58,6 +58,7 @@ const validateLine = (line, validators, validateValuesMap) => {
       const error = Immutable.Map(
         {
           lineId: line.get('id') || 'UNKNOWN_LINE_ID',
+          mergedFrom: line.get('mergedFrom'),
           msg: validator.get('msg')
         }
       );
