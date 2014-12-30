@@ -24,6 +24,19 @@ module.exports = {
     headers: {'Authorization': 'Token token=' + getToken()}
   }),
 
+  getManualCFF: () => $.ajax({
+    url: HOST + '/cffs/manual',
+    type: 'GET',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
+  saveManualCFF: (cff) => $.ajax({
+    url: HOST + '/cffs/manual',
+    type: 'POST',
+    data: JSON.stringify(cff),
+    headers: {'Authorization': 'Token token=' + getToken(), 'Content-Type': 'application/json'}
+  }),
+
   getMatches: () => $.ajax({
     url: HOST + '/matches',
     type: 'GET',

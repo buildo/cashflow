@@ -7,8 +7,10 @@ const Store = require('./Store');
 const reportApp = require('../../../../cashflow/dist/index.js');
 let isLoadingMain = true;
 let isLoadingBank = false;
+let isLoadingManual = false;
 let main;
 let bank;
+let manual;
 
 const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
 module.exports = _.extend(self, Store(
@@ -17,7 +19,7 @@ module.exports = _.extend(self, Store(
   [], {
   // action handlers
   MAIN_CFF_UPDATED: (actionData) => {
-    console.log('MAIN_CFF', actionData);
+    // console.log('MAIN_CFF', actionData);
     main = actionData;
     isLoadingMain = false;
     return true;
@@ -34,9 +36,21 @@ module.exports = _.extend(self, Store(
   },
 
   BANK_CFF_UPDATED: (actionData) => {
-    console.log('BANK_CFF', actionData);
+    // console.log('BANK_CFF', actionData);
     bank = actionData;
     isLoadingBank = false;
+    return true;
+  },
+
+  GETTING_MANUAL_CFF: () => {
+    isLoadingManual = true;
+    return true;
+  },
+
+  MANUAL_CFF_UPDATED: (actionData) => {
+    // console.log('MANUAL_CFF', actionData);
+    manual = actionData;
+    isLoadingManual = false;
     return true;
   }
 }, {
@@ -49,8 +63,12 @@ module.exports = _.extend(self, Store(
     return bank;
   },
 
+  getManualCFF() {
+    return manual;
+  },
+
   isLoading() {
-    return isLoadingMain || isLoadingBank;
+    return isLoadingMain || isLoadingBank || isLoadingManual;
   },
 
   isLoadingMain() {
@@ -59,5 +77,9 @@ module.exports = _.extend(self, Store(
 
   isLoadingBank() {
     return isLoadingBank;
+  },
+
+  isLoadingManual() {
+    return isLoadingManual;
   }
 }));

@@ -66,6 +66,20 @@ const ServerActions = {
       .fail(handleError);
   },
 
+  getManual: () => {
+    sendAsyncAction(ActionTypes.GETTING_MANUAL_CFF);
+    WebAPIUtils.getManualCFF()
+      .done((res) => sendAction(ActionTypes.MANUAL_CFF_UPDATED, res.data.cffs.manual))
+      .fail(handleError);
+  },
+
+  saveManual: (cff) => {
+    sendAsyncAction(ActionTypes.SAVING_MANUAL_CFF, cff);
+    WebAPIUtils.saveManualCFF(cff)
+      .done((res) => sendAction(ActionTypes.MANUAL_CFF_SAVED))
+      .fail(handleError);
+  },
+
   getMatches: () => {
     sendAsyncAction(ActionTypes.GETTING_MATCHES);
     WebAPIUtils.getMatches()

@@ -9,7 +9,7 @@ const CFFStore = require('../../store/CFFStore.js');
 
 const getStateFromStores = function () {
   return {
-    isLoadingMainCFF: CFFStore.isLoading(),
+    isLoadingCFFs: CFFStore.isLoading(),
   };
 };
 
@@ -27,6 +27,9 @@ const AnalyticsMain = React.createClass({
     if (!CFFStore.getBankCFF()) {
       ServerActions.getBank();
     }
+    if (!CFFStore.getManualCFF()) {
+      ServerActions.getManual();
+    }
   },
 
   componentWillUnmount: function() {
@@ -37,7 +40,7 @@ const AnalyticsMain = React.createClass({
     console.log('RENDER_ANALYTICS');
     return (
       <div>
-        <RouteHandler isLoadingMainCFF={this.state.isLoadingMainCFF}/>
+        <RouteHandler isLoadingCFFs={this.state.isLoadingCFFs}/>
       </div>
     );
   },

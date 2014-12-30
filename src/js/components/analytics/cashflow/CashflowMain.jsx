@@ -13,7 +13,7 @@ const CashflowMain = React.createClass({
 
     console.log('RENDER_CASHFLOW');
 
-    if (this.props.isLoadingMainCFF) {
+    if (this.props.isLoadingCFFs) {
       return (
         <div className="ui segment">
           <div className="ui active inverted dimmer">

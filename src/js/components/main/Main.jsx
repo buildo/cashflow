@@ -43,6 +43,10 @@ const pages = [
         id: RouteNames.DATA_BANCA
       },
       {
+        name: 'Manuale',
+        id: RouteNames.DATA_MANUAL
+      },
+      {
         name: 'Progetti',
         id: RouteNames.DATA_PROGETTI
       },

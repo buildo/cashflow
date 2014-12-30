@@ -11,6 +11,7 @@ module.exports = {
   DATA: 'data',
   DATA_FATTURE_IN_CLOUD: 'data-fatture-in-cloud',
   DATA_BANCA: 'data-banca',
+  DATA_MANUAL: 'data-manual',
   DATA_PROGETTI: 'data-progetti',
   DATA_RISORSE: 'data-risorse',
   MATCH: 'match',
