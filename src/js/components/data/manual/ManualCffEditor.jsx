@@ -5,6 +5,9 @@
 const React = require('react');
 const Immutable = require('immutable');
 const JSONEditor = require('jsoneditor');
+const ace = require('brace');
+require('brace/mode/json');
+require('brace/theme/textmate');
 const ServerActions = require('../../../actions/ServerActions.js');
 const validateCFF = require('../../../../../../cashflow/dist/src/validators/CFFValidator.js');
 
@@ -13,10 +16,8 @@ var editor;
 const ManualCffEditor = React.createClass({
 
   componentDidMount: function() {
-    const container = this.refs.jsonEditor.getDOMNode();
-    editor = new JSONEditor(container);
-    editor.setName('CFF Manuale');
-    editor.set(this.props.manualCFF || {
+    editor = ace.edit('json-editor');
+    const json = this.props.manualCFF || {
       sourceId: 'MANUAL',
       sourceDescription: 'manual inputs from user',
       lines: [
@@ -33,12 +34,21 @@ const ManualCffEditor = React.createClass({
           ]
         }
       ]
+    };
+    editor.setOptions({
+      mode: 'ace/mode/json',
+      theme: 'ace/theme/textmate',
+      maxLines: Infinity,
+      tabSize: 2,
+      autoScrollEditorIntoView: true,
+      wrap: true,
     });
-    editor.expandAll();
+    editor.setValue(JSON.stringify(json, undefined, 2));
+    editor.clearSelection();
   },
 
   saveManualCFF: function() {
-    const json = editor.get();
+    const json = JSON.parse(editor.getValue());
     const immutableJSON = Immutable.fromJS(json);
     const validationReport = validateCFF(immutableJSON);
     if (validationReport.has('errors')) {
@@ -53,7 +63,9 @@ const ManualCffEditor = React.createClass({
     return (
       <div>
         <div className='ui right align positive button' onClick={this.saveManualCFF}>Salva</div>
-        <div ref='jsonEditor'></div>
+        <div className='json-editor-container'>
+          <div id='json-editor'></div>
+        </div>
         <br></br>
       </div>
     );
