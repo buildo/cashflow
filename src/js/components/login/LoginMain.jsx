@@ -32,7 +32,6 @@ const LoginMain = React.createClass({
   },
 
   render: function() {
-    console.log('RENDER_LOGIN_MAIN');
 
     if (this.state.loginState === C.LOGGED_IN) {
       return <div/>;

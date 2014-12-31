@@ -134,9 +134,6 @@ const CasflowAnalytics = React.createClass({
   },
 
   render: function() {
-
-    console.log('RENDER_GRAPH');
-
     const data = this.state.cashflows;
     initGraph(data);
 

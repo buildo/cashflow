@@ -35,8 +35,6 @@ const CFFMain = React.createClass({
 
   render: function() {
 
-    console.log('RENDER_CFF');
-
     if (this.state.isLoading) {
       return (
         <div className="ui segment">

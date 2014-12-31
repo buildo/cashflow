@@ -37,7 +37,6 @@ const AnalyticsMain = React.createClass({
   },
 
   render: function () {
-    console.log('RENDER_ANALYTICS');
     return (
       <div>
         <RouteHandler isLoadingCFFs={this.state.isLoadingCFFs}/>

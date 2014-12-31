@@ -11,8 +11,6 @@ const CashflowMain = React.createClass({
 
   render: function() {
 
-    console.log('RENDER_CASHFLOW');
-
     if (this.props.isLoadingCFFs) {
       return (
         <div className="ui segment">

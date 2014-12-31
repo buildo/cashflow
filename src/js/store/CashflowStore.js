@@ -23,11 +23,10 @@ const updateData = (isLoading) => {
   const costsCFF = CFFStore.getBankCFF();
   costsCFF.lines = costsCFF.lines.filter((line) => line.payments[0].methodType === 'cost');
   const manualCFF = CFFStore.getManualCFF();
-  console.log(manualCFF);
   const inputCFFs = [mainCFF, costsCFF, manualCFF];
   const report = reportApp.processInputs(inputCFFs, cashflowConfigs, heuristics);
   if (report.errors) {
-    console.log(report.errors);
+    report.errors.forEach((error) => console.error(error));
   }
   data = report.cashflow;
 };

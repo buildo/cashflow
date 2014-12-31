@@ -25,7 +25,6 @@ const MatchesMain = React.createClass({
   },
 
   render: function() {
-    console.log('RENDER_MATCHES');
     return <RouteHandler/>;
   },
 

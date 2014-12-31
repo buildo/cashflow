@@ -31,7 +31,6 @@ const DataMain = React.createClass({
   },
 
   render: function () {
-    console.log('RENDER_DATA');
     return (
       <RouteHandler/>
     );
