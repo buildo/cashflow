@@ -7,7 +7,7 @@ const State = require('react-router').State;
 const BankInvoice = require('./BankInvoice.jsx');
 const BankExpense = require('./BankExpense.jsx');
 const CFFStore = require('../../../store/CFFStore.js');
-
+const ServerActions = require('../../../actions/ServerActions.js');
 
 
 const getStateFromStores = function () {
@@ -31,6 +31,10 @@ const CFFMain = React.createClass({
 
   componentWillUnmount: function() {
     CFFStore.removeChangeListener(this._onChange);
+  },
+
+  pullBank: function() {
+    ServerActions.pullBank();
   },
 
   render: function() {
@@ -61,6 +65,7 @@ const CFFMain = React.createClass({
           Banca
         </h4>
         <br></br>
+        <div className='ui right align positive button' onClick={this.pullBank}>Aggiorna</div>
         <div className='cff-lines'>
           {lines}
         </div>

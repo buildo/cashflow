@@ -24,6 +24,24 @@ module.exports = {
     headers: {'Authorization': 'Token token=' + getToken()}
   }),
 
+  pullMainCFF: () => $.ajax({
+    url: HOST + '/cffs/main/pull',
+    type: 'POST',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
+  pullBankCFF: () => $.ajax({
+    url: HOST + '/cffs/bank/pull',
+    type: 'POST',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
+  getMainPullProgress: () => $.ajax({
+    url: HOST + '/cffs/main/pull/progress',
+    type: 'GET',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
   getManualCFF: () => $.ajax({
     url: HOST + '/cffs/manual',
     type: 'GET',

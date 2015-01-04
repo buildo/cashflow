@@ -66,6 +66,26 @@ const ServerActions = {
       .fail(handleError);
   },
 
+  pullMain: () => {
+    sendAsyncAction(ActionTypes.PULLING_MAIN_CFF);
+    WebAPIUtils.pullMainCFF()
+      .done()
+      .fail(handleError);
+  },
+
+  pullBank: () => {
+    sendAsyncAction(ActionTypes.PULLING_BANK_CFF);
+    WebAPIUtils.pullBankCFF()
+      .done((res) => ServerActions.getBank())
+      .fail(handleError);
+  },
+
+  getMainPullProgress: () => {
+    WebAPIUtils.getMainPullProgress()
+      .done((res) => sendAsyncAction(ActionTypes.GET_MAIN_PULL_PROGRESS, res.data.progress))
+      .fail(handleError);
+  },
+
   getManual: () => {
     sendAsyncAction(ActionTypes.GETTING_MANUAL_CFF);
     WebAPIUtils.getManualCFF()
