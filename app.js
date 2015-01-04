@@ -180,7 +180,7 @@ app.get('/cffs/main/pull/progress', function *() {
   var user = yield utils.getUserByToken(db, token);
   var fattureInCloudProgress = yield db.progresses.findOne({userId: user._id, type: 'fattureincloud'});
   this.objectName = 'progress';
-  this.body = fattureInCloudProgress;
+  this.body = fattureInCloudProgress.progress;
 });
 
 app.get('/cffs/bank', function *() {
@@ -193,8 +193,8 @@ app.get('/cffs/bank', function *() {
   var lines = bankLines.map(function(docLine) {return docLine.line});
   var sortedLines = lines.sort(utils.sortCFFLinesByDate);
   var cff = {
-    sourceId: sortedLines[0].sourceId,
-    sourceDescription: sortedLines[0].sourceDescription,
+    sourceId: 'BANK',
+    sourceDescription: 'payments scraped from user bank accounts',
     lines: sortedLines
   };
   this.objectName = 'cffs';

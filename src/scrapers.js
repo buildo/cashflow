@@ -50,6 +50,7 @@ var bper = require('bper').scrapeBPER;
 var setProgressFattureInCloud = function(db, userId, progressObject) {
   co(function *() {
     var _progress = {
+      completed: progressObject.completed,
       authentication: progressObject.login.authentication,
       invoices: {
         list: progressObject.invoiceScraper.mainRequest,
