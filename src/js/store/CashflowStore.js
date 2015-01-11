@@ -23,7 +23,7 @@ const updateData = (isLoading) => {
   const costsCFF = CFFStore.getBankCFF();
   costsCFF.lines = costsCFF.lines.filter((line) => line.payments[0].methodType === 'cost');
   const manualCFF = CFFStore.getManualCFF();
-  const inputCFFs = [mainCFF, costsCFF, manualCFF];
+  const inputCFFs = manualCFF.lines ? [mainCFF, costsCFF, manualCFF] : [mainCFF, costsCFF];
   const report = reportApp.processInputs(inputCFFs, cashflowConfigs, heuristics);
   if (report.errors) {
     report.errors.forEach((error) => console.error(error));
@@ -43,6 +43,16 @@ module.exports = _.extend(self, Store(
   },
 
   BANK_CFF_UPDATED: () => {
+    updateData(CFFStore.isLoading());
+    return true;
+  },
+
+  MANUAL_CFF_UPDATED: () => {
+    updateData(CFFStore.isLoading());
+    return true;
+  },
+
+  MANUAL_CFF_SAVED: () => {
     updateData(CFFStore.isLoading());
     return true;
   },

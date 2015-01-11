@@ -58,7 +58,15 @@ module.exports = _.extend(self, Store(
     manual = actionData;
     isLoadingManual = false;
     return true;
+  },
+
+  MANUAL_CFF_SAVED: (actionData) => {
+    // console.log('MANUAL_CFF', actionData);
+    manual = actionData;
+    isLoadingManual = false;
+    return true;
   }
+
 }, {
   // custom getters
   getMainCFF() {

@@ -96,7 +96,7 @@ const ServerActions = {
   saveManual: (cff) => {
     sendAsyncAction(ActionTypes.SAVING_MANUAL_CFF, cff);
     WebAPIUtils.saveManualCFF(cff)
-      .done((res) => sendAction(ActionTypes.MANUAL_CFF_SAVED))
+      .done((res) => sendAction(ActionTypes.MANUAL_CFF_SAVED, cff))
       .fail(handleError);
   },
 
