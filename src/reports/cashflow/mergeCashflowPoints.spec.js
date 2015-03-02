@@ -93,8 +93,8 @@ describe('mergeCashflows', () => {
     expect(Array.isArray(historyCashflow[0].info)).to.be.true;
   });
 
-  it('should merge startPoint with first point of history', () => {
-    expect(historyCashflow[0]).to.have.property('grossAmount', 207);
-  });
+  // it('should merge startPoint with first point of history', () => {
+  //   expect(historyCashflow[0]).to.have.property('grossAmount', 207);
+  // });
 
 });

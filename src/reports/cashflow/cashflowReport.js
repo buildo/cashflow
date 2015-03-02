@@ -12,16 +12,16 @@ const generateCashFlowReport = (cff, configs) => {
   const reportFunctions = [
     generateCashflows,
     (cashflows) => filterCashflows(cashflows, configs.filterParameters),
-    (cashflows) => mergeCashflowPoints(cashflows, configs.startValue),
-    cumulateCashflows
+    mergeCashflowPoints,
+    (cashflows) => cumulateCashflows(cashflows, configs.startPoint)
   ];
 
   const initWarnings = [{
     sourceId: cff.get('sourceId'),
-    msg: 'no start value'
+    msg: 'no start point'
   }];
 
-  const emptyReport = typeof configs.startValue === 'undefined' ? Immutable.fromJS({cashflow: cff, warnings: initWarnings})
+  const emptyReport = typeof configs.startPoint === 'undefined' ? Immutable.fromJS({cashflow: cff, warnings: initWarnings})
     : Immutable.Map({cashflow: cff});
 
   const report = reportFunctions.reduce((acc, reportFunction) => {

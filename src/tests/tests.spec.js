@@ -114,7 +114,10 @@ const heuristicRules = [
 ];
 
 const configs = {
-  startValue: 200.5
+  startPoint: {
+    grossAmount: 200.5,
+    date: '2015-01-12'
+  }
 };
 
 const reports = processInputs(cffs, configs, heuristicRules);
