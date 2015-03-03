@@ -19,9 +19,17 @@ const CashflowPayment = React.createClass({
     const client = typeof payment.company === 'undefined' ? '' :
       <div><strong>{isIncome ? 'Cliente' : 'Fornitore'}:</strong> {payment.company.description}</div>;
 
+    const link = ('https://secure.fattureincloud.it/' + payment.lineId.replace('inv_', 'invoices-edit-').replace('exp_', 'expenses-edit-'));
+    const label = payment.mergedFrom[0] === 'FC' ?
+      <a href={link} className='ui black corner label'>
+        <i className='level up icon'></i>
+      </a>
+      : '';
+
     return (
       <div className='ui segment payment-in'>
         <div className={divClasses}>
+          {label}
           <i className={iconClasses}></i>
           <h4 className='content'>{payment.description}</h4>
         </div>
