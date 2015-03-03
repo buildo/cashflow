@@ -127,7 +127,8 @@ app.post('/users/credentials', function *() {
   if(!user){
     // error
   }
-  yield db.credentials.update({userId: user._id, type: type}, {$set: {credentials: credentials, bankId: bankId}}, {upsert : true});
+  var update = type === 'main' ? {userId: user._id, type: type} : {userId: user._id, type: type, bankId: bankId};
+  yield db.credentials.update(update, {$set: {credentials: credentials, bankId: bankId}}, {upsert : true});
 });
 
 // CFFS
