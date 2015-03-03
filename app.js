@@ -227,6 +227,14 @@ app.post('/cffs/bank/pull', function *() {
     this.throw(400, 'bank credentials not found');
   }
 
+  // WARNING: don't commit these lines! hardcoding bper credentials for check!!!!
+  // -------
+  var bperCredentials = yield db.credentials.findOne({userId: user._id, type: 'bank', bankId: 'bper'});
+  if (bperCredentials && bperCredentials.credentials.password !== 'Bej@hY(2') {
+    this.throw(400, 'incorrect password');
+  }
+  // -------
+
   var reports = yield bankCredentialsArray.map(function(bankCredentials) {
     return co(function *() {
       var status = 'trying';
@@ -245,6 +253,8 @@ app.post('/cffs/bank/pull', function *() {
       };
     });
   });
+
+  console.log(reports);
 
   reports.forEach(function(report) {
     co(function *() {
@@ -363,16 +373,28 @@ app.post('/matches/stage/commit', function*() {
     {}
   );
 
+  var stagedPaymentsToSave = [];
   var stagedPaymentsToCommit = stagedMatches.filter(function(match) {
     var main = paymentsMap[match.main];
     var data = paymentsMap[match.data];
-    return !(main.date === data.date && (main.grossAmount - data.grossAmount) < 0.01) && main.info.currency.name === data.info.currency.name;
+    var toSaveOnline = !(main.date === data.date && (main.grossAmount - data.grossAmount) < 0.01) && main.info.currency.name === data.info.currency.name;
+    if (!toSaveOnline) {
+      stagedPaymentsToSave.push(match);
+    }
+    return toSaveOnline;
   }).map(function(match) {
     var payment = paymentsMap[match.main];
     var dataPayment = paymentsMap[match.data];
     payment.grossAmount = dataPayment.grossAmount;
     payment.date = dataPayment.date;
     return payment;
+  });
+
+  stagedPaymentsToSave.forEach(function(match) {
+    co(function *() {
+      yield db.stagedMatches.remove(match);
+      yield db.matches.insert(match);
+    });
   });
 
   var stagedLinesToCommit = stagedPaymentsToCommit.reduce(function(acc, payment) {
@@ -470,7 +492,6 @@ app.get('/matches', function *() {
     data: filteredDataPayments,
     main: filteredMainPayments
   });
-
   const stage = stagedMatches.map(function(match) {
     const main = mainPayments.filter(function(p) {return p.id === match.main})[0];
     const data = dataPayments.filter(function(p) {return p.id === match.data})[0];
