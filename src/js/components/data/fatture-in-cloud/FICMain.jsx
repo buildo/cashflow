@@ -16,6 +16,7 @@ const getStateFromStores = function () {
   return {
     isLoading: CFFStore.isLoadingMain(),
     isPulling: PullProgressStore.isPullingMain(),
+    isToUpdate: PullProgressStore.isToUpdate(),
     progress: PullProgressStore.getProgressMain(),
     cff: CFFStore.getMainCFF() || {},
   };
@@ -64,10 +65,12 @@ const CFFMain = React.createClass({
 
     if (this.state.isPulling) {
       let percent = 0;
-      if (progress) {
-        percent += progress.authentication === 'done' ? 30 : 0;
-        const todo = (Array.isArray(progress.invoices.list) ? progress.invoices.list[1] : 0) + (Array.isArray(progress.expenses.list) ? progress.expenses.list[1] : 0);
-        const done = (Array.isArray(progress.invoices.list) ? progress.invoices.list[0] : 0) + (Array.isArray(progress.expenses.list) ? progress.expenses.list[0] : 0);
+      if (progress && this.state.isToUpdate) {
+        percent += progress.authentication === 'done' ? 20 : 0;
+        percent += progress.invoices.list === 'done' ? 5 : 0;
+        percent += progress.expenses.list === 'done' ? 5 : 0;
+        const todo = (Array.isArray(progress.invoices.data) ? progress.invoices.data[1] : 0) + (Array.isArray(progress.expenses.data) ? progress.expenses.data[1] : 0);
+        const done = (Array.isArray(progress.invoices.data) ? progress.invoices.data[0] : 0) + (Array.isArray(progress.expenses.data) ? progress.expenses.data[0] : 0);
         percent += todo !== 0 ? (70 * (done / todo)) : 0;
         percent = progress.completed ? 100 : percent;
         if (this.refs.pullProgressBar) {

@@ -42,6 +42,12 @@ module.exports = {
     headers: {'Authorization': 'Token token=' + getToken()}
   }),
 
+  resetMainPullProgress: () => $.ajax({
+    url: HOST + '/cffs/main/pull/progress/clear',
+    type: 'POST',
+    headers: {'Authorization': 'Token token=' + getToken()}
+  }),
+
   getManualCFF: () => $.ajax({
     url: HOST + '/cffs/manual',
     type: 'GET',

@@ -102,11 +102,16 @@ const ServerActions = {
       .fail(handleError);
   },
 
+  resetMainPullProgress: () => {
+    WebAPIUtils.resetMainPullProgress()
+      .fail(handleError);
+  },
+
   getManual: () => {
     sendAsyncAction(ActionTypes.GETTING_MANUAL_CFF);
     WebAPIUtils.getManualCFF()
       .done((res) => sendAction(ActionTypes.MANUAL_CFF_UPDATED, res.data.cffs.manual))
-      .fail(handleError);
+      .fail((res) => handleCFFError(res, ActionTypes.MANUAL_CFF_UPDATED));
   },
 
   saveManual: (cff) => {
