@@ -24,7 +24,7 @@ const tooltipContentHandler = function (d, defaultTitleFormat, defaultValueForma
     }
 
     name = nameFormat(d[i].name);
-    value = valueFormat(d[i].value, d[i].ratio, d[i].id, d[i].index);
+    value = valueFormat(d[i].value.toFixed(2), d[i].ratio, d[i].id, d[i].index);
     bgcolor = $$.levelColor ? $$.levelColor(d[i].value) : color(d[i].id);
 
     text += "<tr class='" + $$.CLASS.tooltipName + "-" + d[i].id + "'>";
@@ -48,7 +48,9 @@ const initGraph = (data) => {
 
   const columnsX = paths.map((path) => [('x-' + path)].concat(data[path.toLowerCase()].map((d) => new Date(d.date).getTime())));
   const columnsY = paths.map((path) => [path].concat(data[path.toLowerCase()].map((d) => d.grossAmount)));
-  const leftDate = utils.shiftDate(data.history[data.history.length - 1].date, -7);
+  const lastHistoryDate = data.history[data.history.length - 1].date;
+  const today = new Date();
+  const leftDate = utils.shiftDate((new Date(lastHistoryDate)) < today ? lastHistoryDate : today, -7);
 
   const bestSize = data.best.length;
   const worstSize = data.worst.length;

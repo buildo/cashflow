@@ -7,6 +7,7 @@ const Store = require('./Store');
 const CFFStore = require('./CFFStore');
 const reportApp = require('../../../../cashflow/dist/index.js');
 const heuristics = require('../../files/Heuristics.js');
+const COSTS = 'bank fee|withdrawal|tax';
 
 let data;
 let cashflowConfigs = {  // so views can know current state
@@ -26,7 +27,7 @@ const updateData = (isLoading) => {
   const costsCFF = _.clone(CFFStore.getBankCFF(), true);
   const manualCFF = CFFStore.getManualCFF();
   if (costsCFF) {
-    costsCFF.lines = costsCFF.lines.filter((line) => line.payments[0].methodType === 'cost');
+    costsCFF.lines = costsCFF.lines.filter((line) => COSTS.indexOf(line.payments[0].methodType) > -1);
   }
   const inputCFFs = [mainCFF, costsCFF, manualCFF].filter((cff) => typeof cff !== 'undefined');
   if (inputCFFs.length === 0) {

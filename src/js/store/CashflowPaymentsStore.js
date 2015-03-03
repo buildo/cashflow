@@ -29,7 +29,6 @@ module.exports = _.extend(self, Store(
   },
 
   CASHFLOW_POINT_SELECTED: (actionData) => {
-    console.log(actionData);
     if (actionData.index === index && actionData.pathName.toLowerCase() === pathName) {
       resetPointSelection();
     } else {
