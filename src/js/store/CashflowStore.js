@@ -10,7 +10,10 @@ const heuristics = require('../../files/Heuristics.js');
 
 let data;
 let cashflowConfigs = {  // so views can know current state
-  startValue: 0,
+  startPoint: {
+    grossAmount: 17287.95,
+    date: '2015-02-01'
+  },
   filterParamters: {}
 };
 
@@ -20,10 +23,16 @@ const updateData = (isLoading) => {
     return;
   }
   const mainCFF = CFFStore.getMainCFF();
-  const costsCFF = CFFStore.getBankCFF();
-  costsCFF.lines = costsCFF.lines.filter((line) => line.payments[0].methodType === 'cost');
+  const costsCFF = _.clone(CFFStore.getBankCFF(), true);
   const manualCFF = CFFStore.getManualCFF();
-  const inputCFFs = manualCFF.lines ? [mainCFF, costsCFF, manualCFF] : [mainCFF, costsCFF];
+  if (costsCFF) {
+    costsCFF.lines = costsCFF.lines.filter((line) => line.payments[0].methodType === 'cost');
+  }
+  const inputCFFs = [mainCFF, costsCFF, manualCFF].filter((cff) => typeof cff !== 'undefined');
+  if (inputCFFs.length === 0) {
+    data = undefined;
+    return;
+  }
   const report = reportApp.processInputs(inputCFFs, cashflowConfigs, heuristics);
   if (report.errors) {
     report.errors.forEach((error) => console.error(error));

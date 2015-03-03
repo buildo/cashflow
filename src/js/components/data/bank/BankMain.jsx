@@ -55,7 +55,7 @@ const CFFMain = React.createClass({
     }
 
     const cffLines = this.state.cff.lines || [];
-    const paymentsCFFLines = cffLines.filter((line) => line.payments[0].methodType !== 'cost' && line.payments[0].methodType !== 'ignore');
+    const paymentsCFFLines = cffLines.filter((line) => (line.payments[0].methodType !== 'cost' && line.payments[0].methodType !== 'ignore'));
     const costsCFFLines = cffLines.filter((line) => line.payments[0].methodType === 'cost');
     const lines = paymentsCFFLines.map((line, index) => line.flowDirection === 'in' ? <BankInvoice line={line} key={index}/> : <BankExpense line={line} key={index}/>);
 

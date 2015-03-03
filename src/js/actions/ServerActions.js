@@ -18,13 +18,29 @@ const handleLoginSuccess = (res) => {
 
 const handleError = (res) => {
   console.log('HTTP_ERROR');
-  switch (res.code) {
+  switch (res.status) {
     case 401:
       sendAction(ActionTypes.LOGGED_OUT, res.data);
       break;
 
     default:
-      console.log(res.code);
+      console.log(res.status);
+      break;
+  }
+};
+
+const handleCFFError = (res, action) => {
+  switch (res.status) {
+    case 401:
+      sendAction(ActionTypes.LOGGED_OUT, res.data);
+      break;
+
+    case 400:
+      sendAction(action, undefined);
+      break;
+
+    default:
+      console.log(res.status);
       break;
   }
 };
@@ -56,14 +72,14 @@ const ServerActions = {
     sendAsyncAction(ActionTypes.GETTING_MAIN_CFF);
     WebAPIUtils.getMainCFF()
       .done((res) => sendAction(ActionTypes.MAIN_CFF_UPDATED, res.data.cffs.main))
-      .fail(handleError);
+      .fail((res) => handleCFFError(res, ActionTypes.MAIN_CFF_UPDATED));
   },
 
   getBank: () => {
     sendAsyncAction(ActionTypes.GETTING_BANK_CFF);
     WebAPIUtils.getBankCFF()
       .done((res) => sendAction(ActionTypes.BANK_CFF_UPDATED, res.data.cffs.bank))
-      .fail(handleError);
+      .fail((res) => handleCFFError(res, ActionTypes.BANK_CFF_UPDATED));
   },
 
   pullMain: () => {
