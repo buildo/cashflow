@@ -139,7 +139,6 @@ app.get('/cffs/main', function *() {
   if (mainLines.length === 0) {
     this.throw(400, 'user does not have a main cff in database');
   }
-
   this.objectName = 'cffs';
   this.body = { main: utils.getCffFromDocumentLines(mainLines)};
 });
@@ -155,17 +154,23 @@ app.post('/cffs/main/pull', function *() {
   var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
   var oldCFF = mainLines.length === 0 ? {} : utils.getCffFromDocumentLines(mainLines);
   // fatture in cloud non deve essere bloccante, usare /progress per conoscere stato avanzamento
-
-  // TODO: rimuovere linee non piú esistenti
   scrapers.getFattureInCloud(db, user._id, credentialsFattureInCloud, oldCFF)
     .done(function(result) {
       co(function *() {
         var cff = result.fattureInCloud.cff;
+        const allIDs = cff.lines.map(function (line) {return line.id;}).join(' '); // string of valid IDs
+        const linesToBeRemoved = oldCFF.lines.filter(function (line) {return allIDs.indexOf(line.id) === -1;}) // get old lines with invalid IDs
+        // remove invalid lines
+        yield linesToBeRemoved.map(function(line) {
+          return {
+            remove: db.cffs.remove({userId: user._id, type: 'main', _id: line.id})
+          };
+        });
+        // overwrite valid lines
         yield cff.lines.map(function(line) {
           line.sourceId = cff.sourceId;
           line.sourceDescription = cff.sourceDescription;
           var regExp = new RegExp(line.id, '');
-          // save new line
           return {
             insert: db.cffs.update({userId: user._id, type: 'main', _id: line.id}, {$set: {line: line}}, {upsert: true}),
             removeMatches: db.matches.remove({userId: user._id, _id: {'$regex': regExp}}),
@@ -306,16 +311,16 @@ app.get('/cffs/manual', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
   var manualLines = yield db.cffs.find({userId: user._id, type: 'manual'}).toArray();
-  var cff = {};
-  if (manualLines.length > 0) {
-    var lines = manualLines.map(function(docLine) {return docLine.line});
-    var sortedLines = lines.sort(utils.sortCFFLinesByDate);
-    cff = {
-      sourceId: sortedLines[0].sourceId,
-      sourceDescription: sortedLines[0].sourceDescription,
-      lines: sortedLines
-    };
+  if (manualLines.length === 0) {
+    this.throw(400, 'user does not have a manual cff in database');
   }
+  var lines = manualLines.map(function(docLine) {return docLine.line});
+  var sortedLines = lines.sort(utils.sortCFFLinesByDate);
+  var cff = {
+    sourceId: sortedLines[0].sourceId,
+    sourceDescription: sortedLines[0].sourceDescription,
+    lines: sortedLines
+  };
   this.objectName = 'cffs';
   this.body = {manual: cff};
 });
