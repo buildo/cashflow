@@ -418,7 +418,7 @@ app.post('/matches/stage/commit', function*() {
     {}
   );
 
-  var stagedPaymentsIDs = stagedPaymentsToCommit.reduce(function(acc, payment) {return acc + payment.id}, '');
+  var stagedPaymentsIDs = stagedPaymentsToCommit.map(function(payment) {return payment.id}).join('|');
   // add stagedPayments of same line not staged
   var completeLines = yield utils.getArrayFromObject(stagedLinesToCommit).map(function (stagedLine) {
     return db.cffs.findOne({userId: user._id, _id: stagedLine.id});
@@ -451,18 +451,24 @@ app.post('/matches/stage/commit', function*() {
         });
         line.id = res.newId;
         var toReturn = {};
+        yield db.cffs.remove({userId: user._id, _id: res.oldId});
         yield db.cffs.insert({userId: user._id, type: 'main', _id: line.id, line: line});
-        yield db.cffs.remove({_id: res.oldId});
         var regExp = new RegExp(res.oldId, '');
         var matches = yield db.stagedMatches.find({userId: user._id, main: {'$regex': regExp}}).toArray();
-        yield matches.map(function(match) {return {remove: db.stagedMatches.remove({_id: match._id + 'x'})}});
+        yield matches.map(function(match) {return {}});
         yield matches.map(function(match) {
           match.main = match.main.replace(res.oldId, res.newId);
-          return {insert: db.matches.insert(match)};
+          return {
+            remove: db.stagedMatches.remove({userId: user._id, _id: match._id}),
+            insert: db.matches.insert(match)
+          }
         });
       }
     });
   });
+  if (errorLinesIDs.length > 0) {
+    console.log(errorLinesIDs);
+  }
 });
 
 app.get('/matches', function *() {
