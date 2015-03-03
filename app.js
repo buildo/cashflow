@@ -186,7 +186,13 @@ app.get('/cffs/main/pull/progress', function *() {
   var user = yield utils.getUserByToken(db, token);
   var fattureInCloudProgress = yield db.progresses.findOne({userId: user._id, type: 'fattureincloud'});
   this.objectName = 'progress';
-  this.body = fattureInCloudProgress.progress;
+  this.body = fattureInCloudProgress ? fattureInCloudProgress.progress : undefined;
+});
+
+app.post('/cffs/main/pull/progress/clear', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  yield db.progresses.remove({userId: user._id, type: 'fattureincloud'});
 });
 
 app.get('/cffs/bank', function *() {
