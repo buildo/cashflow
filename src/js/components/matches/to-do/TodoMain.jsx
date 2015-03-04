@@ -14,6 +14,7 @@ const getStateFromStores = function () {
   return {
     matches: TodoStore.getMatches(),
     secondaryPayments: TodoStore.getSecondaryPayments(),
+    pov: TodoStore.getPOV(),
     isLoading: TodoStore.isLoading(),
     selectedMatchIndex: TodoStore.getSelectedMatchIndex(),
     selectedPaymentId: TodoStore.getSelectedPaymentId(),
@@ -73,7 +74,7 @@ const TodoMain = React.createClass({
     });
 
     const selectedMatch = this.state.matches[selectedMatchIndex] ?
-      <Match match={this.state.matches[selectedMatchIndex]} secondaryPayments={this.state.secondaryPayments} selectedPaymentId={selectedPaymentId}/>
+      <Match match={this.state.matches[selectedMatchIndex]} secondaryPayments={this.state.secondaryPayments} selectedPaymentId={selectedPaymentId} pov={this.state.pov}/>
       :
       '';
 

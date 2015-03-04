@@ -79,6 +79,10 @@ module.exports = _.extend(self, Store(
 
   },
 
+  getPOV() {
+    return pointOfView;
+  },
+
   getSelectedMatchIndex() {
     return selectedMatchIndex;
   },

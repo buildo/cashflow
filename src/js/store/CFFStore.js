@@ -54,18 +54,23 @@ module.exports = _.extend(self, Store(
   },
 
   MANUAL_CFF_UPDATED: (actionData) => {
-    // console.log('MANUAL_CFF', actionData);
-    manual = actionData;
     isLoadingManual = false;
     return true;
   },
 
-  MANUAL_CFF_SAVED: (actionData) => {
-    // console.log('MANUAL_CFF', actionData);
-    manual = actionData;
-    isLoadingManual = false;
-    return true;
-  }
+  // MANUAL_CFF_SAVED: (actionData) => {
+  //   // console.log('MANUAL_CFF', actionData);
+  //   manual = actionData;
+  //   isLoadingManual = false;
+  //   return true;
+  // },
+
+  // ADD_MANUAL_LINE: () => {
+  //   console.log('ciao');
+  //   manual = manual || []
+  //   manual.lines.push({});
+  //   return true;
+  // },
 
 }, {
   // custom getters

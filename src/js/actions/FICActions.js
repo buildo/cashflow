@@ -1,19 +1,11 @@
 'use strict';
 
-const C = require('../constants/AppConstants');
-const ActionTypes = C.ActionTypes;
-const sendAction = require('../utils/ActionUtils.js').sendAction;
-const sendAsyncAction = require('../utils/ActionUtils.js').sendAsyncAction;
-const ServerActions = require('./ServerActions.js');
+const alt = require('../../alt');
 
-const FICActions = {
+class FICActions {
+  constructor() {
+    this.generateActions('setPullEnded');
+  }
+}
 
-  setPullEnded: () => {
-    sendAsyncAction(ActionTypes.MAIN_CFF_PULLED);
-    ServerActions.resetMainPullProgress();
-    ServerActions.getMain();
-  },
-
-};
-
-module.exports = FICActions;
+module.exports = alt.createActions(FICActions);

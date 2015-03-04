@@ -19,15 +19,18 @@ const Match = React.createClass({
     const secondaryPayments = Immutable.fromJS(this.props.secondaryPayments);
     const selectedPaymentId = this.props.selectedPaymentId;
     const selectedPayment = secondaryPayments.find((secondaryPayment) => secondaryPayment.get('id') === selectedPaymentId);
-    const main = Immutable.fromJS(this.props.match);
+    const mainPayment = Immutable.fromJS(this.props.match);
+
+    const main = this.props.pov === 'main' ? mainPayment : selectedPayment;
+    const data = this.props.pov === 'main' ? selectedPayment : mainPayment;
 
     const actionData = Immutable.fromJS({
       main: main,
-      data: selectedPayment,
+      data: data,
       match: {
-        id: (this.props.match.id + this.props.selectedPaymentId),
+        id: (main.get('id') + data.get('id')),
         main: main.remove('matches'),
-        data: selectedPayment.remove('matches')
+        data: data.remove('matches')
       }
     });
 

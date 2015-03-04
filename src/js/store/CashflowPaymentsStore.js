@@ -5,8 +5,39 @@ const Dispatcher = require('../dispatcher/AppDispatcher.js');
 const DataStore = require('./DataStore');
 const Store = require('./Store');
 const CashflowStore = require('./CashflowStore');
+const CashflowActions = require('../actions/CashflowActions');
 let index;
 let pathName;
+
+class CashflowPaymentsStore {
+  constructor() {
+    this.bindActions(CurrentDocumentActions);
+
+    this.currentDocument= { };
+    this.loading = false;
+  }
+
+  onCreate(documentKindId) {
+    API.document.create(documentKindId).then(CurrentDocumentActions.createCompleted, CurrentDocumentActions.createFailed);
+    this.loading = true;
+  }
+
+  onGetMainSuccess() {
+
+  }
+
+  onCreateFailed() {
+    this.loading = false;
+  }
+
+  resetPointSelection() {
+    this.index = this.pathName = undefined;
+  }
+
+}
+
+module.exports = alt.createStore(CashflowPaymentsStore, 'CashflowPaymentsStore');
+
 
 const resetPointSelection = () => {
   index = pathName = undefined;

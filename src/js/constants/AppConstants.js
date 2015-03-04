@@ -45,6 +45,7 @@ module.exports = {
     TOKEN_IS_VALID: null,
     TOKEN_IS_INVALID: null,
     ROUTE_CHANGED: null,
+    ADD_MANUAL_LINE: null,
   }),
 
   PayloadSources: keyMirror({

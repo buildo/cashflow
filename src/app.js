@@ -55,7 +55,7 @@ const routes = (
 window.React = React;
 
 Router.run(routes, (Handler, state) => {
-  RouterActions.notifyRouteChanged(state);
+  // RouterActions.notifyRouteChanged(state);
   React.render(
     <Handler />,
     document.getElementById('main-app'));

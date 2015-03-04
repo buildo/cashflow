@@ -60,6 +60,7 @@ const ManualCffEditor = React.createClass({
   },
 
   render: function () {
+
     return (
       <div>
         <div className='ui right align positive button' onClick={this.saveManualCFF}>Salva</div>
