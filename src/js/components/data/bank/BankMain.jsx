@@ -6,40 +6,34 @@ const React = require('react');
 const State = require('react-router').State;
 const BankInvoice = require('./BankInvoice.jsx');
 const BankExpense = require('./BankExpense.jsx');
+const ListenerMixin = require('alt/mixins/ListenerMixin');
 const CFFStore = require('../../../store/CFFStore.js');
-const ServerActions = require('../../../actions/ServerActions.js');
+const CFFActions = require('../../../actions/CFFActions.js');
 
 
 const getStateFromStores = function () {
-  return {
-    isLoading: CFFStore.isLoadingBank(),
-    cff: CFFStore.getBankCFF() || {},
-  };
+  return CFFStore.getState();
 };
 
 const CFFMain = React.createClass({
 
-  mixins: [State],
+  mixins: [State, ListenerMixin],
 
   getInitialState: function() {
     return getStateFromStores();
   },
 
   componentDidMount: function() {
-    CFFStore.addChangeListener(this._onChange);
-  },
-
-  componentWillUnmount: function() {
-    CFFStore.removeChangeListener(this._onChange);
+    this.listenTo(CFFStore, this._onChange);
   },
 
   pullBank: function() {
-    ServerActions.pullBank();
+    CFFActions.pullBank();
   },
 
   render: function() {
 
-    if (this.state.isLoading) {
+    if (this.state.isLoadingBank) {
       return (
         <div className="ui segment">
           <div className="ui active inverted dimmer">
@@ -54,7 +48,7 @@ const CFFMain = React.createClass({
       );
     }
 
-    const cffLines = this.state.cff.lines || [];
+    const cffLines = this.state.bank ? this.state.bank.lines : [];
     const paymentsCFFLines = cffLines.filter((line) => (line.payments[0].methodType !== 'bank fee' && line.payments[0].methodType !== 'ignore'));
     // const costsCFFLines = cffLines.filter((line) => line.payments[0].methodType === 'cost');
     const lines = paymentsCFFLines.map((line, index) => line.flowDirection === 'in' ? <BankInvoice line={line} key={index}/> : <BankExpense line={line} key={index}/>);

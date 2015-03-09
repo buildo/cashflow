@@ -1,26 +1,30 @@
 'use strict';
 
 const _ = require('lodash');
-const Dispatcher = require('../dispatcher/AppDispatcher.js');
-const Store = require('./Store');
+const alt = require('../alt');
+const DataStore = require('./DataStore');
+const CFFActions = require('../actions/CFFActions');
 
-const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
-module.exports = _.extend(self, Store.Optimistic, Store(
-  Dispatcher,
-  // waitFor other Stores
-  [],
+console.log(DataStore);
 
-  {
-  // action handlers
-  MANUAL_CFF_UPDATED: (actionData) => {
-    // console.log('MANUAL_CFF', actionData);
-    self.deleteAll();
+class ManualCFFDataStore extends DataStore {
+
+  constructor() {
+    // this.bindAction(CFFActions);
+  }
+
+  static hey() {
+    console.log('HEY!!!');
+  }
+
+  onGetManualSuccess(data) {
+    this.deleteAll();
     // insert payments
-    actionData.lines.forEach((line) => self.upsert(line.id, line));
-    return true;
-  },
+    data.lines.forEach((line) => this.upsert(line.id, line));
+  }
 
-}, {
-  // custom getters
+}
 
-}));
+console.log(typeof ManualCFFDataStore);
+
+module.exports = alt.createStore(ManualCFFDataStore, 'ManualCFFDataStore');

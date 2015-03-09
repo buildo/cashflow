@@ -4,24 +4,21 @@
 
 const React = require('react');
 const RouteHandler = require('react-router').RouteHandler;
-const ServerActions = require('../../actions/ServerActions');
+const ListenerMixin = require('alt/mixins/ListenerMixin');
+const MatchActions = require('../../actions/MatchActions');
 const MatchesStore = require('../../store/MatchesStore.js');
 
 const getStateFromStores = function () {
-  return {
-    isMatchesOutdated: MatchesStore.isMatchesOutdated()
-  };
+  return MatchesStore.getState();
 };
 
 const MatchesMain = React.createClass({
 
-  componentDidMount: function() {
-    MatchesStore.addChangeListener(this._onChange);
-    ServerActions.getMatches();
-  },
+  mixins: [ListenerMixin],
 
-  componentWillUnmount: function() {
-    MatchesStore.removeChangeListener(this._onChange);
+  componentDidMount: function() {
+    this.listenTo(MatchesStore, this._onChange);
+    MatchActions.getMatches();
   },
 
   render: function() {
@@ -30,8 +27,8 @@ const MatchesMain = React.createClass({
 
   _onChange: function() {
     this.setState(getStateFromStores());
-    if (this.state.isMatchesOutdated) {
-      ServerActions.getMatches();
+    if (this.state.isOutdated) {
+      MatchActions.getMatches();
     }
   }
 

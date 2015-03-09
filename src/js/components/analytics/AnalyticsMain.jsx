@@ -4,44 +4,38 @@
 
 const React = require('react');
 const RouteHandler = require('react-router').RouteHandler;
-const ServerActions = require('../../actions/ServerActions');
+const ListenerMixin = require('alt/mixins/ListenerMixin');
+const CFFActions = require('../../actions/CFFActions');
 const CFFStore = require('../../store/CFFStore.js');
 
 const getStateFromStores = function () {
-  return {
-    isLoadingCFFs: CFFStore.isLoading(),
-  };
+  return CFFStore.getState();
 };
 
 const AnalyticsMain = React.createClass({
+
+  mixins: [ListenerMixin],
 
   getInitialState: function() {
     return getStateFromStores();
   },
 
   componentDidMount: function() {
-    CFFStore.addChangeListener(this._onChange);
-    if (!CFFStore.getMainCFF()) {
-      ServerActions.getMain();
+    this.listenTo(CFFStore, this._onChange);
+    if (!this.state.main) {
+      CFFActions.getMain.defer();
     }
-    if (!CFFStore.getBankCFF()) {
-      ServerActions.getBank();
+    if (!this.state.bank) {
+      CFFActions.getBank.defer();
     }
-    if (!CFFStore.getManualCFF()) {
-      ServerActions.getManual();
+    if (!this.state.manual) {
+      CFFActions.getManual.defer();
     }
-  },
-
-  componentWillUnmount: function() {
-    CFFStore.removeChangeListener(this._onChange);
   },
 
   render: function () {
-    return (
-      <div>
-        <RouteHandler isLoadingCFFs={this.state.isLoadingCFFs}/>
-      </div>
-    );
+    const isLoadingCFFs = this.state.isLoadingMain || this.state.isLoadingBank || this.state.isLoadingManual;
+    return <RouteHandler isLoadingCFFs={isLoadingCFFs}/>;
   },
 
   _onChange: function() {

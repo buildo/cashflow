@@ -8,7 +8,7 @@ const React = require('react'),
   DefaultRoute = Router.DefaultRoute,
   Redirect = Router.Redirect,
   RouteNames = require('./js/constants/RouteNames.js'),
-  RouterActions = require('./js/actions/RouterActions.js'),
+  RouteActions = require('./js/actions/RouteActions.js'),
   App = require('./js/components/App.jsx'),
   WIP = require('./js/components/WIP.jsx'),
   AnalyticsMain = require('./js/components/analytics/AnalyticsMain.jsx'),
@@ -55,7 +55,7 @@ const routes = (
 window.React = React;
 
 Router.run(routes, (Handler, state) => {
-  // RouterActions.notifyRouteChanged(state);
+  RouteActions.routeChanged(state);
   React.render(
     <Handler />,
     document.getElementById('main-app'));

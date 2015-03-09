@@ -3,13 +3,11 @@
 'use strict';
 
 const React = require('react');
-const TopBar = require('./TopBar.jsx');
 const RouteHandler = require('react-router').RouteHandler;
-const State = require('react-router').State;
-const C = require('../../constants/AppConstants').ActionTypes;
+const ListenerMixin = require('alt/mixins/ListenerMixin');
 const RouteNames = require('../../constants/RouteNames.js');
-const TopBarStore = require('../../store/TopBarStore.js');
-
+const NavStore = require('../../store/NavStore.js');
+const TopBar = require('./TopBar.jsx');
 
 const pages = [
   {
@@ -76,38 +74,34 @@ const pages = [
   }
 ];
 
-const getStateFromStores = function () {
-  return {
-    selectedPage: TopBarStore.getSelectedPage(),
-    selectedTab: TopBarStore.getSelectedTab()
-  };
+const getStateFromStores = () => {
+  return NavStore.getState();
 };
 
 const Main = React.createClass({
+
+  mixins: [ListenerMixin],
 
   getInitialState: function() {
     return getStateFromStores();
   },
 
   componentDidMount: function() {
-    TopBarStore.addChangeListener(this._onChange);
-  },
-
-  componentWillUnmount: function() {
-    TopBarStore.removeChangeListener(this._onChange);
+    this.listenTo(NavStore, this._onChange);
   },
 
   render: function () {
-      return (
-        <div className='ui center aligned'>
-          <div className='ui fixed main menu'>
-            <TopBar pages={pages} selectedPage={this.state.selectedPage}/>
-          </div>
-          <div className='main-body'>
-            <RouteHandler/>
-          </div>
+    // console.log('MAIN');
+    return (
+      <div className='ui center aligned'>
+        <div className='ui fixed main menu'>
+          <TopBar pages={pages} selectedPage={this.state.selectedPage}/>
         </div>
-      );
+        <div className='main-body'>
+          <RouteHandler/>
+        </div>
+      </div>
+    );
   },
 
   _onChange: function() {

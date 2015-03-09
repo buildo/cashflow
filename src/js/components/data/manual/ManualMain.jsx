@@ -3,46 +3,42 @@
 'use strict';
 
 const React = require('react');
+const _ = require('lodash');
+const ListenerMixin = require('alt/mixins/ListenerMixin');
 const ManualCffEditor = require('./ManualCffEditor.jsx');
 const Line = require('./Line.jsx');
 const NewLine = require('./NewLine.jsx');
 const ManualCFFDataStore = require('../../../store/ManualCFFDataStore.js');
 const CFFStore = require('../../../store/CFFStore.js');
-const ServerActions = require('../../../actions/ServerActions.js');
-const ManualCFFActions = require('../../../actions/ManualCFFActions.js');
+const CFFActions = require('../../../actions/CFFActions.js');
 
 
 const getStateFromStores = function () {
-  return {
-    isLoadingManualCFF: CFFStore.isLoadingManual(),
-    lines: ManualCFFDataStore.getAll()
-  };
+  // console.log(ManualCFFDataStore.hey());
+  return _.extend(CFFStore.getState(), ManualCFFDataStore.getState());
 };
 
 const ManualMain = React.createClass({
+
+  mixins: [ListenerMixin],
 
   getInitialState: function() {
     return getStateFromStores();
   },
 
   componentDidMount: function() {
-    CFFStore.addChangeListener(this._onChange);
-    ManualCFFDataStore.addChangeListener(this._onChange);
-    ServerActions.getManual();
-  },
-
-  componentWillUnmount: function() {
-    CFFStore.removeChangeListener(this._onChange);
-    ManualCFFDataStore.removeChangeListener(this._onChange);
+    this.listenTo(CFFStore, this._onChange);
+    this.listenTo(ManualCFFDataStore, this._onChange);
+    // CFFActions.getManual();
   },
 
   addLine: function() {
-    ManualCFFActions.addLine();
+    CFFActions.addLine();
   },
 
   render: function() {
 
-    if (this.state.isLoadingManualCFF) {
+    if (this.state.isLoadingManual) {
       return <div/>;
     }
 

@@ -5,30 +5,29 @@
 const React = require('react');
 const Navigation = require('react-router').Navigation;
 const C = require('../../constants/AppConstants').ActionTypes;
+const ListenerMixin = require('alt/mixins/ListenerMixin');
 const LoginForm = require('./LoginForm.jsx');
 const LoginStore = require('../../store/LoginStore.js');
 const LoginActions = require('../../actions/LoginActions.js');
 
 const getStateFromStores = function () {
-  return {
-    loginState: LoginStore.getLoginState(),
-  };
+  return LoginStore.getState();
 };
 
 const LoginMain = React.createClass({
 
-  mixins: [Navigation],
+  mixins: [Navigation, ListenerMixin],
 
   getInitialState: function() {
     return getStateFromStores();
   },
 
   componentDidMount: function() {
-    LoginStore.addChangeListener(this._onChange);
+    this.listenTo(LoginStore, this._onChange);
   },
 
-  componentWillUnmount: function() {
-    LoginStore.removeChangeListener(this._onChange);
+  _onFormSubmit: function(formData) {
+    LoginActions.login(formData);
   },
 
   render: function() {
@@ -39,7 +38,7 @@ const LoginMain = React.createClass({
 
     return (
       <div className="login-main">
-        <LoginForm loginState={this.state.loginState}/>
+        <LoginForm loginState={this.state.loginState} onSubmit={this._onFormSubmit}/>
       </div>
     );
   },

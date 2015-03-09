@@ -1,6 +1,6 @@
 'use strict';
 
-const alt = require('../../alt');
+const alt = require('../alt');
 
 class TodoActions {
   constructor() {

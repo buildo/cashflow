@@ -4,14 +4,14 @@
 
 const React = require('react');
 const ServerActions = require('../../../actions/ServerActions');
-const DoneStore = require('../../../store/DoneStore.js');
+// const DoneStore = require('../../../store/DoneStore.js');
 const DoneDataStore = require('../../../store/DoneDataStore.js');
 const Match = require('./Match.jsx');
 
 const getStateFromStores = function () {
   return {
-    matches: DoneStore.getMatches() || {},
-    isLoading: DoneStore.isLoading()
+    // matches: DoneStore.getMatches() || {},
+    // isLoading: DoneStore.isLoading()
   };
 };
 
@@ -22,12 +22,12 @@ const DoneMain = React.createClass({
   },
 
   componentDidMount: function() {
-    DoneStore.addChangeListener(this._onChange);
+    // DoneStore.addChangeListener(this._onChange);
     DoneDataStore.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function() {
-    DoneStore.removeChangeListener(this._onChange);
+    // DoneStore.removeChangeListener(this._onChange);
     DoneDataStore.removeChangeListener(this._onChange);
   },
 

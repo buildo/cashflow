@@ -20,7 +20,7 @@ const LoginForm = React.createClass({
         email: loginForm.form('get field', 'email').val(),
         password: loginForm.form('get field', 'password').val()
       };
-      ServerActions.attemptLogin(loginFormData);
+      this.props.onSubmit(loginFormData);
     };
 
     const validationRules = {

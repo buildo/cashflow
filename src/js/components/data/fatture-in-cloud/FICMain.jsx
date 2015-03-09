@@ -2,51 +2,41 @@
 
 'use strict';
 
+const _ = require('lodash');
 const React = require('react');
 const State = require('react-router').State;
 const FICInvoice = require('./FICInvoice.jsx');
 const FICExpense = require('./FICExpense.jsx');
+const ListenerMixin = require('alt/mixins/ListenerMixin');
 const CFFStore = require('../../../store/CFFStore.js');
 const PullProgressStore = require('../../../store/PullProgressStore.js');
-const ServerActions = require('../../../actions/ServerActions.js');
-const FICActions = require('../../../actions/FICActions.js');
+const CFFActions = require('../../../actions/CFFActions.js');
 
 
 const getStateFromStores = function () {
-  return {
-    isLoading: CFFStore.isLoadingMain(),
-    isPulling: PullProgressStore.isPullingMain(),
-    isToUpdate: PullProgressStore.isToUpdate(),
-    progress: PullProgressStore.getProgressMain(),
-    cff: CFFStore.getMainCFF() || {},
-  };
+  return _.extend(CFFStore.getState(), PullProgressStore.getState());
 };
 
 const CFFMain = React.createClass({
 
-  mixins: [State],
+  mixins: [State, ListenerMixin],
 
   getInitialState: function() {
     return getStateFromStores();
   },
 
   componentDidMount: function() {
-    CFFStore.addChangeListener(this._onChange);
-    PullProgressStore.addChangeListener(this._onChange);
-  },
-
-  componentWillUnmount: function() {
-    CFFStore.removeChangeListener(this._onChange);
-    PullProgressStore.removeChangeListener(this._onChange);
+    this.listenTo(CFFStore, this._onChange);
+    this.listenTo(PullProgressStore, this._onChange);
   },
 
   pullMain: function() {
-    ServerActions.pullMain();
+    CFFActions.pullMain();
   },
 
   render: function() {
 
-    if (this.state.isLoading) {
+    if (this.state.isLoadingMain) {
       return (
         <div className="ui segment" id='loadingSegment' key='1'>
           <div className="ui active inverted dimmer">
@@ -61,9 +51,9 @@ const CFFMain = React.createClass({
       );
     }
 
-    const progress = this.state.progress;
+    const progress = this.state.progressMain;
 
-    if (this.state.isPulling) {
+    if (this.state.isPullingMain) {
       let percent = 0;
       if (progress && this.state.isToUpdate) {
         percent += progress.authentication === 'done' ? 20 : 0;
@@ -85,7 +75,7 @@ const CFFMain = React.createClass({
       );
     }
 
-    const cffLines = this.state.cff.lines || [];
+    const cffLines = this.state.main ? this.state.main.lines : [];
     const lines = cffLines.map((line, index) => line.flowDirection === 'in' ? <FICInvoice line={line} key={index}/> : <FICExpense line={line} key={index}/>);
 
     return (
@@ -103,9 +93,12 @@ const CFFMain = React.createClass({
   },
 
   _onChange: function() {
-    this.setState(getStateFromStores());
-    if (this.state.isPulling) {
-      var a = this.state.progress && this.state.progress.completed ? FICActions.setPullEnded() : ServerActions.getMainPullProgress();
+    const newState = getStateFromStores();
+    this.setState(newState);
+    if (newState.isPullingMain && newState.progressMain && newState.progressMain.completed) {
+      CFFActions.resetMainPullProgress();
+    } else if(newState.isPullingMain) {
+      setTimeout(CFFActions.getMainPullProgress, 200);
     }
   }
 

@@ -6,35 +6,30 @@ const React = require('react');
 const RouteHandler = require('react-router').RouteHandler;
 const Navigation = require('react-router').Navigation;
 const State = require('react-router').State;
+const ListenerMixin = require('alt/mixins/ListenerMixin');
 const TokenStore = require('../store/TokenStore.js');
-const ServerActions = require('../actions/ServerActions.js');
+const TokenActions = require('../actions/TokenActions.js');
 const C = require('../constants/AppConstants').ActionTypes;
 
 const getStateFromStores = function () {
-  return {
-    tokenState: TokenStore.getTokenState()
-  };
+  return TokenStore.getState();
 };
 
 const App = React.createClass({
 
-  mixins: [Navigation, State],
+  mixins: [Navigation, State, ListenerMixin],
 
   getInitialState: function() {
     return getStateFromStores();
   },
 
   componentDidMount: function() {
-    TokenStore.addChangeListener(this._onChange);
-    ServerActions.checkTokenState();
-  },
-
-  componentWillUnmount: function() {
-    TokenStore.removeChangeListener(this._onChange);
+    this.listenTo(TokenStore, this._onChange);
+    TokenActions.checkToken();
   },
 
   render: function () {
-    console.log('RENDER_ROOT');
+    // console.log('RENDER_ROOT');
 
     switch (this.state.tokenState) {
 

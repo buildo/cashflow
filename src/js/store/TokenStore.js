@@ -1,52 +1,40 @@
 'use strict';
 
-const _ = require('lodash');
-const Dispatcher = require('../dispatcher/AppDispatcher.js');
-const C = require('../constants/AppConstants').ActionTypes;
-const DataStore = require('./DataStore');
-const Store = require('./Store');
+const alt = require('../alt');
+const TokenActions = require('../actions/TokenActions');
+const LoginActions = require('../actions/LoginActions');
+const CHECKING_TOKEN_STATE = 'CHECKING_TOKEN_STATE';
+const TOKEN_IS_VALID = 'TOKEN_IS_VALID';
+const TOKEN_IS_INVALID = 'TOKEN_IS_INVALID';
 
-let tokenState;
-
-const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
-module.exports = _.extend(self, Store(
-  Dispatcher,
-  // waitFor other Stores
-  [], {
-  // action handlers
-
-  CHECKING_TOKEN_STATE: () => {
-    tokenState = C.CHECKING_TOKEN_STATE;
-    return true;
-  },
-
-  TOKEN_IS_VALID: () => {
-    tokenState = C.TOKEN_IS_VALID;
-    return true;
-  },
-
-  TOKEN_IS_INVALID: () => {
-    tokenState = C.TOKEN_IS_INVALID;
-    return true;
-  },
-
-  LOGGED_IN: (actionData) => {
-    localStorage.setItem('cashflow_token', actionData.credentials.token);
-    tokenState = C.TOKEN_IS_VALID;
-    return true;
-  },
-
-  LOGGED_OUT: () => {
-    localStorage.setItem('cashflow_token', '');
-    tokenState = C.TOKEN_IS_INVALID;
-    return true;
+class TokenStore {
+  constructor() {
+    this.bindActions(TokenActions);
+    this.bindActions(LoginActions);
   }
 
+  onCheckToken() {
+    this.tokenState = CHECKING_TOKEN_STATE;
+  }
 
-}, {
+  onCheckTokenSuccess() {
+    this.tokenState = TOKEN_IS_VALID;
+  }
 
-  getTokenState() {
-    return tokenState;
-  },
+  onCheckTokenFail() {
+    this.tokenState = TOKEN_IS_INVALID;
+  }
 
-}));
+  onLoginSuccess(data) {
+    localStorage.setItem('cashflow_token', data.credentials.token);
+    this.onCheckTokenSuccess();
+  }
+
+  onLogout() {
+    localStorage.setItem('cashflow_token', '');
+    this.onCheckTokenFail();
+  }
+
+}
+
+module.exports = alt.createStore(TokenStore, 'TokenStore');

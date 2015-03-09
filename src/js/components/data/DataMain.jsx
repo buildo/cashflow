@@ -4,36 +4,37 @@
 
 const React = require('react');
 const RouteHandler = require('react-router').RouteHandler;
-const ServerActions = require('../../actions/ServerActions');
+const ListenerMixin = require('alt/mixins/ListenerMixin');
+const CFFActions = require('../../actions/CFFActions');
 const CFFStore = require('../../store/CFFStore.js');
 
 const getStateFromStores = function () {
-  return {
-    isLoadingMainCFF: CFFStore.isLoading(),
-  };
+  return CFFStore.getState();
 };
 
 const DataMain = React.createClass({
 
-  componentDidMount: function() {
-    CFFStore.addChangeListener(this._onChange);
-    if (!CFFStore.getMainCFF()) {
-      ServerActions.getMain();
-    }
+  mixins: [ListenerMixin],
 
-    if (!CFFStore.getBankCFF()) {
-      ServerActions.getBank();
-    }
+  getInitialState: function() {
+    return getStateFromStores();
   },
 
-  componentWillUnmount: function() {
-    CFFStore.removeChangeListener(this._onChange);
+  componentDidMount: function() {
+    this.listenTo(CFFStore, this._onChange);
+    if (!this.state.main) {
+      CFFActions.getMain.defer();
+    }
+    if (!this.state.bank) {
+      CFFActions.getBank.defer();
+    }
+    if (!this.state.manual) {
+      CFFActions.getManual.defer();
+    }
   },
 
   render: function () {
-    return (
-      <RouteHandler/>
-    );
+    return <RouteHandler/>;
   },
 
   _onChange: function() {

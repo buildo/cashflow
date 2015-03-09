@@ -1,38 +1,30 @@
 'use strict';
 
-const _ = require('lodash');
-const Dispatcher = require('../dispatcher/AppDispatcher.js');
-const C = require('../constants/AppConstants').ActionTypes;
-const Store = require('./Store');
+const alt = require('../alt');
+const MatchActions = require('../actions/MatchActions');
 
-let isMatchesOutdated;
-
-const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
-module.exports = _.extend(self, Store(
-  Dispatcher,
-  // waitFor other Stores
-  [], {
-  // action handlers
-  STAGED_MATCH_DELETED: () => {
-    isMatchesOutdated = true;
-    return true;
-  },
-
-  STAGED_MATCHES_COMMITTED: () => {
-    isMatchesOutdated = true;
-    return true;
-  },
-
-  GETTING_MATCHES: () => {
-    isMatchesOutdated = false;
-    return true;
+class MatchesStore {
+  constructor() {
+    this.bindActions(MatchActions);
   }
 
-}, {
-  // custom getters
-
-  isMatchesOutdated() {
-    return isMatchesOutdated;
+  onGetMatches() {
+    this.isOutdated = false;
+    this.isLoading = true;
   }
 
-}));
+  onGetMatchesSuccess() {
+    this.isLoading = false;
+  }
+
+  onDeleteStagedMatch(match) {
+    this.isOutdated = true;
+  }
+
+  onCommitMatchesSuccess() {
+    this.isOutdated = true;
+  }
+
+}
+
+module.exports = alt.createStore(MatchesStore, 'MatchesStore');

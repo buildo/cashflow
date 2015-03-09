@@ -1,44 +1,32 @@
 'use strict';
 
-const _ = require('lodash');
-const Dispatcher = require('../dispatcher/AppDispatcher.js');
-const C = require('../constants/AppConstants').ActionTypes;
-const DataStore = require('./DataStore');
-const Store = require('./Store');
+const alt = require('../alt');
+const LoginActions = require('../actions/LoginActions');
+const LOGIN_START = 'LOGIN_START';
+const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
+const LOGIN_FAIL = 'LOGIN_FAIL';
 
-let loginState;
+class LoginStore {
+  constructor() {
+    this.bindActions(LoginActions);
+  }
 
-const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
-module.exports = _.extend(self, Store(
-  Dispatcher,
-  // waitFor other Stores
-  [], {
-  // action handlers
+  onLogin() {
+    this.loginState = LOGIN_START;
+  }
 
-  RESET_LOGIN_STATE: () => {
-    loginState = undefined;
-    return true;
-  },
+  onLoginSuccess() {
+    this.loginState = LOGIN_SUCCESS;
+  }
 
-  LOGGED_IN: () => {
-    loginState = C.LOGGED_IN;
-    return true;
-  },
+  onLoginFail() {
+    this.loginState = LOGIN_FAIL;
+  }
 
-  LOGIN_FAIL: () => {
-    loginState = C.LOGIN_FAIL;
-    return true;
-  },
+  onResetLoginState() {
+    this.loginState = undefined;
+  }
 
-  LOGIN_START: () => {
-    loginState = C.LOGIN_START;
-    return true;
-  },
+}
 
-}, {
-  // custom getters
-  getLoginState() {
-    return loginState;
-  },
-
-}));
+module.exports = alt.createStore(LoginStore, 'LoginStore');

@@ -4,7 +4,6 @@
 
 const React = require('react');
 const c3 = require('c3');
-const CashflowStore = require('../../../store/CashflowStore.js');
 const CashflowActions = require('../../../actions/CashflowActions.js');
 const utils = require('../../../utils/utils.js');
 
@@ -37,7 +36,7 @@ const tooltipContentHandler = function (d, defaultTitleFormat, defaultValueForma
 };
 
 const initGraph = (data) => {
-  // init graph only if data is not undefined
+  // init graph only if data is defined
   if(!data) {
     return;
   }
@@ -114,31 +113,13 @@ const initGraph = (data) => {
   });
 };
 
-const getStateFromStores = function () {
-  return {
-    cashflows: CashflowStore.getCashflowData()
-  };
-};
-
 const CasflowAnalytics = React.createClass({
 
-  getInitialState: function() {
-    return getStateFromStores();
-  },
-
   componentDidMount: function() {
-    CashflowStore.addChangeListener(this._onChange);
-    initGraph(CashflowStore.getCashflowData());
-  },
-
-  componentWillUnmount: function() {
-    CashflowStore.removeChangeListener(this._onChange);
+    initGraph(this.props.cashflows);
   },
 
   render: function() {
-    const data = this.state.cashflows;
-    initGraph(data);
-
     return (
       <div >
         <h5 className='ui top dividing header'>
@@ -149,10 +130,6 @@ const CasflowAnalytics = React.createClass({
       </div>
     );
   },
-
-  _onChange: function() {
-    this.setState(getStateFromStores());
-  }
 
 });
 
