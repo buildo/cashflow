@@ -2,19 +2,40 @@
 
 const _ = require('lodash');
 const alt = require('../alt');
+const Immutable = require('immutable');
 const DataStore = require('./DataStore');
 const CFFActions = require('../actions/CFFActions');
 
-console.log(DataStore);
+const fakeData = [
+  {
+    id: '1',
+    content: {}
+  },
+  {
+    id: '2',
+    content: {}
+  },
+  {
+    id: '3',
+    content: {}
+  },
+  {
+    id: '4',
+    content: {}
+  },
+];
 
 class ManualCFFDataStore extends DataStore {
 
   constructor() {
-    // this.bindAction(CFFActions);
+    super();
+    this.bindActions(CFFActions);
   }
 
-  static hey() {
-    console.log('HEY!!!');
+  onGetManual() {
+    this.onGetManualSuccess({lines: fakeData});
+    // console.log("ON_GET_MANUAL");
+    // console.log(this.delete);
   }
 
   onGetManualSuccess(data) {
@@ -25,6 +46,7 @@ class ManualCFFDataStore extends DataStore {
 
 }
 
-console.log(typeof ManualCFFDataStore);
+ManualCFFDataStore.getAll = DataStore.getAll;
+ManualCFFDataStore.get = DataStore.get;
 
 module.exports = alt.createStore(ManualCFFDataStore, 'ManualCFFDataStore');
