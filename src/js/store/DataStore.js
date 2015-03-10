@@ -6,8 +6,10 @@ const _ = require('lodash');
 // TODO: remove casts
 class DataStore {
 
-  constructor() {
+  constructor(classObj) {
     this._data = Immutable.Map();
+    classObj.getAll = DataStore.getAll;
+    classObj.get = DataStore.get;
   }
 
   static get(id, missingValue) {
@@ -26,25 +28,17 @@ class DataStore {
     return value && value.toJS ? value.toJS() : value;
   }
 
-  _getAll() {
-    return Object.keys(this._data.toJS()).map(id => {
-      return _.extend({
-        _id: id
-      }, this.get(id));
-    });
-  }
-
   upsert(id, obj) {
     let immObj = Immutable.fromJS(obj);
     if (!Immutable.is(this._get(id), immObj)) {
-      this._data =  this._data.set(id + '', immObj);
+      this._data = this._data.set(id + '', immObj);
       return true;
     }
     return false;
   }
 
   insert(id, obj) {
-    if (!_.isUndefined(this._get(id + ''))) {
+    if (this._data.has(id)) {
       throw new Error('Duplicate id ' + id);
     }
     return this.upsert(id, obj);
@@ -69,7 +63,6 @@ class DataStore {
   }
 
   deleteAll() {
-    // let hasSome = this._data.keys().length() > 0;
     this._data = Immutable.Map();
     return true;
   }

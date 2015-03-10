@@ -28,12 +28,13 @@ const fakeData = [
 class ManualCFFDataStore extends DataStore {
 
   constructor() {
-    super();
     this.bindActions(CFFActions);
+    super(ManualCFFDataStore);
   }
 
   onGetManual() {
     this.onGetManualSuccess({lines: fakeData});
+
     // console.log("ON_GET_MANUAL");
     // console.log(this.delete);
   }
@@ -41,12 +42,9 @@ class ManualCFFDataStore extends DataStore {
   onGetManualSuccess(data) {
     this.deleteAll();
     // insert payments
-    data.lines.forEach((line) => this.upsert(line.id, line));
+    data.lines.forEach((line) => this.insert(line.id, line));
   }
 
 }
-
-ManualCFFDataStore.getAll = DataStore.getAll;
-ManualCFFDataStore.get = DataStore.get;
 
 module.exports = alt.createStore(ManualCFFDataStore, 'ManualCFFDataStore');
