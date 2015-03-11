@@ -3,46 +3,42 @@
 'use strict';
 
 const React = require('react');
-const ServerActions = require('../../../actions/ServerActions');
-// const StageStore = require('../../../store/StageStore.js');
+const MatchActions = require('../../../actions/MatchActions');
+const ListenerMixin = require('alt/mixins/ListenerMixin');
 const StageDataStore = require('../../../store/StageDataStore.js');
 const Match = require('./Match.jsx');
 
 const getStateFromStores = function () {
-  // return {
-  //   stagedMatches: StageStore.getStagedMatches() || {},
-  //   isLoading: StageStore.isLoading()
-  // };
+  return {
+    stagedMatches: StageDataStore.getAll(),
+    isCommitting: StageDataStore.getState().isCommitting
+  };
 };
 
 const StageMain = React.createClass({
+
+  mixins: [ListenerMixin],
 
   getInitialState: function() {
     return getStateFromStores();
   },
 
   componentDidMount: function() {
-    // StageStore.addChangeListener(this._onChange);
-    StageDataStore.addChangeListener(this._onChange);
-  },
-
-  componentWillUnmount: function() {
-    // StageStore.removeChangeListener(this._onChange);
-    StageDataStore.removeChangeListener(this._onChange);
+    this.listenTo(StageDataStore, this._onChange);
   },
 
   commitMatches: function() {
-    ServerActions.commitMatches();
+    MatchActions.commitMatches();
   },
 
   render: function() {
 
-    if (this.state.isLoading) {
+    if (this.state.isCommitting) {
       return (
         <div className="ui segment">
           <div className="ui active inverted dimmer">
             <div className="ui indeterminate text active loader">
-              Caricamento...
+              Commit in corso
             </div>
           </div>
           <br></br>

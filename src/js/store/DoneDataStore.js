@@ -1,30 +1,27 @@
 'use strict';
 
-const _ = require('lodash');
-const Dispatcher = require('../dispatcher/AppDispatcher.js');
-const Store = require('./Store');
+const alt = require('../alt');
+const DataStore = require('./DataStore');
+const OptimisticDataStore = require('./OptimisticDataStore');
+const MatchActions = require('../actions/MatchActions');
 
-const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
-module.exports = _.extend(self, Store.Optimistic, Store(
-  Dispatcher,
-  // waitFor other Stores
-  [],
+class DoneDataStore extends OptimisticDataStore {
 
-  {
-  // action handlers
-  MATCHES_UPDATED: (actionData) => {
-    self.deleteAll();
+  constructor() {
+    super(DoneDataStore);
+    this.bindActions(MatchActions);
+  }
+
+  onGetMatchesSuccess(data) {
+    this.deleteAll();
     // insert payments
-    actionData.done.forEach((match) => self.upsert((match.id), match));
-    return true;
-  },
+    data.done.forEach((match) => this.insert((match.id), match));
+  }
 
-  DELETED_MATCH: (actionData) => {
-    // return self.delete(actionData.id);
-  },
+  onDeleteMatch(match) {
+    this.delete(match.id);
+  }
 
-}, {
-  // custom getters
+}
 
-
-}));
+module.exports = alt.createStore(DoneDataStore, 'DoneDataStore');

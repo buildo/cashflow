@@ -6,6 +6,8 @@ const MatchActions = require('../actions/MatchActions');
 class MatchesStore {
   constructor() {
     this.bindActions(MatchActions);
+    this.bindAction(MatchActions.commitMatchesSuccess, this.onUpdate);
+    this.isLoading = true;
   }
 
   onGetMatches() {
@@ -17,12 +19,9 @@ class MatchesStore {
     this.isLoading = false;
   }
 
-  onDeleteStagedMatch(match) {
+  onUpdate() {
     this.isOutdated = true;
-  }
-
-  onCommitMatchesSuccess() {
-    this.isOutdated = true;
+    this.isLoading = true;
   }
 
 }

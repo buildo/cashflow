@@ -3,7 +3,6 @@
 'use strict';
 
 const React = require('react');
-const TodoActions = require('../../../actions/TodoActions.js');
 const Payment = require('./Payment.jsx');
 const utils = require('../../../utils/utils.js');
 

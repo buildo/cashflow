@@ -3,7 +3,7 @@
 'use strict';
 
 const React = require('react');
-const utils = require('../../../utils/utils.js');
+const utils = require('../../utils/utils.js');
 
 const DataPayment = React.createClass({
 

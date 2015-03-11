@@ -8,7 +8,7 @@ const JSONEditor = require('./JSONEditor.jsx');
 const ace = require('brace');
 require('brace/mode/json');
 require('brace/theme/textmate');
-const ServerActions = require('../../../actions/ServerActions.js');
+const CFFActions = require('../../../actions/CFFActions.js');
 const validateCFF = require('../../../../../../cashflow/dist/src/validators/CFFValidator.js');
 
 var editor;
@@ -16,7 +16,7 @@ var editor;
 const Line = React.createClass({
 
   propTypes: {
-    key: React.PropTypes.oneOfType([
+    id: React.PropTypes.oneOfType([
       React.PropTypes.string,
       React.PropTypes.number,
     ]),
@@ -40,21 +40,6 @@ const Line = React.createClass({
     };
   },
 
-  componentDidMount: function() {
-    editor = ace.edit('json-editor' + this.props.key);
-    const json = this.props.line;
-    editor.setOptions({
-      mode: 'ace/mode/json',
-      theme: 'ace/theme/textmate',
-      maxLines: Infinity,
-      tabSize: 2,
-      autoScrollEditorIntoView: true,
-      wrap: true,
-    });
-    editor.setValue(JSON.stringify(json, undefined, 2));
-    editor.clearSelection();
-  },
-
   saveLine: function() {
     const value = this.refs.jsonEditor.getValue();
     const json = JSON.parse(value);
@@ -70,7 +55,7 @@ const Line = React.createClass({
       console.log(validationReport.toJS().errors);
     } else {
       console.log(json);
-      ServerActions.saveManualLine(json);
+      CFFActions.saveManualLine(json);
     }
   },
 
@@ -80,8 +65,8 @@ const Line = React.createClass({
 
   render: function () {
     return (
-      <div>
-        <JSONEditor data={this.props.line} key={this.props.key} ref='jsonEditor'/>
+      <div className='ui segment'>
+        <JSONEditor data={this.props.line} id={this.props.id} ref='jsonEditor'/>
         <div>
           <div className='ui right align negative button' onClick={this.saveLine}>Elimina</div>
           <div className='ui right align positive button' onClick={this.saveLine}>Salva</div>

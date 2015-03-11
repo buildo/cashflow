@@ -3,50 +3,27 @@
 'use strict';
 
 const React = require('react');
-const ServerActions = require('../../../actions/ServerActions');
-// const DoneStore = require('../../../store/DoneStore.js');
+const ListenerMixin = require('alt/mixins/ListenerMixin');
 const DoneDataStore = require('../../../store/DoneDataStore.js');
 const Match = require('./Match.jsx');
 
 const getStateFromStores = function () {
-  return {
-    // matches: DoneStore.getMatches() || {},
-    // isLoading: DoneStore.isLoading()
-  };
+  return {matches: DoneDataStore.getAll()};
 };
 
 const DoneMain = React.createClass({
+
+  mixins: [ListenerMixin],
 
   getInitialState: function() {
     return getStateFromStores();
   },
 
   componentDidMount: function() {
-    // DoneStore.addChangeListener(this._onChange);
-    DoneDataStore.addChangeListener(this._onChange);
-  },
-
-  componentWillUnmount: function() {
-    // DoneStore.removeChangeListener(this._onChange);
-    DoneDataStore.removeChangeListener(this._onChange);
+    this.listenTo(DoneDataStore, this._onChange);
   },
 
   render: function() {
-
-    if (this.state.isLoading) {
-      return (
-        <div className="ui segment">
-          <div className="ui active inverted dimmer">
-            <div className="ui indeterminate text active loader">
-              Caricamento...
-            </div>
-          </div>
-          <br></br>
-          <br></br>
-          <br></br>
-        </div>
-      );
-    }
 
     const empty = (
       <div className="ui ignored message">

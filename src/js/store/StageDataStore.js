@@ -1,38 +1,39 @@
 'use strict';
 
-const _ = require('lodash');
-const Dispatcher = require('../dispatcher/AppDispatcher.js');
-const Store = require('./Store');
+const alt = require('../alt');
+const DataStore = require('./DataStore');
+const OptimisticDataStore = require('./OptimisticDataStore');
+const MatchActions = require('../actions/MatchActions');
 
-const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
-module.exports = _.extend(self, Store.Optimistic, Store(
-  Dispatcher,
-  // waitFor other Stores
-  [],
+class StageDataStore extends OptimisticDataStore {
 
-  {
-  // action handlers
-  MATCHES_UPDATED: (actionData) => {
-    self.deleteAll();
+  constructor() {
+    super(StageDataStore);
+    this.bindActions(MatchActions);
+    this.bindAction(MatchActions.commitMatches, this.toggleCommitState);
+    this.bindAction(MatchActions.commitMatchesSuccess, this.toggleCommitState);
+    this.bindAction(MatchActions.commitMatchesFail, this.toggleCommitState);
+    this.isCommitting = false;
+  }
+
+  onGetMatchesSuccess(data) {
+    this.deleteAll(data);
     // insert payments
-    actionData.stage.forEach((match) => self.upsert((match.id), match));
-    return true;
-  },
+    data.stage.forEach((match) => this.insert((match.id), match));
+  }
 
-  SAVED_MATCH: (actionData, optimistic, undo) => {
-    const match = actionData.match;
-    if (!optimistic) {
-      console.log(self.optimisticDelete(match.id));
-    }
-    return undo ? self.delete(match.id) : self.upsert(match.id, match);
-  },
+  onStageMatch(match) {
+    this.insert(match.id, match);
+  }
 
-  DELETED_STAGED_MATCH: (actionData) => {
-    // return self.delete(actionData.id);
-  },
+  toggleCommitState() {
+    this.isCommitting = !this.isCommitting;
+  }
 
-}, {
-  // custom getters
+  onUnstageMatch(match) {
+    this.delete(match.id);
+  }
 
+}
 
-}));
+module.exports = alt.createStore(StageDataStore, 'StageDataStore');

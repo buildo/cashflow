@@ -15,14 +15,36 @@ class MatchActions {
     this.dispatch(res.data.data.matches);
   }
 
-  deleteStagedMatch(match) {
-    match = match.toJS();
-    API.matches.deleteStagedMatch(match).catch(handleError);
+  stageMatchOptimistic(match) {
+    match = match.toJS ? match.toJS() : match;
+    API.matches.stageMatch(match).then(() => this.actions.stageMatchSuccess(match), () => this.actions.stageMatchFail(match));
+    this.dispatch(match);
+  }
+
+  stageMatchSuccess(match) {
+    this.dispatch(match);
+  }
+
+  stageMatchFail(match) {
+    this.dispatch(match);
+  }
+
+  unstageMatchOptimistic(match) {
+    match = match.toJS ? match.toJS() : match;
+    API.matches.unstageMatch(match).then(() => this.actions.unstageMatchSuccess(match), () => this.actions.unstageMatchFail(match));
+    this.dispatch(match);
+  }
+
+  unstageMatchSuccess(match) {
+    this.dispatch(match);
+  }
+
+  unstageMatchFail(match) {
     this.dispatch(match);
   }
 
   commitMatches() {
-    API.matches.commit().then(this.actions.commitMatchesSuccess, handleError);
+    API.matches.commit().then(this.actions.commitMatchesSuccess, this.actions.commitMatchesFail);
     this.dispatch();
   }
 
@@ -30,9 +52,22 @@ class MatchActions {
     this.dispatch();
   }
 
-  saveMatch() {
-    // TODO
+  commitMatchesFail() {
     this.dispatch();
+  }
+
+  deleteMatchOptimistic(match) {
+    match = match.toJS ? match.toJS() : match;
+    API.matches.deleteMatch(match).then(() => this.actions.deleteMatchSuccess(match), () => this.actions.deleteMatchFail(match));
+    this.dispatch(match);
+  }
+
+  deleteMatchSuccess(match) {
+    this.dispatch(match);
+  }
+
+  deleteMatchFail(match) {
+    this.dispatch(match);
   }
 
 }

@@ -32,11 +32,8 @@ class ManualCFFDataStore extends DataStore {
     super(ManualCFFDataStore);
   }
 
-  onGetManual() {
+  onGetManual(data) {
     this.onGetManualSuccess({lines: fakeData});
-
-    // console.log("ON_GET_MANUAL");
-    // console.log(this.delete);
   }
 
   onGetManualSuccess(data) {

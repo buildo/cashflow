@@ -71,7 +71,9 @@ module.exports = {
 
     stageMatch: (match) => axios.put(path(['matches', 'stage', 'mainPaymentId', match.main.id, 'dataPaymentId', match.data.id]), {}, getConfig()),
 
-    deleteStagedMatch: (match) => axios.delete(path(['matches', 'stage', match.id]), getConfig()),
+    unstageMatch: (match) => axios.delete(path(['matches', 'stage', match.id]), getConfig()),
+
+    deleteMatch: (match) => axios.delete(path(['matches', match.id]), getConfig()),
 
   },
 

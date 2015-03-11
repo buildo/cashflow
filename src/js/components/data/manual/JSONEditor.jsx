@@ -15,7 +15,7 @@ var editor;
 const JSONEditor = React.createClass({
 
   propTypes: {
-    key: React.PropTypes.oneOfType([
+    id: React.PropTypes.oneOfType([
       React.PropTypes.string,
       React.PropTypes.number,
     ]),
@@ -23,7 +23,7 @@ const JSONEditor = React.createClass({
   },
 
   componentDidMount: function() {
-    editor = ace.edit('json-editor' + this.props.key);
+    editor = ace.edit('json-editor' + this.props.id);
     const json = this.props.data;
     editor.setOptions({
       mode: 'ace/mode/json',
@@ -44,7 +44,7 @@ const JSONEditor = React.createClass({
   render: function () {
     return (
       <div className='json-editor-container'>
-        <div id={'json-editor' + this.props.key}></div>
+        <div id={'json-editor' + this.props.id}></div>
       </div>
     );
   },

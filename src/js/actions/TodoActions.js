@@ -4,7 +4,7 @@ const alt = require('../alt');
 
 class TodoActions {
   constructor() {
-    this.generateActions('selectMatch', 'deselectMatch', 'selectPayment', 'deselectPayment', 'invertMatchesPOV');
+    this.generateActions('selectMatch', 'selectPayment', 'invertPOV');
   }
 }
 

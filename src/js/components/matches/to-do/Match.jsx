@@ -7,15 +7,15 @@ const Immutable = require('immutable');
 const MatchBody = require('./MatchBody.jsx');
 const MatchRightColumn = require('./MatchRightColumn.jsx');
 const TodoActions = require('../../../actions/TodoActions.js');
-const ServerActions = require('../../../actions/ServerActions.js');
+const MatchActions = require('../../../actions/MatchActions.js');
 
 const Match = React.createClass({
 
   deselectMatch: function() {
-    TodoActions.deselectMatch();
+    TodoActions.selectMatch(undefined);
   },
 
-  saveMatchToStageArea: function() {
+  stageMatch: function() {
     const secondaryPayments = Immutable.fromJS(this.props.secondaryPayments);
     const selectedPaymentId = this.props.selectedPaymentId;
     const selectedPayment = secondaryPayments.find((secondaryPayment) => secondaryPayment.get('id') === selectedPaymentId);
@@ -24,18 +24,12 @@ const Match = React.createClass({
     const main = this.props.pov === 'main' ? mainPayment : selectedPayment;
     const data = this.props.pov === 'main' ? selectedPayment : mainPayment;
 
-    const actionData = Immutable.fromJS({
-      main: main,
+    const match = Immutable.fromJS({
+      id: (main.get('id') + data.get('id')),
+      main: main.set('matches', main.get('matches').map((m) => m.get('id'))), // recreate array of IDs
       data: data,
-      match: {
-        id: (main.get('id') + data.get('id')),
-        main: main.remove('matches'),
-        data: data.remove('matches')
-      }
     });
-
-    // console.log(actionData.toJS());
-    ServerActions.saveMatch(actionData);
+    MatchActions.stageMatchOptimistic(match);
   },
 
   render: function() {
@@ -67,7 +61,7 @@ const Match = React.createClass({
             <div className='ui buttons'>
               <div className='ui negative button' onClick={this.deselectMatch}>Cancel</div>
               <div className='or'></div>
-              <div className={saveButtonClasses} onClick={this.saveMatchToStageArea}>Save</div>
+              <div className={saveButtonClasses} onClick={this.stageMatch}>Save</div>
             </div>
           </div>
         </div>

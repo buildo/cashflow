@@ -14,8 +14,9 @@ const CFFActions = require('../../../actions/CFFActions.js');
 
 
 const getStateFromStores = function () {
-  // console.log(ManualCFFDataStore.hey());
-  return _.extend(CFFStore.getState(), ManualCFFDataStore.getState());
+  // console.log(ManualCFFDataStore.getAll);
+  // ManualCFFDataStore.hello();
+  return _.extend(CFFStore.getState(), {lines: ManualCFFDataStore.getAll()});
 };
 
 const ManualMain = React.createClass({
@@ -39,11 +40,11 @@ const ManualMain = React.createClass({
   render: function() {
 
     if (this.state.isLoadingManual) {
-      return <div/>;
+      return null;
     }
 
-    const manualCFFLines = this.state.manualCFF && this.state.manualCFF.lines ? this.state.manualCFF.lines : [];
-    const lines = manualCFFLines.map((line, index) => <Line line={line} key={index}/>);
+    // const manualCFFLines = this.state.manualCFF && this.state.manualCFF.lines ? this.state.manualCFF.lines : [];
+    const lines = this.state.lines.map((line, index) => <Line line={line} key={index} id={index}/>);
 
     return (
       <div>
@@ -59,6 +60,7 @@ const ManualMain = React.createClass({
 
   _onChange: function() {
     this.setState(getStateFromStores());
+    // console.log(ManualCFFDataStore.getAll());
   }
 
 });

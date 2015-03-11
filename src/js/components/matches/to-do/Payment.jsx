@@ -9,12 +9,12 @@ const utils = require('../../../utils/utils.js');
 const Payment = React.createClass({
 
   deselectPayment: function() {
-    TodoActions.deselectPayment();
+    TodoActions.selectPayment(undefined);
   },
 
   render: function() {
     const payment = this.props.payment;
-    console.log(payment);
+    // console.log(payment);
     const isInvoice = payment.info.flowDirection === 'in';
     const currency = utils.getCurrency(payment.info.currency.name);
 

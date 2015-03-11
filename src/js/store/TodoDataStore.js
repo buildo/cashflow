@@ -1,44 +1,41 @@
 'use strict';
 
-const _ = require('lodash');
-const Dispatcher = require('../dispatcher/AppDispatcher.js');
-const Store = require('./Store');
+const alt = require('../alt');
+const DataStore = require('./DataStore');
+const OptimisticDataStore = require('./OptimisticDataStore');
+const MatchActions = require('../actions/MatchActions');
 
-const self = {}; // TODO: remove once fat-arrow this substitution is fixed in es6 transpiler
-module.exports = _.extend(self, Store.Optimistic, Store(
-  Dispatcher,
-  // waitFor other Stores
-  [], {
-  // action handlers
+class TodoDataStore extends OptimisticDataStore {
 
-  MATCHES_UPDATED: (actionData) => {
-    self.deleteAll();
-    const dataPayments = actionData.todo.data;
-    const mainPayments = actionData.todo.main;
-
-    // insert payments
-    mainPayments.concat(dataPayments).forEach((p) => self.upsert(p.id, p));
-    return true;
-  },
-
-  SAVED_MATCH: (actionData, optimistic, undo) => {
-    console.log('TODO_DATA', optimistic, undo);
-    const mainPayment = actionData.main;
-    const dataPayment = actionData.data;
-    if (undo) {
-      self.upsert(mainPayment.id, mainPayment);
-      self.upsert(dataPayment.id, dataPayment);
-    } else {
-      self.delete(mainPayment.id);
-      self.delete(dataPayment.id);
-    }
-    return true;
+  constructor() {
+    super(TodoDataStore);
+    this.bindActions(MatchActions);
   }
 
-}, {
-  // custom getters
-  getAllPayments() {
-    return self.getAll();
-  },
+  onGetMatchesSuccess(data) {
+    this.deleteAll();
+    // insert payments
+    data.todo.main.concat(data.todo.data).forEach((p) => this.insert(p.id, p));
+  }
 
-}));
+  onStageMatch(data) {
+    this.delete(data.main.id);
+    this.delete(data.data.id);
+  }
+
+  onDeleteMatch(match) {
+    this.recreatePayments(match);
+  }
+
+  onUnstageMatch(match) {
+    this.recreatePayments(match);
+  }
+
+  recreatePayments(match) {
+    this.insert(match.main.id, match.main);
+    this.insert(match.data.id, match.data);
+  }
+
+}
+
+module.exports = alt.createStore(TodoDataStore, 'TodoDataStore');
