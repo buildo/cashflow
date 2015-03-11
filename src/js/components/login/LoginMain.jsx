@@ -45,7 +45,7 @@ const LoginMain = React.createClass({
 
   shouldComponentUpdate: function(nextProps, nextState) {
     if (nextState.loginState === AppConstants.LOGIN_SUCCESS) {
-      LoginActions.resetLoginState();
+      LoginActions.resetLoginState.defer();
       this.transitionTo('app');
     }
     return false;

@@ -10,22 +10,14 @@ const AppConstants = require('../../constants/AppConstants');
 const LoginForm = React.createClass({
 
   propTypes: {
-    loginState: React.PropTypes.string.isRequired,
+    loginState: React.PropTypes.string,
     onSubmit: React.PropTypes.func.isRequired
   },
 
   mixins: [Navigation],
 
-  submitLoginForm: function () {
+  componentDidMount: function () {
     const loginForm =  $('#login-form');
-
-    const submitForm = () => {
-      const loginFormData = {
-        email: loginForm.form('get field', 'email').val(),
-        password: loginForm.form('get field', 'password').val()
-      };
-      this.props.onSubmit(loginFormData);
-    };
 
     const validationRules = {
       email: {
@@ -55,10 +47,19 @@ const LoginForm = React.createClass({
     loginForm.form(validationRules,
       {
         inline: true,
-        onSuccess: submitForm,
-        on: 'blur'
+        onSuccess: this.submitLoginForm,
+        on: 'submit'
       }
     );
+  },
+
+  submitLoginForm: function() {
+    const loginForm =  $('#login-form');
+    const loginFormData = {
+      email: loginForm.form('get field', 'email').val(),
+      password: loginForm.form('get field', 'password').val()
+    };
+    this.props.onSubmit(loginFormData);
   },
 
   render: function () {
@@ -84,7 +85,7 @@ const LoginForm = React.createClass({
       <div className="ui center aligned" id="login-form">
         <div className="ui middle aligned relaxed fitted raised grid">
           <div className="column">
-            <form className={formClassName} onSubmit={this.submitLoginForm}>
+            <form className={formClassName}>
               <div className="field">
                 <label>Email</label>
                 <div className="ui left icon input">
@@ -99,7 +100,7 @@ const LoginForm = React.createClass({
                   <i className="lock icon"></i>
                 </div>
               </div>
-              <div className="ui blue submit button" onClick={this.submitLoginForm}>Login</div>
+              <div className="ui blue submit button">Login</div>
             </form>
             {alertLoginFailed}
           </div>
