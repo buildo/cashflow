@@ -6,6 +6,10 @@ const React = require('react');
 
 const Expense = React.createClass({
 
+  propTypes: {
+    line: React.PropTypes.object
+  },
+
   render: function () {
 
     const line = this.props.line;

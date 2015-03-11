@@ -115,6 +115,10 @@ const initGraph = (data) => {
 
 const CasflowAnalytics = React.createClass({
 
+  propTypes: {
+    cashflows: React.PropTypes.object.isRequired
+  },
+
   componentDidMount: function() {
     initGraph(this.props.cashflows);
   },

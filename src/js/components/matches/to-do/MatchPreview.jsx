@@ -8,6 +8,12 @@ const utils = require('../../../utils/utils.js');
 
 const MatchPreview = React.createClass({
 
+  propTypes: {
+    match: React.PropTypes.object.isRequired,
+    isSelected: React.PropTypes.bool.isRequired,
+    index: React.PropTypes.number.isRequired,
+  },
+
   setAsSelected: function() {
     const index = this.props.index;
     TodoActions.selectMatch(index);

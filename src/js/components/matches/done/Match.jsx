@@ -11,6 +11,10 @@ const MatchActions = require('../../../actions/MatchActions.js');
 
 const Match = React.createClass({
 
+  propTypes: {
+    match: React.PropTypes.object.isRequired
+  },
+
   deleteMatch: function() {
     const match = Immutable.fromJS(this.props.match);
     MatchActions.deleteMatchOptimistic(match);

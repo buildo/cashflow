@@ -11,6 +11,13 @@ const MatchActions = require('../../../actions/MatchActions.js');
 
 const Match = React.createClass({
 
+  propTypes: {
+    match: React.PropTypes.object.isRequired,
+    secondaryPayments: React.PropTypes.array.isRequired,
+    selectedPaymentId: React.PropTypes.string,
+    pov: React.PropTypes.string.isRequired
+  },
+
   deselectMatch: function() {
     TodoActions.selectMatch(undefined);
   },

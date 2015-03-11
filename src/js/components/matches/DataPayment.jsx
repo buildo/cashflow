@@ -7,6 +7,10 @@ const utils = require('../../utils/utils.js');
 
 const DataPayment = React.createClass({
 
+  propTypes: {
+    dataPayment: React.PropTypes.object.isRequired
+  },
+
   render: function() {
 
     const dataPayment = this.props.dataPayment;

@@ -8,6 +8,13 @@ const utils = require('../../../utils/utils.js');
 
 const MatchRightColumn = React.createClass({
 
+  propTypes: {
+    flowDirection: React.PropTypes.string.isRequired,
+    secondaryPayments: React.PropTypes.array.isRequired,
+    matches: React.PropTypes.array.isRequired,
+    selectedPaymentId: React.PropTypes.string
+  },
+
   componentDidMount: function() {
     const context = $(this.refs.secondaryPayments.getDOMNode());
 

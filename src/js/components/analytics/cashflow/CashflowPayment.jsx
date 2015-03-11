@@ -7,6 +7,10 @@ const utils = require('../../../utils/utils.js');
 
 const CashflowPayment = React.createClass({
 
+  propTypes: {
+    payment: React.PropTypes.object.isRequired
+  },
+
   render: function () {
 
     const payment = this.props.payment;

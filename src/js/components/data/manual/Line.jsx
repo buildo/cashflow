@@ -26,14 +26,14 @@ const Line = React.createClass({
   getDefaultProps: function() {
     return {
       line: {
-        id: '12345',
-        flowDirection: 'in',
+        id: '',
+        flowDirection: 'in/out',
         payments: [
           {
             expectedDate: ['yyyy-mm-dd', 'yyyy-mm-dd'],
             date: 'yyyy-mm-dd',
-            expectedGrossAmount: [123, 456],
-            grossAmount: 12345
+            expectedGrossAmount: [0, 0],
+            grossAmount: 0
           }
         ]
       }

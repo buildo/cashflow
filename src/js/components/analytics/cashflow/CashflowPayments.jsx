@@ -7,6 +7,10 @@ const CashflowPayment = require('./CashflowPayment.jsx');
 
 const CashflowPayments = React.createClass({
 
+  propTypes: {
+    payments: React.PropTypes.array
+  },
+
   render: function () {
     if (!this.props.payments) {
       return (

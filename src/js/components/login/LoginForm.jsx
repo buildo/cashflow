@@ -10,6 +10,11 @@ const ServerActions = require('../../actions/ServerActions.js');
 
 const LoginForm = React.createClass({
 
+  propTypes: {
+    loginState: React.PropTypes.string.isRequired,
+    onSubmit: React.PropTypes.func.isRequired
+  },
+
   mixins: [Navigation],
 
   submitLoginForm: function () {

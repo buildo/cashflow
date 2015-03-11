@@ -7,6 +7,10 @@ const utils = require('../../utils/utils.js');
 
 const MainPayment = React.createClass({
 
+  propTypes: {
+    mainPayment: React.PropTypes.object.isRequired
+  },
+
   render: function() {
     const mainPayment = this.props.mainPayment;
     const isInvoice = mainPayment.info.flowDirection === 'in';

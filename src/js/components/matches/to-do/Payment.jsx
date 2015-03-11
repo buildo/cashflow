@@ -8,6 +8,10 @@ const utils = require('../../../utils/utils.js');
 
 const Payment = React.createClass({
 
+  propTypes: {
+    payment: React.PropTypes.object.isRequired
+  },
+
   deselectPayment: function() {
     TodoActions.selectPayment(undefined);
   },

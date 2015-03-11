@@ -9,6 +9,11 @@ const LoginActions = require('../../actions/LoginActions.js');
 
 const TopBar = React.createClass({
 
+  propTypes: {
+    pages: React.PropTypes.array.isRequired,
+    selectedPage: React.PropTypes.string.isRequired
+  },
+
   getToken: function() {
     console.log(localStorage.getItem('cashflow_token'));
   },

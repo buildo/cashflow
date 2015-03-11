@@ -14,6 +14,10 @@ const getStateFromStores = function () {
 
 const CashflowMain = React.createClass({
 
+  propTypes: {
+    isLoadingCFFs: React.PropTypes.bool
+  },
+
   mixins: [ListenerMixin],
 
 
@@ -56,7 +60,7 @@ const CashflowMain = React.createClass({
         </h4>
         <br></br>
         <div className='cashflow-payments'>
-          <CashflowPayments cashflows={this.state.cashflowData} payments={this.getSelectedPayments()}/>
+          <CashflowPayments payments={this.getSelectedPayments()}/>
         </div>
       </div>
     );

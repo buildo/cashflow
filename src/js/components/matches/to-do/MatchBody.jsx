@@ -8,6 +8,11 @@ const utils = require('../../../utils/utils.js');
 
 const MatchBody = React.createClass({
 
+  propTypes: {
+    match: React.PropTypes.object.isRequired,
+    selectedPayment: React.PropTypes.object,
+  },
+
   render: function() {
     return (
       <div>
