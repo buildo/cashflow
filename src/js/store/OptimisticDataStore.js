@@ -9,6 +9,12 @@ const setterMethods = ['upsert', 'insert', 'update', 'delete', 'deleteAll'];
 function NoopClass() {}
 const excluded = Object.getOwnPropertyNames(NoopClass.prototype);
 
+const resetOptimisticState = (self) => {
+  self.__stable = true;
+  self.__undo = false;
+  self.__optimistic = false;
+};
+
 const buildClassFunctions = (classObj, context) => {
   const obj = classObj.prototype;
   const self = context;
@@ -16,73 +22,91 @@ const buildClassFunctions = (classObj, context) => {
     if (excluded.indexOf(functionName) === -1) {
       // create optimistic/fail/success functions
       self[functionName + 'Optimistic'] = (payload) => {
-        console.log('OPTMISTIC');
-        self[functionName](_.extend(payload, {__optimistic: true, __undo: false}));
+        self.__optimistic = true;
+        self.__undo = false;
+        self.__stable = false;
+        self[functionName](payload);
+        resetOptimisticState(self);
       };
       self[functionName + 'Success'] = (payload) => {
-        console.log('SUCCESS');
-        self[functionName](_.extend(payload, {__optimistic: false, __undo: false}));
+        self.__optimistic = false;
+        self.__undo = false;
+        self.__stable = false;
+        self[functionName](payload);
+        resetOptimisticState(self);
       };
       self[functionName + 'Undo'] = (payload) => {
-        self[functionName](_.extend(payload, {__optimistic: false, __undo: true}));
+        self.__optimistic = false;
+        self.__undo = true;
+        self.__stable = false;
+        self[functionName](payload);
+        resetOptimisticState(self);
       };
     }
   });
 };
 
-const handleUndo = (id, context) => {
+const handleUndo = (id, context, m) => {
   const self = context;
-  if (!self._optimisticData.has(id) || (self._data.has(id) && self._optimisticData.has(id))) {
+  if (m === 'deleteAll') {
+    self._optimisticData = Immutable.Map(self._data);
+  }
+  else if (self._data.has(id)) {
     self._optimisticData = self._optimisticData.set(id, self._data.get(id));
   } else {
     self._optimisticData = self._optimisticData.delete(id);
   }
 };
 
-const handleSuccess = (id, context) => {
+const handleSuccess = (id, context, m) => {
   const self = context;
-  if (self._optimisticData.has(id)) {
+  if (m === 'deleteAll') {
+    self._data = Immutable.Map();
+  }
+  else if (self._optimisticData.has(id)) {
     self._data = self._data.set(id, self._optimisticData.get(id));
   } else {
     self._data = self._data.delete(id);
   }
 };
 
-
 class OptimisticDataStore extends DataStore {
 
   constructor(classObj) {
     this._optimisticData = Immutable.Map();
     this._data = Immutable.Map();
+    this.__stable = true;
     classObj.getAll = OptimisticDataStore.getAll;
     classObj.get = OptimisticDataStore.get;
     buildClassFunctions(classObj, this);
-
+    // build setter wrappers:
     const self = this;
     setterMethods.forEach((m) => {
-      self[m] = (id, data) => {
+      self[m] = (id, data, path) => {
         let selfData;
-        if (!data || typeof data.__optimistic === 'undefined') {
-          // stable method
-          super[m](id, data);
+        let toReturn = true;
+        if (self.__stable) {
+          toReturn = super[m](id, data, path);
           selfData = self._data;
           self._data = self._optimisticData;
-          super[m](id, data);
+          toReturn = toReturn && super[m](id, data, path);
           self._optimisticData = self._data;
           self._data = selfData;
         }
-        else if (data.__undo) {
-          handleUndo(id, self);
-        } else if (data.__optimistic) {
+        else if (self.__optimistic) {
           selfData = self._data;
           self._data = self._optimisticData;
-          super[m](id, data);
+          toReturn = super[m](id, data, path);
           self._optimisticData = self._data;
           self._data = selfData;
-          // console.log('OPTIMISTIC', self._optimisticData.toJS(), self._data.toJS());
-        } else {
-          handleSuccess(id, self);
         }
+        else if (self.__undo) {
+          handleUndo(id, self, m);
+        }
+        else {
+          handleSuccess(id, self, m);
+        }
+        return toReturn;
       };
     });
   }
