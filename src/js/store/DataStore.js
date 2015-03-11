@@ -1,7 +1,6 @@
 'use strict';
 
 const Immutable = require('immutable');
-const _ = require('lodash');
 
 // TODO: remove casts
 class DataStore {
@@ -41,7 +40,8 @@ class DataStore {
     if (this._data.has(id)) {
       throw new Error('Duplicate id ' + id);
     }
-    return this.upsert(id, obj);
+    this._data = this._data.set(id + '', Immutable.fromJS(obj));
+    return true;
   }
 
   update(id, patch, path) {
