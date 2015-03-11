@@ -499,24 +499,28 @@ app.get('/matches', function *() {
     return dataPaymentsIDs.indexOf(dataPayment.id) === -1 && dataPayment.methodType !== 'cost' && dataPayment.methodType !== 'ignore';
   });
 
+  const allMatches = getMatches({
+    data: dataPayments,
+    main: mainPayments
+  });
+
   // create body
   const todo = getMatches({
     data: filteredDataPayments,
     main: filteredMainPayments
   });
   const stage = stagedMatches.map(function(match) {
-    const main = mainPayments.filter(function(p) {return p.id === match.main})[0];
-    const data = dataPayments.filter(function(p) {return p.id === match.data})[0];
+    const main = allMatches.main.filter(function(p) {return p.id === match.main})[0];
+    const data = allMatches.data.filter(function(p) {return p.id === match.data})[0];
     return {
       id: main.id + data.id,
       main: main,
       data: data
     };
   });
-
   const done = matches.map(function(match) {
-    const main = mainPayments.filter(function(p) {return p.id === match.main})[0];
-    const data = dataPayments.filter(function(p) {return p.id === match.data})[0];
+    const main = allMatches.main.filter(function(p) {return p.id === match.main})[0];
+    const data = allMatches.data.filter(function(p) {return p.id === match.data})[0];
     return {
       id: main.id + data.id,
       main: main,
