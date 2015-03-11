@@ -3,9 +3,7 @@
 const alt = require('../alt');
 const TokenActions = require('../actions/TokenActions');
 const LoginActions = require('../actions/LoginActions');
-const CHECKING_TOKEN_STATE = 'CHECKING_TOKEN_STATE';
-const TOKEN_IS_VALID = 'TOKEN_IS_VALID';
-const TOKEN_IS_INVALID = 'TOKEN_IS_INVALID';
+const AppConstants = require('../constants/AppConstants');
 
 class TokenStore {
   constructor() {
@@ -14,15 +12,15 @@ class TokenStore {
   }
 
   onCheckToken() {
-    this.tokenState = CHECKING_TOKEN_STATE;
+    this.tokenState = AppConstants.TOKEN;
   }
 
   onCheckTokenSuccess() {
-    this.tokenState = TOKEN_IS_VALID;
+    this.tokenState = AppConstants.TOKEN_SUCCESS;
   }
 
   onCheckTokenFail() {
-    this.tokenState = TOKEN_IS_INVALID;
+    this.tokenState = AppConstants.TOKEN_FAIL;
   }
 
   onLoginSuccess(data) {

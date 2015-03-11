@@ -4,8 +4,7 @@
 
 const React = require('react');
 const Navigation = require('react-router').Navigation;
-const C = require('../../constants/AppConstants').ActionTypes;
-const ServerActions = require('../../actions/ServerActions.js');
+const AppConstants = require('../../constants/AppConstants');
 
 
 const LoginForm = React.createClass({
@@ -68,11 +67,11 @@ const LoginForm = React.createClass({
 
     switch (this.props.loginState){
 
-      case C.LOGIN_START:
+      case AppConstants.LOGIN:
         formClassName += ' loading';
         break;
 
-      case C.LOGIN_FAIL:
+      case AppConstants.LOGIN_FAIL:
         alertLoginFailed = (
           <div className="login-alert ui info message error">
             <div>wrong email or password</div>

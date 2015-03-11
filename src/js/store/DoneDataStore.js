@@ -1,7 +1,6 @@
 'use strict';
 
 const alt = require('../alt');
-const DataStore = require('./DataStore');
 const OptimisticDataStore = require('./OptimisticDataStore');
 const MatchActions = require('../actions/MatchActions');
 

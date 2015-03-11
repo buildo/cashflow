@@ -4,7 +4,7 @@
 
 const React = require('react');
 const Navigation = require('react-router').Navigation;
-const C = require('../../constants/AppConstants').ActionTypes;
+const AppConstants = require('../../constants/AppConstants');
 const ListenerMixin = require('alt/mixins/ListenerMixin');
 const LoginForm = require('./LoginForm.jsx');
 const LoginStore = require('../../store/LoginStore.js');
@@ -32,8 +32,8 @@ const LoginMain = React.createClass({
 
   render: function() {
 
-    if (this.state.loginState === C.LOGGED_IN) {
-      return <div/>;
+    if (this.state.loginState === AppConstants.LOGIN_SUCCESS) {
+      return null;
     }
 
     return (
@@ -44,7 +44,7 @@ const LoginMain = React.createClass({
   },
 
   shouldComponentUpdate: function(nextProps, nextState) {
-    if (nextState.loginState === C.LOGGED_IN) {
+    if (nextState.loginState === AppConstants.LOGIN_SUCCESS) {
       LoginActions.resetLoginState();
       this.transitionTo('app');
     }

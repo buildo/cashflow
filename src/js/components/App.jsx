@@ -9,7 +9,7 @@ const State = require('react-router').State;
 const ListenerMixin = require('alt/mixins/ListenerMixin');
 const TokenStore = require('../store/TokenStore.js');
 const TokenActions = require('../actions/TokenActions.js');
-const C = require('../constants/AppConstants').ActionTypes;
+const AppConstants = require('../constants/AppConstants');
 
 const getStateFromStores = function () {
   return TokenStore.getState();
@@ -29,26 +29,24 @@ const App = React.createClass({
   },
 
   render: function () {
-    // console.log('RENDER_ROOT');
-
     switch (this.state.tokenState) {
 
-      case C.TOKEN_IS_INVALID:
+      case AppConstants.TOKEN_FAIL:
         if (this.getPathname() !== '/login') {
           this.replaceWith('login');
-          return <div/>;
+          return null;
         }
         break;
 
-      case C.TOKEN_IS_VALID:
+      case AppConstants.TOKEN_SUCCESS:
         if (this.getPathname() === '/') {
           this.replaceWith('/analytics');
-          return <div/>;
+          return null;
         }
         break;
 
       default:
-        return <div/>;
+        return null;
     }
 
     return (

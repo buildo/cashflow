@@ -23,7 +23,6 @@ class CashflowStore {
     this.bindAction(CFFActions.getMainSuccess, this.onUpdate);
     this.bindAction(CFFActions.getBankSuccess, this.onUpdate);
     this.bindAction(CFFActions.getManualSuccess, this.onUpdate);
-    // this.bindAction(ServerActions.saveManualSuccess, this.onUpdate);
   }
 
   resetPointSelection() {

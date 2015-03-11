@@ -54,10 +54,6 @@ class CFFStore {
     this.isLoadingBank = true;
   }
 
-  // updateLoadingState() {
-  //   this.isLoading = isLoadingMain || isLoadingBank || isLoadingManual;
-  // }
-
 }
 
 module.exports = alt.createStore(CFFStore, 'CFFStore');

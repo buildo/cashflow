@@ -20,7 +20,6 @@ const MatchPreview = React.createClass({
   },
 
   render: function() {
-
     const match = this.props.match;
     const isSelected = this.props.isSelected;
     const divClasses = isSelected ? 'ui segment green center aligned selectable' : 'ui segment center aligned selectable';

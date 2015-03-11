@@ -5,13 +5,8 @@
 const React = require('react');
 const Immutable = require('immutable');
 const JSONEditor = require('./JSONEditor.jsx');
-const ace = require('brace');
-require('brace/mode/json');
-require('brace/theme/textmate');
 const CFFActions = require('../../../actions/CFFActions.js');
 const validateCFF = require('../../../../../../cashflow/dist/src/validators/CFFValidator.js');
-
-var editor;
 
 const Line = React.createClass({
 

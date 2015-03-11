@@ -40,7 +40,6 @@ const Match = React.createClass({
   },
 
   render: function() {
-
     const match = this.props.match;
     const matches = this.props.match.matches;
     const secondaryPayments = this.props.secondaryPayments;

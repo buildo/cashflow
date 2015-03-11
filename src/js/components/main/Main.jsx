@@ -91,7 +91,6 @@ const Main = React.createClass({
   },
 
   render: function () {
-    // console.log('MAIN');
     return (
       <div className='ui center aligned'>
         <div className='ui fixed main menu'>

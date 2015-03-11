@@ -2,9 +2,7 @@
 
 const alt = require('../alt');
 const LoginActions = require('../actions/LoginActions');
-const LOGIN_START = 'LOGIN_START';
-const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
-const LOGIN_FAIL = 'LOGIN_FAIL';
+const AppConstants = require('../constants/AppConstants');
 
 class LoginStore {
   constructor() {
@@ -12,15 +10,15 @@ class LoginStore {
   }
 
   onLogin() {
-    this.loginState = LOGIN_START;
+    this.loginState = AppConstants.LOGIN;
   }
 
   onLoginSuccess() {
-    this.loginState = LOGIN_SUCCESS;
+    this.loginState = AppConstants.LOGIN_SUCCESS;
   }
 
   onLoginFail() {
-    this.loginState = LOGIN_FAIL;
+    this.loginState = AppConstants.LOGIN_FAIL;
   }
 
   onResetLoginState() {

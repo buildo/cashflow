@@ -15,7 +15,9 @@ class NavStore {
     if (routes.length > 2) {
       this.selectedPage = routes[2].name;
       this.selectedTab = routes[3].name;
+      return true;
     }
+    return false;
   }
 
 }
