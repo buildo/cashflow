@@ -5,8 +5,7 @@
 const _ = require('lodash');
 const React = require('react');
 const State = require('react-router').State;
-const FICInvoice = require('./FICInvoice.jsx');
-const FICExpense = require('./FICExpense.jsx');
+const FICPayment = require('./FICPayment.jsx');
 const ListenerMixin = require('alt/mixins/ListenerMixin');
 const CFFStore = require('../../../store/CFFStore.js');
 const PullProgressStore = require('../../../store/PullProgressStore.js');
@@ -76,7 +75,7 @@ const CFFMain = React.createClass({
     }
 
     const cffLines = this.state.main ? this.state.main.lines : [];
-    const lines = cffLines.map((line, index) => line.flowDirection === 'in' ? <FICInvoice line={line} key={index}/> : <FICExpense line={line} key={index}/>);
+    const lines = cffLines.map((line, index) => <FICPayment line={line} key={index}/>);
 
     return (
       <div key='3'>

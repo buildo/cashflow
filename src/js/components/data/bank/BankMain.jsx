@@ -4,8 +4,7 @@
 
 const React = require('react');
 const State = require('react-router').State;
-const BankInvoice = require('./BankInvoice.jsx');
-const BankExpense = require('./BankExpense.jsx');
+const BankPayment = require('./BankPayment.jsx');
 const ListenerMixin = require('alt/mixins/ListenerMixin');
 const CFFStore = require('../../../store/CFFStore.js');
 const CFFActions = require('../../../actions/CFFActions.js');
@@ -31,6 +30,10 @@ const CFFMain = React.createClass({
     CFFActions.pullBank();
   },
 
+  getLineType: function(line) {
+    return line.flowDirection === 'in' ? 'invoice' : 'expense';
+  },
+
   render: function() {
 
     if (this.state.isLoadingBank) {
@@ -51,7 +54,7 @@ const CFFMain = React.createClass({
     const cffLines = this.state.bank ? this.state.bank.lines : [];
     const paymentsCFFLines = cffLines.filter((line) => (line.payments[0].methodType !== 'bank fee' && line.payments[0].methodType !== 'ignore'));
     // const costsCFFLines = cffLines.filter((line) => line.payments[0].methodType === 'cost');
-    const lines = paymentsCFFLines.map((line, index) => line.flowDirection === 'in' ? <BankInvoice line={line} key={index}/> : <BankExpense line={line} key={index}/>);
+    const lines = paymentsCFFLines.map((line, index) => <BankPayment line={line} key={index}/>);
 
     return (
       <div>
