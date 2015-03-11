@@ -83,6 +83,7 @@ class OptimisticDataStore extends DataStore {
     const self = this;
     setterMethods.forEach((m) => {
       self[m] = (id, data, path) => {
+        id = typeof id === 'undefined' ? id : (id + '');
         let selfData;
         let toReturn = true;
         if (self.__stable) {
