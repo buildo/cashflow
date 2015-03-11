@@ -587,6 +587,13 @@ app.put('/matches/stage/mainPaymentId/:mainPaymentId/dataPaymentId/:dataPaymentI
   });
 });
 
+app.delete('/matches/:matchId', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var matchId = this.params.matchId;
+  yield db.matches.remove({userId: user._id, _id: matchId});
+});
+
 app.get('/projects', function *() {
   //
 });
