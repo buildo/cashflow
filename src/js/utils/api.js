@@ -49,7 +49,7 @@ module.exports = {
 
     pullMain: () => axios.post(path(['cffs', 'main', 'pull']), {}, getConfig()),
 
-    pullBank: () => axios.post(path(['cffs', 'main', 'pull']), {}, getConfig()),
+    pullBank: () => axios.post(path(['cffs', 'bank', 'pull']), {}, getConfig()),
 
     saveManual: (cff) => axios.post(path(['cffs', 'manual']), cff, getConfig(true)),
 
