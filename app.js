@@ -152,7 +152,7 @@ app.post('/cffs/main/pull', function *() {
     this.throw(400, 'fattureincloud credentials not found');
   }
   var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
-  var oldCFF = mainLines.length === 0 ? {} : utils.getCffFromDocumentLines(mainLines);
+  var oldCFF = mainLines.length === 0 ? {lines: []} : utils.getCffFromDocumentLines(mainLines);
   // fatture in cloud non deve essere bloccante, usare /progress per conoscere stato avanzamento
   scrapers.getFattureInCloud(db, user._id, credentialsFattureInCloud, oldCFF)
     .done(function(result) {
