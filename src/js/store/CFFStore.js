@@ -2,6 +2,7 @@
 
 const alt = require('../alt');
 const CFFActions = require('../actions/CFFActions');
+const ManualCFFDataStore = require('./ManualCFFDataStore');
 
 class CFFStore {
   constructor() {
@@ -31,7 +32,7 @@ class CFFStore {
   }
 
   onGetManualSuccess(cff) {
-    this.manual = cff;
+    this.manual = {};
     this.isLoadingManual = false;
   }
 

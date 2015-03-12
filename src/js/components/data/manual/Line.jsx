@@ -3,19 +3,21 @@
 'use strict';
 
 const React = require('react');
-const Immutable = require('immutable');
+const _ = require('lodash');
 const JSONEditor = require('./JSONEditor.jsx');
-const CFFActions = require('../../../actions/CFFActions.js');
-const validateCFF = require('../../../../../../cashflow/dist/src/validators/CFFValidator.js');
 
 const Line = React.createClass({
 
   propTypes: {
-    id: React.PropTypes.oneOfType([
+    editorId: React.PropTypes.oneOfType([
       React.PropTypes.string,
       React.PropTypes.number,
     ]),
-    line: React.PropTypes.object
+    onSave: React.PropTypes.func.isRequired,
+    onDelete: React.PropTypes.func.isRequired,
+    line: React.PropTypes.object,
+    id: React.PropTypes.string,
+    isLoading: React.PropTypes.bool
   },
 
   getDefaultProps: function() {
@@ -31,40 +33,55 @@ const Line = React.createClass({
             grossAmount: 0
           }
         ]
-      }
+      },
+      id: '' + (new Date()).getTime(),
     };
   },
 
-  saveLine: function() {
-    const value = this.refs.jsonEditor.getValue();
-    const json = JSON.parse(value);
-    const fakeCFF = {
-      sourceId: 'MANUAL',
-      sourceDescription: 'manual inputs from user',
-      lines: [json]
+  getInitialState: function() {
+    return {
+      saveButtonState: 'disabled',
+      resetButtonState: 'disabled',
+      line: _.clone(this.props.line),
+      id: this.props.id
     };
-    const immutableJSON = Immutable.fromJS(fakeCFF);
-    const validationReport = validateCFF(immutableJSON);
-    if (validationReport.has('errors')) {
-      console.log('invalid CFF');
-      console.log(validationReport.toJS().errors);
-    } else {
-      console.log(json);
-      CFFActions.saveManualLine(json);
+  },
+
+  getJSON: function() {
+    const value = this.refs.jsonEditor.getValue();
+    return JSON.parse(value);
+  },
+
+  saveLine: function() {
+    if (!this.props.isLoading) {
+      this.props.onSave({line: this.getJSON(), id: this.state.id});
     }
   },
 
   deleteLine: function() {
-    
+    if (!this.props.isLoading) {
+      this.props.onDelete({line: this.getJSON(), id: this.state.id});
+    }
+  },
+
+  onDocumentChange: function() {
+    const hasBeenModified = _.isEqual(this.state.line, this.getJSON());
+    this.setState({saveButtonState: hasBeenModified ? 'disabled' : 'positive'});
+    this.setState({resetButtonState: hasBeenModified ? 'disabled' : 'neutral'});
+  },
+
+  resetEditor: function() {
+    this.refs.jsonEditor.resetData();
   },
 
   render: function () {
     return (
-      <div className='ui segment'>
-        <JSONEditor data={this.props.line} id={this.props.id} ref='jsonEditor'/>
-        <div>
-          <div className='ui right align negative button' onClick={this.saveLine}>Elimina</div>
-          <div className='ui right align positive button' onClick={this.saveLine}>Salva</div>
+      <div className={'ui' + (this.props.isLoading ? ' loading' : '') + ' segment manual-line'}>
+        <JSONEditor data={this.state.line} onDocumentChange={this.onDocumentChange} ref='jsonEditor'/>
+        <div style={{padding: '5px'}}>
+          <div className='ui negative button' onClick={this.deleteLine}>Elimina</div>
+          <div className={'ui ' + this.state.resetButtonState + ' button'} onClick={this.resetEditor}>Annulla Modifiche</div>
+          <div className={'ui ' + this.state.saveButtonState + ' button'} onClick={this.saveLine}>Salva</div>
         </div>
       </div>
     );

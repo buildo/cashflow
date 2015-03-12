@@ -18,32 +18,49 @@ const JSONEditor = React.createClass({
       React.PropTypes.string,
       React.PropTypes.number,
     ]),
-    data: React.PropTypes.object.isRequired
+    data: React.PropTypes.object.isRequired,
+    onDocumentChange: React.PropTypes.func.isRequired
+  },
+
+  getInitialState: function() {
+    return {
+      initialData: this.props.data || {},
+      id: this.props.id || ('' + (new Date()).getTime())
+    };
   },
 
   componentDidMount: function() {
-    editor = ace.edit('json-editor' + this.props.id);
-    const json = this.props.data;
-    editor.setOptions({
-      mode: 'ace/mode/json',
-      theme: 'ace/theme/textmate',
-      maxLines: Infinity,
-      tabSize: 2,
-      autoScrollEditorIntoView: true,
-      wrap: true,
-    });
-    editor.setValue(JSON.stringify(json, undefined, 2));
-    editor.clearSelection();
+    this.setValue(this.state.initialData);
   },
 
   getValue: function() {
     return editor.getValue();
   },
 
+  resetData: function() {
+    editor.destroy();
+    this.setValue(this.state.initialData);
+  },
+
+  setValue: function(data) {
+    editor = ace.edit('json-editor' + this.state.id);
+    editor.setOptions({
+      mode: 'ace/mode/json',
+      theme: 'ace/theme/textmate',
+      maxLines: Infinity,
+      tabSize: 2,
+      autoScrollEditorIntoView: true,
+      wrap: true
+    });
+    editor.setValue(JSON.stringify(data, undefined, 2));
+    editor.on('change', this.props.onDocumentChange);
+    editor.clearSelection();
+  },
+
   render: function () {
     return (
       <div className='json-editor-container'>
-        <div id={'json-editor' + this.props.id}></div>
+        <div className='json-editor' id={'json-editor' + this.state.id}></div>
       </div>
     );
   },

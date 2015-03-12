@@ -38,11 +38,50 @@ class CFFActions {
   }
 
   getManualSuccess(res) {
-    this.dispatch(res.data.data.cffs.manual);
+    this.dispatch(res.data.data.cffs.manualLines);
   }
 
   getManualFail() {
     this.dispatch();
+  }
+
+  saveManualLine(line) {
+    API.cff.saveManualLine(line).then(() => this.actions.saveManualLineSuccess(line), () => this.actions.saveManualLineFail(line));
+    this.dispatch(line);
+  }
+
+  saveManualLineSuccess(line) {
+    this.dispatch(line);
+  }
+
+  saveManualLineFail(line) {
+    this.dispatch(line);
+  }
+
+  createManualLine(line) {
+    API.cff.saveManualLine(line).then(() => this.actions.createManualLineSuccess(line), () => this.actions.createManualLineFail(line));
+    this.dispatch(line);
+  }
+
+  createManualLineSuccess(line) {
+    this.dispatch(line);
+  }
+
+  createManualLineFail(line) {
+    this.dispatch(line);
+  }
+
+  deleteManualLine(lineId) {
+    API.cff.deleteManualLine(lineId).then(() => this.actions.deleteManualLineSuccess(lineId), () => this.actions.deleteManualLineFail(lineId));
+    this.dispatch(lineId);
+  }
+
+  deleteManualLineSuccess(lineId) {
+    this.dispatch(lineId);
+  }
+
+  deleteManualLineFail(lineId) {
+    this.dispatch(lineId);
   }
 
   pullMain() {
