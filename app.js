@@ -160,7 +160,7 @@ app.post('/cffs/main/pull', function *() {
       co(function *() {
         var cff = result.fattureInCloud.cff;
         const allIDs = cff.lines.map(function (line) {return line.id;}).join(' '); // string of valid IDs
-        const linesToBeRemoved = oldCFF.lines.filter(function (line) {return allIDs.indexOf(line.id) === -1;}) // get old lines with invalid IDs
+        const linesToBeRemoved = oldCFF.lines.filter(function (line) {return allIDs.indexOf(line.id) === -1;}); // get old lines with invalid IDs
         // remove invalid lines
         yield linesToBeRemoved.map(function(line) {
           return {
@@ -203,7 +203,7 @@ app.get('/cffs/bank', function *() {
   if (bankLines.length === 0) {
     this.throw(400, 'user does not have a bank cff in database');
   }
-  var lines = bankLines.map(function(docLine) {return docLine.line});
+  var lines = bankLines.map(function(docLine) {return docLine.line;});
   var sortedLines = lines.sort(utils.sortCFFLinesByDate);
   var cff = {
     sourceId: 'BANK',
@@ -234,13 +234,10 @@ app.post('/cffs/bank/pull', function *() {
     this.throw(400, 'bank credentials not found');
   }
 
-  // WARNING: don't commit these lines! hardcoding bper credentials for check!!!!
-  // -------
   var bperCredentials = yield db.credentials.findOne({userId: user._id, type: 'bank', bankId: 'bper'});
-  if (bperCredentials && bperCredentials.credentials.password !== 'Bej@hY(2') {
+  if (bperCredentials && (bperCredentials.credentials.password !== bperCredentialsJSON.password || bperCredentials.credentials.user !== bperCredentialsJSON.user)) {
     this.throw(400, 'incorrect password');
   }
-  // -------
 
   var reports = yield bankCredentialsArray.map(function(bankCredentials) {
     return co(function *() {
@@ -266,9 +263,10 @@ app.post('/cffs/bank/pull', function *() {
       switch (report.status) {
         case 'success':
           // retrieve stored lines
+          var closestDateOldLines;
           var oldLines = yield db.cffs.find({userId: user._id, type: 'bank', bankId: report.bankId}).toArray();
           if (oldLines.length > 0) {
-            var closestDateOldLines = oldLines.map(function(lineDoc){return lineDoc.line.payments[0].date;})
+            closestDateOldLines = oldLines.map(function(lineDoc){return lineDoc.line.payments[0].date;})
               .reduce(function(acc, date){return date > acc ? date : acc;});
           }
           var cff = report.result.bank.cff;
@@ -277,12 +275,12 @@ app.post('/cffs/bank/pull', function *() {
             return !closestDateOldLines || date > closestDateOldLines || date === utils.getTodayFormatted();
           });
           var filteredOldLines =  closestDateOldLines !== utils.getTodayFormatted() ? [] :
-            oldLines.filter(function(lineDoc) {return lineDoc.line.payments[0].date === closestDateOldLines});
+            oldLines.filter(function(lineDoc) {return lineDoc.line.payments[0].date === closestDateOldLines;});
           // remove today lines (avoid conflicts)
           yield filteredOldLines.map(function(lineDoc) {
             return {
               remove: db.cffs.remove(lineDoc)
-            }
+            };
           });
 
           // save new lines
@@ -290,7 +288,7 @@ app.post('/cffs/bank/pull', function *() {
             line.sourceId = cff.sourceId;
             line.sourceDescription = cff.sourceDescription;
             return {
-              update: db.cffs.update({userId: user._id, type: 'bank', bankId: report.bankId, id: line.id}, {$set: {line: line}}, {upsert: true});
+              update: db.cffs.update({userId: user._id, type: 'bank', bankId: report.bankId, id: line.id}, {$set: {line: line}}, {upsert: true})
             };
           });
           break;
@@ -418,7 +416,7 @@ app.post('/matches/stage/commit', function*() {
     {}
   );
 
-  var stagedPaymentsIDs = stagedPaymentsToCommit.map(function(payment) {return payment.id}).join('|');
+  var stagedPaymentsIDs = stagedPaymentsToCommit.map(function(payment) {return payment.id;}).join('|');
   // add stagedPayments of same line not staged
   var completeLines = yield utils.getArrayFromObject(stagedLinesToCommit).map(function (stagedLine) {
     return db.cffs.findOne({userId: user._id, id: stagedLine.id});
@@ -444,7 +442,7 @@ app.post('/matches/stage/commit', function*() {
       if (res.error) {
         errorLinesIDs.push(res.id);
       } else {
-        var line = stagedLinesToCommit.filter(function(line) {return line.id === res.oldId})[0];
+        var line = stagedLinesToCommit.filter(function(line) {return line.id === res.oldId;})[0];
         line.payments = line.payments.map(function(p) {
           p.id = p.id.replace(res.oldId, res.newId);
           return p;
@@ -460,7 +458,7 @@ app.post('/matches/stage/commit', function*() {
           return {
             remove: db.stagedMatches.remove(match),
             insert: db.matches.insert(match)
-          }
+          };
         });
       }
     });
@@ -509,8 +507,8 @@ app.get('/matches', function *() {
     main: filteredMainPayments
   });
   const stage = stagedMatches.map(function(match) {
-    const main = allMatches.main.filter(function(p) {return p.id === match.main})[0];
-    const data = allMatches.data.filter(function(p) {return p.id === match.data})[0];
+    const main = allMatches.main.filter(function(p) {return p.id === match.main;})[0];
+    const data = allMatches.data.filter(function(p) {return p.id === match.data;})[0];
     return {
       id: main.id + data.id,
       main: main,
@@ -518,8 +516,8 @@ app.get('/matches', function *() {
     };
   });
   const done = matches.map(function(match) {
-    const main = allMatches.main.filter(function(p) {return p.id === match.main})[0];
-    const data = allMatches.data.filter(function(p) {return p.id === match.data})[0];
+    const main = allMatches.main.filter(function(p) {return p.id === match.main;})[0];
+    const data = allMatches.data.filter(function(p) {return p.id === match.data;})[0];
     return {
       id: main.id + data.id,
       main: main,

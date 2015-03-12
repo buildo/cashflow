@@ -1,6 +1,7 @@
 node_modules
 dist
 test
+bperCredentials.json
 *.tmp
 *.log
 ngris.sublime-project
