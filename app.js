@@ -105,7 +105,7 @@ app.get('/users/me', function *() {
   var user = yield utils.getUserByToken(db, token);
   this.objectName = 'user';
   var body = {
-    _id: user._id,
+    id: user._id,
     email: user.credentials.login.email
   };
   this.body = body;
@@ -163,7 +163,7 @@ app.post('/cffs/main/pull', function *() {
         // remove invalid lines
         yield linesToBeRemoved.map(function(line) {
           return {
-            remove: db.cffs.remove({userId: user._id, type: 'main', _id: line.id})
+            remove: db.cffs.remove({userId: user._id, type: 'main', id: line.id})
           };
         });
         // overwrite valid lines
@@ -172,9 +172,9 @@ app.post('/cffs/main/pull', function *() {
           line.sourceDescription = cff.sourceDescription;
           var regExp = new RegExp(line.id, '');
           return {
-            insert: db.cffs.update({userId: user._id, type: 'main', _id: line.id}, {$set: {line: line}}, {upsert: true}),
-            removeMatches: db.matches.remove({userId: user._id, _id: {'$regex': regExp}}),
-            removeStagedMatches: db.stagedMatches.remove({userId: user._id, _id: {'$regex': regExp}})
+            update: db.cffs.update({userId: user._id, type: 'main', id: line.id}, {$set: {line: line}}, {upsert: true}),
+            removeMatches: db.matches.remove({userId: user._id, id: {'$regex': regExp}}),
+            removeStagedMatches: db.stagedMatches.remove({userId: user._id, id: {'$regex': regExp}})
           };
         });
       });
@@ -260,13 +260,10 @@ app.post('/cffs/bank/pull', function *() {
     });
   });
 
-  console.log(reports);
-
   reports.forEach(function(report) {
     co(function *() {
       switch (report.status) {
         case 'success':
-          console.log('success');
           // retrieve stored lines
           var oldLines = yield db.cffs.find({userId: user._id, type: 'bank', bankId: report.bankId}).toArray();
           if (oldLines.length > 0) {
@@ -280,11 +277,10 @@ app.post('/cffs/bank/pull', function *() {
           });
           var filteredOldLines =  closestDateOldLines !== utils.getTodayFormatted() ? [] :
             oldLines.filter(function(lineDoc) {return lineDoc.line.payments[0].date === closestDateOldLines});
-
           // remove today lines (avoid conflicts)
           yield filteredOldLines.map(function(lineDoc) {
             return {
-              remove: db.cffs.remove({_id: lineDoc._id})
+              remove: db.cffs.remove(lineDoc)
             }
           });
 
@@ -293,7 +289,7 @@ app.post('/cffs/bank/pull', function *() {
             line.sourceId = cff.sourceId;
             line.sourceDescription = cff.sourceDescription;
             return {
-              insert: db.cffs.insert({userId: user._id, type: 'bank', bankId: report.bankId, _id: line.id, line: line})
+              update: db.cffs.update({userId: user._id, type: 'bank', bankId: report.bankId, id: line.id}, {$set: {line: line}}, {upsert: true});
             };
           });
           break;
@@ -312,7 +308,7 @@ app.post('/cffs/bank/pull', function *() {
           break;
 
         case utils.passwordError:
-          yield db.credentials.remove({_id: user._id, type: 'bank', bankId: report.bankId});
+          yield db.credentials.remove({userId: user._id, type: 'bank', bankId: report.bankId});
           this.throw(400, report.result.bank.status.message);
           break;
 
@@ -421,7 +417,7 @@ app.post('/matches/stage/commit', function*() {
   var stagedPaymentsIDs = stagedPaymentsToCommit.map(function(payment) {return payment.id}).join('|');
   // add stagedPayments of same line not staged
   var completeLines = yield utils.getArrayFromObject(stagedLinesToCommit).map(function (stagedLine) {
-    return db.cffs.findOne({userId: user._id, _id: stagedLine.id});
+    return db.cffs.findOne({userId: user._id, id: stagedLine.id});
   });
   completeLines.forEach(function(docLine) {
     docLine.line.payments.forEach(function(payment) {
@@ -451,15 +447,14 @@ app.post('/matches/stage/commit', function*() {
         });
         line.id = res.newId;
         var toReturn = {};
-        yield db.cffs.remove({userId: user._id, _id: res.oldId});
-        yield db.cffs.insert({userId: user._id, type: 'main', _id: line.id, line: line});
+        yield db.cffs.remove({userId: user._id, id: res.oldId});
+        yield db.cffs.update({userId: user._id, type: 'main', id: line.id}, {$set: {line: line}}, {upsert: true});
         var regExp = new RegExp(res.oldId, '');
         var matches = yield db.stagedMatches.find({userId: user._id, main: {'$regex': regExp}}).toArray();
-        yield matches.map(function(match) {return {}});
         yield matches.map(function(match) {
           match.main = match.main.replace(res.oldId, res.newId);
           return {
-            remove: db.stagedMatches.remove({userId: user._id, _id: match._id}),
+            remove: db.stagedMatches.remove(match),
             insert: db.matches.insert(match)
           }
         });
@@ -546,7 +541,7 @@ app.delete('/matches/stage/:matchId', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
   var matchId = this.params.matchId;
-  yield db.stagedMatches.remove({userId: user._id, _id: matchId});
+  yield db.stagedMatches.remove({userId: user._id, id: matchId});
 });
 
 app.put('/matches/stage/mainPaymentId/:mainPaymentId/dataPaymentId/:dataPaymentId', function *() {
@@ -581,7 +576,7 @@ app.put('/matches/stage/mainPaymentId/:mainPaymentId/dataPaymentId/:dataPaymentI
 
   yield db.stagedMatches.insert({
     userId: user._id,
-    _id: mainPaymentId + dataPaymentId,
+    id: mainPaymentId + dataPaymentId,
     main: mainPaymentId,
     data: dataPaymentId
   });
@@ -591,7 +586,7 @@ app.delete('/matches/:matchId', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
   var matchId = this.params.matchId;
-  yield db.matches.remove({userId: user._id, _id: matchId});
+  yield db.matches.remove({userId: user._id, id: matchId});
 });
 
 app.get('/projects', function *() {
