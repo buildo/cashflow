@@ -96,6 +96,7 @@ const CFFMain = React.createClass({
     this.setState(newState);
     if (newState.isPullingMain && newState.progressMain && newState.progressMain.completed) {
       CFFActions.resetMainPullProgress();
+      CFFActions.getMain.defer();
     } else if(newState.isPullingMain) {
       setTimeout(CFFActions.getMainPullProgress, 200);
     }

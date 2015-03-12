@@ -14,6 +14,10 @@ class PullProgressStore {
     this.progressMain = undefined;
   }
 
+  onPullMainFail() {
+    this.onResetMainPullProgress();
+  }
+
   onGetMainPullProgress(data) {
     this.isToUpdate = !_.isEqual(this.progressMain, data);
     this.progressMain = data;

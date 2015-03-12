@@ -46,12 +46,16 @@ class CFFActions {
   }
 
   pullMain() {
-    API.cff.pullMain().catch(handleError);
+    API.cff.pullMain().catch(this.actions.pullMainFail);
+    this.dispatch();
+  }
+
+  pullMainFail() {
     this.dispatch();
   }
 
   getMainPullProgress() {
-    API.progress.getMain().then((res) => this.dispatch(res.data.data.progress), handleError);
+    API.progress.getMain().then((res) => this.dispatch(res.data.data ? res.data.data.progress : undefined), handleError);
   }
 
   resetMainPullProgress() {

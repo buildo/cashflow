@@ -20,22 +20,27 @@ const path = (paths) => {
 const getToken = () => ('"' + localStorage.getItem('cashflow_token') + '"');
 
 const getConfig = (isJSON) => {
-  const config = {
+  return {
     headers: {
       'Authorization': 'Token token=' + getToken()
     }
   };
-  if (isJSON) {
-    config.headers['Content-Type'] = 'application/json';
-  }
-  return config;
+};
+
+const getJSONConfig = () => {
+  return {
+    headers: {
+      'Authorization': 'Token token=' + getToken(),
+      'Content-Type': 'application/json'
+    }
+  };
 };
 
 module.exports = {
 
   login: {
 
-    login: (loginFormData) => axios.post(path('login'), loginFormData, getConfig(true))
+    login: (loginFormData) => axios.post(path('login'), loginFormData, getJSONConfig())
 
   },
 
