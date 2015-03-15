@@ -24,8 +24,7 @@ const Match = React.createClass({
 
   stageMatch: function() {
     const secondaryPayments = Immutable.fromJS(this.props.secondaryPayments);
-    const selectedPaymentId = this.props.selectedPaymentId;
-    const selectedPayment = secondaryPayments.find((secondaryPayment) => secondaryPayment.get('id') === selectedPaymentId);
+    const selectedPayment = secondaryPayments.find((secondaryPayment) => secondaryPayment.get('id') === this.props.selectedPaymentId);
     const mainPayment = Immutable.fromJS(this.props.match);
 
     const main = this.props.pov === 'main' ? mainPayment : selectedPayment;

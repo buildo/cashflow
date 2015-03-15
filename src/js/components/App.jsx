@@ -50,7 +50,7 @@ const App = React.createClass({
     }
 
     return (
-      <div id='main-app'>
+      <div id='root'>
         <RouteHandler/>
       </div>
     );

@@ -59,7 +59,12 @@ const StageMain = React.createClass({
     const matches = this.state.stagedMatches.map((match, index) =>
       <Match match={match} key={index}/>);
 
-    const commitButton = <div className='ui right align positive button' onClick={this.commitMatches}>Salva modifiche su Fatture In Cloud</div>;
+    const commitButton = (
+      <div>
+        <br></br>
+        <div className='ui right align blue button' onClick={this.commitMatches}>Salva modifiche su Fatture In Cloud</div>
+      </div>
+      );
 
     return (
       <div>

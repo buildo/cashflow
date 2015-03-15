@@ -62,7 +62,7 @@ const CFFMain = React.createClass({
           Banca
         </h4>
         <br></br>
-        <div className='ui right align positive button' onClick={this.pullBank}>Aggiorna</div>
+        <div className='ui right align blue button' onClick={this.pullBank}>Aggiorna</div>
         <div className='cff-lines'>
           {lines}
         </div>

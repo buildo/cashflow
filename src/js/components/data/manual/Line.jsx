@@ -42,7 +42,7 @@ const Line = React.createClass({
     return {
       saveButtonState: 'disabled',
       resetButtonState: 'disabled',
-      line: _.clone(this.props.line),
+      line: this.props.line,
       id: this.props.id
     };
   },
@@ -72,6 +72,8 @@ const Line = React.createClass({
 
   resetEditor: function() {
     this.refs.jsonEditor.resetData();
+    this.setState({saveButtonState: 'disabled'});
+    this.setState({resetButtonState: 'disabled'});
   },
 
   render: function () {

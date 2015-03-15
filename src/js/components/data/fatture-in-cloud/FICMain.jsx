@@ -83,7 +83,7 @@ const CFFMain = React.createClass({
           Fatture In Cloud
         </h4>
         <br></br>
-        <div className='ui right align positive button' onClick={this.pullMain}>Aggiorna</div>
+        <div className='ui right align blue button' onClick={this.pullMain}>Aggiorna</div>
         <div className='cff-lines'>
           {lines}
         </div>
