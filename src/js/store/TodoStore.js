@@ -1,6 +1,7 @@
 'use strict';
 
 const alt = require('../alt');
+const utils = require('../utils/utils.js');
 const TodoDataStore = require('./TodoDataStore');
 const MatchActions = require('../actions/MatchActions');
 const TodoActions = require('../actions/TodoActions');
@@ -17,12 +18,12 @@ class TodoStore {
     this.bindAction(MatchActions.deleteMatchOptimistic, this.updateData);
     this.bindAction(MatchActions.deleteMatchFail, this.updateData);
     this.pointOfView = 'main';
-    this.selectedMatchIndex = 0;
+    this.selectedMatchIndex = undefined;
   }
 
   updateData() {
     this.waitFor(TodoDataStore.dispatchToken);
-    this.selectedMatchIndex = 0;
+    this.selectedMatchIndex = undefined;
     this.selectedPaymentId = undefined;
     const payments = TodoDataStore.getAll();
     const dataPayments = payments.filter((p) => p.type === 'data');
@@ -32,7 +33,7 @@ class TodoStore {
     this.matches = primaryPayments.map((payment) => {
       payment.matches = payment.matches.map((id) => TodoDataStore.get(id)).filter((p) => p);
       return payment;
-    });
+    }).sort(utils.sortByMatchesNumber);
     this.secondaryPayments = secondaryPayments;
   }
 

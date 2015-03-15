@@ -6,12 +6,17 @@ const React = require('react');
 const ListenerMixin = require('alt/mixins/ListenerMixin');
 const TodoActions = require('../../../actions/TodoActions');
 const TodoStore = require('../../../store/TodoStore.js');
+const ModalWrapper = require('./ModalWrapper.jsx');
 const Match = require('./Match.jsx');
 const MatchPreview = require('./MatchPreview.jsx');
+const Payment = require('./Payment.jsx');
 const utils = require('../../../utils/utils.js');
 
 const getStateFromStores = function () {
-  return TodoStore.getState();
+  const _state = TodoStore.getState();
+  // _state.matches = _state.matches ? _state.matches.sort(utils.sortByMatchesNumber) : _state.matches;
+  _state.showModal = _state.matches && _state.matches[_state.selectedMatchIndex] ? true : false;
+  return _state;
 };
 
 const TodoMain = React.createClass({
@@ -30,52 +35,49 @@ const TodoMain = React.createClass({
     TodoActions.invertPOV();
   },
 
-  render: function() {
+  getPlaceholder: function() {
+    if (this.state.matches.length === 0) {
+      return (
+        <div className='ui ignored message'>
+          <div className='stage-placeholder'>
+            Non hai nessun pagamento da sincronizzare
+          </div>
+        </div>
+      );
+    }
+    return null;
+  },
 
+  getModalIfNeeded: function() {
+    return (
+      <ModalWrapper
+        primaryPayment={this.state.matches[this.state.selectedMatchIndex]}
+        secondaryPayments={this.state.secondaryPayments}
+        selectedPaymentId={this.state.selectedPaymentId}
+        pov={this.state.pointOfView}
+        show={this.state.showModal}
+      />);
+  },
+
+  render: function() {
     if (!this.state.matches) {
       return null;
     }
 
-    const emptyTodo = (
-      <div className='ui ignored message'>
-        <div className='stage-placeholder'>
-          Non hai nessun pagamento da sincronizzare :)
-        </div>
-      </div>
-    );
-
-    const selectedMatchIndex = this.state.selectedMatchIndex;
-    const selectedPaymentId = this.state.selectedPaymentId;
-
-    const matchPreviews = this.state.matches.sort(utils.sortByMatchesNumber).map((match, index) => {
-      return <MatchPreview match={match} isSelected={index === selectedMatchIndex} index={index} key={index}/>;
+    const matchPreviews = this.state.matches.map((match, index) => {
+      return <MatchPreview match={match} isSelected={index === this.state.selectedMatchIndex} index={index} key={index}/>;
     });
-
-    const selectedMatch = this.state.matches[selectedMatchIndex] ?
-      <Match match={this.state.matches[selectedMatchIndex]} secondaryPayments={this.state.secondaryPayments} selectedPaymentId={selectedPaymentId} pov={this.state.pointOfView}/>
-      :
-      '';
-
     const pointOfViewButton = <div className='ui right align positive button' onClick={this.invertMainData}>Inverti punto di vista</div>;
-
     return (
       <div>
         <h4 className='ui top attached inverted header'>
           Da Fare
         </h4>
         <br></br>
+        {this.getModalIfNeeded()}
         {pointOfViewButton}
-        <div className='ui relaxed fitted grid'>
-          <div className='thirteen wide Left column'>
-            {selectedMatch}
-          </div>
-          <div className='three wide Right column full height'>
-            <div id='match-right-cloumn'>
-              {matchPreviews}
-            </div>
-          </div>
-        </div>
-        {this.state.matches.length === 0 ? emptyTodo : ''}
+        {matchPreviews}
+        {this.getPlaceholder()}
         <br></br>
       </div>
     );
