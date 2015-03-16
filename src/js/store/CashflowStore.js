@@ -2,10 +2,11 @@
 
 const alt = require('../alt');
 const _ = require('lodash');
-const CFFStore = require('./CFFStore');
+const CFFStore = require('./CFFStore.js');
+const ManualCFFDataStore = require('./ManualCFFDataStore.js');
 const reportApp = require('../../../../cashflow/dist/index.js');
 const CashflowActions = require('../actions/CashflowActions');
-const CFFActions = require('../actions/CFFActions');
+const CFFActions = require('../actions/CFFActions.js');
 
 const heuristics = require('../../files/Heuristics.js');
 const cashflowConfigs = {
@@ -13,7 +14,7 @@ const cashflowConfigs = {
     grossAmount: 17287.95,
     date: '2015-02-01'
   },
-  filterParamters: {}
+  filterParameters: {}
 };
 const COSTS = 'bank fee|withdrawal|tax';
 
@@ -23,6 +24,9 @@ class CashflowStore {
     this.bindAction(CFFActions.getMainSuccess, this.onUpdate);
     this.bindAction(CFFActions.getBankSuccess, this.onUpdate);
     this.bindAction(CFFActions.getManualSuccess, this.onUpdate);
+    this.bindAction(CFFActions.deleteManualLineSuccess, this.onUpdate);
+    this.bindAction(CFFActions.saveManualLineSuccess, this.onUpdate);
+    this.bindAction(CFFActions.createManualLineSuccess, this.onUpdate);
   }
 
   resetPointSelection() {
@@ -50,7 +54,12 @@ class CashflowStore {
     }
     const mainCFF = CFFStoreState.main;
     const costsCFF = _.clone(CFFStoreState.bank, true);
-    const manualCFF = CFFStoreState.manual;
+    const manualLines = ManualCFFDataStore.getAll().map((obj) => obj.line);
+    const manualCFF = {
+      sourceId: 'MANUAL_CFF',
+      sourceDescription: 'Manual lines',
+      lines: manualLines
+    };
     if (costsCFF) {
       costsCFF.lines = costsCFF.lines.filter((line) => COSTS.indexOf(line.payments[0].methodType) > -1);
     }

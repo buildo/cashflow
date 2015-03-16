@@ -12,7 +12,6 @@ class ManualCFFDataStore extends DataStore {
     this.bindAction(CFFActions.deleteManualLine, this.addToLoadingLines);
     this.bindAction(CFFActions.deleteManualLineFail, this.removeFromLoadingLines);
     this.bindAction(CFFActions.saveManualLine, this.addToLoadingLines);
-    this.bindAction(CFFActions.saveManualLineSuccess, this.removeFromLoadingLines);
     this.bindAction(CFFActions.saveManualLineFail, this.removeFromLoadingLines);
     this.loadingLines = [];
     this.creatingStatus = undefined;
@@ -21,7 +20,6 @@ class ManualCFFDataStore extends DataStore {
   onGetManualSuccess(data) {
     this.deleteAll();
     // insert payments
-    console.log(data);
     data.forEach((line) => this.insert(line.id, line));
   }
 
@@ -45,6 +43,11 @@ class ManualCFFDataStore extends DataStore {
 
   onCreateManualLineFail() {
     this.creatingStatus = 'CREATE_FAIL';
+  }
+
+  onSaveManualLineSuccess(line) {
+    this.upsert(line.id, line);
+    this.removeFromLoadingLines(line);
   }
 
   addToLoadingLines(line) {
