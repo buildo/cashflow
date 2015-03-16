@@ -53,7 +53,7 @@ const JSONEditor = React.createClass({
       wrap: true
     });
     editor.setValue(JSON.stringify(data, undefined, 2));
-    editor.on('change', this.props.onDocumentChange);
+    editor.on('change', this.props.onDocumentChange, false);
     editor.clearSelection();
   },
 

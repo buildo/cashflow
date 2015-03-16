@@ -48,8 +48,12 @@ const Line = React.createClass({
   },
 
   getJSON: function() {
-    const value = this.refs.jsonEditor.getValue();
-    return JSON.parse(value);
+    try {
+      const value = this.refs.jsonEditor.getValue();
+      return JSON.parse(value);
+    } catch (e) {
+      return;
+    }
   },
 
   saveLine: function() {
