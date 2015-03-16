@@ -15,7 +15,6 @@ const Match = React.createClass({
     match: React.PropTypes.object.isRequired,
     secondaryPayments: React.PropTypes.array.isRequired,
     selectedPaymentId: React.PropTypes.string,
-    pov: React.PropTypes.string.isRequired
   },
 
   deselectMatch: function() {
@@ -26,9 +25,10 @@ const Match = React.createClass({
     const secondaryPayments = Immutable.fromJS(this.props.secondaryPayments);
     const selectedPayment = secondaryPayments.find((secondaryPayment) => secondaryPayment.get('id') === this.props.selectedPaymentId);
     const mainPayment = Immutable.fromJS(this.props.match);
+    const list = Immutable.List([mainPayment, selectedPayment]);
 
-    const main = this.props.pov === 'main' ? mainPayment : selectedPayment;
-    const data = this.props.pov === 'main' ? selectedPayment : mainPayment;
+    const main = list.find((p) => p.get('type') !== 'data');
+    const data = list.find((p) => p.get('type') === 'data');
 
     const match = Immutable.fromJS({
       id: (main.get('id') + data.get('id')),

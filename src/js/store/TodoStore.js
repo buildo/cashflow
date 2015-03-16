@@ -18,33 +18,30 @@ class TodoStore {
     this.bindAction(MatchActions.deleteMatchOptimistic, this.updateData);
     this.bindAction(MatchActions.deleteMatchFail, this.updateData);
     this.pointOfView = 'main';
-    this.selectedMatchIndex = undefined;
+    this.selectedMatch = undefined;
   }
 
   updateData() {
     this.waitFor(TodoDataStore.dispatchToken);
-    this.selectedMatchIndex = undefined;
+    this.selectedMatch = undefined;
     this.selectedPaymentId = undefined;
     const payments = TodoDataStore.getAll();
     const dataPayments = payments.filter((p) => p.type === 'data');
     const mainPayments = payments.filter((p) => p.type === 'certain' || p.type === 'uncertain');
-    const primaryPayments = this.pointOfView === 'main' ? mainPayments : dataPayments;
-    const secondaryPayments = this.pointOfView === 'main' ? dataPayments : mainPayments;
-    this.matches = primaryPayments.map((payment) => {
+    this.ficMatches = mainPayments.map((payment) => {
       payment.matches = payment.matches.map((id) => TodoDataStore.get(id)).filter((p) => p);
       return payment;
     }).sort(utils.sortByMatchesNumber);
-    this.secondaryPayments = secondaryPayments;
+    this.dataMatches = dataPayments.map((payment) => {
+      payment.matches = payment.matches.map((id) => TodoDataStore.get(id)).filter((p) => p);
+      return payment;
+    }).sort(utils.sortByMatchesNumber);
+    this.mainPayments = mainPayments;
+    this.dataPayments = dataPayments;
   }
 
-  onInvertPOV() {
-    this.pointOfView = this.pointOfView === 'main' ? ('data') : 'main';
-    this.selectedMatchIndex = this.selectedPaymentId = undefined;
-    this.updateData();
-  }
-
-  onSelectMatch(matchIndex) {
-    this.selectedMatchIndex = matchIndex;
+  onSelectMatch(match) {
+    this.selectedMatch = match;
     this.selectedPaymentId = undefined;
   }
 

@@ -11,7 +11,6 @@ const ModalWrapper = React.createClass({
     primaryPayment: React.PropTypes.object,
     secondaryPayments: React.PropTypes.array.isRequired,
     selectedPaymentId: React.PropTypes.string,
-    pov: React.PropTypes.string.isRequired,
     show: React.PropTypes.bool.isRequired
   },
 
@@ -34,6 +33,7 @@ const ModalWrapper = React.createClass({
   componentDidUpdate: function(prevProps, prevState) {
     $(this.refs.modal.getDOMNode()).modal({
       closable: false,
+      duration: 300,
       context: '#main-app',
       onDeny: this.deselectMatch,
       onApprove: this.stageMatch
@@ -56,7 +56,6 @@ const ModalWrapper = React.createClass({
             match={this.state.primaryPayment}
             secondaryPayments={this.props.secondaryPayments}
             selectedPaymentId={this.props.selectedPaymentId}
-            pov={this.props.pov}
             ref='match'
           />
         </div>

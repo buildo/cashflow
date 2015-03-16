@@ -14,8 +14,7 @@ const utils = require('../../../utils/utils.js');
 
 const getStateFromStores = function () {
   const _state = TodoStore.getState();
-  // _state.matches = _state.matches ? _state.matches.sort(utils.sortByMatchesNumber) : _state.matches;
-  _state.showModal = _state.matches && _state.matches[_state.selectedMatchIndex] ? true : false;
+  _state.showModal = _state.selectedMatch ? true : false;
   return _state;
 };
 
@@ -36,7 +35,7 @@ const TodoMain = React.createClass({
   },
 
   getPlaceholder: function() {
-    if (this.state.matches.length === 0) {
+    if (this.state.ficMatches.length === 0 && this.state.dataMatches.length === 0) {
       return (
         <div className='ui ignored message'>
           <div className='stage-placeholder'>
@@ -48,35 +47,46 @@ const TodoMain = React.createClass({
     return null;
   },
 
-  getModalIfNeeded: function() {
+  getModal: function() {
+    let secondaryPayments = [];
+    if (this.state.selectedMatch) {
+      secondaryPayments = this.state.selectedMatch.type === 'data' ? this.state.mainPayments : this.state.dataPayments;
+    }
     return (
       <ModalWrapper
-        primaryPayment={this.state.matches[this.state.selectedMatchIndex]}
-        secondaryPayments={this.state.secondaryPayments}
+        primaryPayment={this.state.selectedMatch}
+        secondaryPayments={secondaryPayments}
         selectedPaymentId={this.state.selectedPaymentId}
-        pov={this.state.pointOfView}
         show={this.state.showModal}
       />);
   },
 
   render: function() {
-    if (!this.state.matches) {
+    if (!this.state.ficMatches && !this.state.dataMatches) {
       return null;
     }
 
-    const matchPreviews = this.state.matches.map((match, index) => {
-      return <MatchPreview match={match} isSelected={index === this.state.selectedMatchIndex} index={index} key={index}/>;
-    });
-    const pointOfViewButton = <div className='ui right align positive button' onClick={this.invertMainData}>Inverti punto di vista</div>;
+    const ficMatches = this.state.ficMatches.map((match, i) => <MatchPreview match={match} index={i} pov='main' key={i}/>);
+    const dataMatches = this.state.dataMatches.map((match, i) => <MatchPreview match={match} index={i} pov='data' key={i}/>);
     return (
       <div>
-        <h4 className='ui top attached inverted header'>
-          Da Fare
-        </h4>
+        <h4 className='ui top attached inverted header'>Da Fare</h4>
         <br></br>
-        {this.getModalIfNeeded()}
-        {pointOfViewButton}
-        {matchPreviews}
+        {this.getModal()}
+        <div className='ui two column divided grid'>
+          <div className='column'>
+            <h4 className='ui header'>FIC -> BANCA</h4>
+            <div className='ui divided selection list'>
+              {ficMatches}
+            </div>
+          </div>
+          <div className='column'>
+            <h4 className='ui header'>BANCA -> FIC</h4>
+            <div className='ui divided selection list'>
+              {dataMatches}
+            </div>
+          </div>
+        </div>
         {this.getPlaceholder()}
         <br></br>
       </div>
