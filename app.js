@@ -44,7 +44,7 @@ comongo.configure({
   port: 27017,
   name: 'cashflow',
   pool: 10,
-  collections: ['users', 'credentials', 'cffs', 'manualLines', 'projects', 'resources', 'sessions', 'progresses', 'bankSessions', 'matches', 'stagedMatches']
+  collections: ['users', 'credentials', 'cffs', 'projects', 'resources', 'sessions', 'progresses', 'bankSessions', 'matches', 'stagedMatches']
 });
 
 // init db
@@ -321,19 +321,19 @@ app.post('/cffs/bank/pull', function *() {
 app.get('/cffs/manual', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
-  var manualLines = yield db.manualLines.find({userId: user._id}).toArray();
+  var manualLines = yield db.cffs.find({userId: user._id, type: 'manual'}).toArray();
   if (manualLines.length === 0) {
     this.throw(400, 'user does not have a manual cff in database');
   }
-  var lines = manualLines.map(function(docLine) {return docLine.line;});
-  var sortedLines = lines.sort(utils.sortCFFLinesByDate);
-  var cff = {
-    sourceId: sortedLines[0].sourceId,
-    sourceDescription: sortedLines[0].sourceDescription,
-    lines: sortedLines
-  };
+  var lines = manualLines.map(function(docLine) {return {line: docLine.line, id: docLine.id};});
+  // var sortedLines = lines.sort(utils.sortCFFLinesByDate);
+  // var cff = {
+  //   sourceId: sortedLines[0].sourceId,
+  //   sourceDescription: sortedLines[0].sourceDescription,
+  //   lines: sortedLines
+  // };
   this.objectName = 'cffs';
-  this.body = {manual: cff};
+  this.body = {manualLines: lines};
 });
 
 app.post('/cffs/manual/:lineId', function *() {
@@ -341,14 +341,14 @@ app.post('/cffs/manual/:lineId', function *() {
   var user = yield utils.getUserByToken(db, token);
   var lineId = this.params.lineId;
   var line = this.request.body;
-  yield db.manualLines.update({userId: user._id, id: line.id}, {$set: {line: line}}, {upsert: true});
+  yield db.cffs.update({userId: user._id, type: 'manual', id: lineId}, {$set: {line: line}}, {upsert: true});
 });
 
 app.delete('/cffs/manual/:lineId', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
   var lineId = this.params.lineId;
-  yield db.manualLines.remove({userId: user._id, id: lineId});
+  yield db.cffs.remove({userId: user._id, type: 'manual', id: lineId});
 });
 
 app.post('/matches/stage/commit', function*() {
