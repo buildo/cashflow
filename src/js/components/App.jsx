@@ -7,6 +7,8 @@ const RouteHandler = require('react-router').RouteHandler;
 const Navigation = require('react-router').Navigation;
 const State = require('react-router').State;
 const ListenerMixin = require('alt/mixins/ListenerMixin');
+const CFFActions = require('../actions/CFFActions.js');
+const MatchActions = require('../actions/MatchActions.js');
 const TokenStore = require('../store/TokenStore.js');
 const TokenActions = require('../actions/TokenActions.js');
 const AppConstants = require('../constants/AppConstants');
@@ -56,8 +58,18 @@ const App = React.createClass({
     );
   },
 
+  initStores: function() {
+    CFFActions.getMain.defer();
+    CFFActions.getBank.defer();
+    CFFActions.getManual.defer();
+    MatchActions.getMatches.defer();
+  },
+
   _onChange: function() {
     this.setState(getStateFromStores());
+    if (this.state.tokenState === AppConstants.TOKEN_SUCCESS) {
+      this.initStores();
+    }
   }
 
 });
