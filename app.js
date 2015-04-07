@@ -388,7 +388,8 @@ app.post('/matches/stage/commit', function*() {
   var stagedPaymentsToCommit = stagedMatches.filter(function(match) {
     var main = paymentsMap[match.main];
     var data = paymentsMap[match.data];
-    var toSaveOnline = !(main.date === data.date && (main.grossAmount - data.grossAmount) < 0.01) && main.info.currency.name === data.info.currency.name;
+    // bypassing commit on FattureInCloud with false
+    var toSaveOnline = false && typeof main !== 'undefined' && !(main.date === data.date && (main.grossAmount - data.grossAmount) < 0.01) && main.info.currency.name === data.info.currency.name;
     if (!toSaveOnline) {
       stagedPaymentsToSave.push(match);
     }
