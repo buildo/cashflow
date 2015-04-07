@@ -7,6 +7,10 @@ class DataStore {
 
   constructor(classObj) {
     this._data = Immutable.Map();
+    // this.exportPublicMethods({
+    //   get: this.get,
+    //   getAll: this.getAll
+    // });
     classObj.getAll = DataStore.getAll;
     classObj.get = DataStore.get;
   }

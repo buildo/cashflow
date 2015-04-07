@@ -76,6 +76,10 @@ class OptimisticDataStore extends DataStore {
     this._optimisticData = Immutable.Map();
     this._data = Immutable.Map();
     this.__stable = true;
+    // this.exportPublicMethods({
+      // get: this.get,
+      // getAll: this.getAll
+    // });
     classObj.getAll = OptimisticDataStore.getAll;
     classObj.get = OptimisticDataStore.get;
     buildClassFunctions(classObj, this);

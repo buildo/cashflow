@@ -33,7 +33,9 @@ class TodoDataStore extends OptimisticDataStore {
   }
 
   recreatePayments(match) {
-    this.insert(match.main.id, match.main);
+    if (match.main) {
+      this.insert(match.main.id, match.main);
+    }
     this.insert(match.data.id, match.data);
   }
 
