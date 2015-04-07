@@ -27,7 +27,7 @@ const Match = React.createClass({
     return (
         <div className='ui segment'>
           <div>
-            <MainPayment mainPayment={match.main}/>
+            {match.main ? <MainPayment mainPayment={match.main}/> : 'EMPTY'}
             <br></br>
             <DataPayment dataPayment={match.data}/>
           </div>

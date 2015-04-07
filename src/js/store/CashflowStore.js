@@ -3,16 +3,23 @@
 const alt = require('../alt');
 const _ = require('lodash');
 const CFFStore = require('./CFFStore.js');
+const DoneDataStore = require('./DoneDataStore.js');
+const MatchesStore = require('./MatchesStore.js');
 const ManualCFFDataStore = require('./ManualCFFDataStore.js');
 const reportApp = require('../../../../cashflow/dist/index.js');
 const CashflowActions = require('../actions/CashflowActions');
 const CFFActions = require('../actions/CFFActions.js');
+const MatchesActions = require('../actions/MatchActions.js');
 
 const heuristics = require('../../files/Heuristics.js');
 const cashflowConfigs = {
+  // startPoint: {
+  //   grossAmount: 17287.95,
+  //   date: '2015-02-01'
+  // },
   startPoint: {
-    grossAmount: 17287.95,
-    date: '2015-02-01'
+    grossAmount: 6669.35,
+    date: '2015-03-28'
   },
   filterParameters: {}
 };
@@ -27,6 +34,7 @@ class CashflowStore {
     this.bindAction(CFFActions.deleteManualLineSuccess, this.onUpdate);
     this.bindAction(CFFActions.saveManualLineSuccess, this.onUpdate);
     this.bindAction(CFFActions.createManualLineSuccess, this.onUpdate);
+    this.bindAction(MatchesActions.getMatchesSuccess, this.onUpdate);
   }
 
   resetPointSelection() {
@@ -44,10 +52,13 @@ class CashflowStore {
   }
 
   onUpdate() {
+    console.log('ON_UPDATE');
     this.resetPointSelection();
     this.waitFor(CFFStore.dispatchToken);
+    this.waitFor(MatchesStore.dispatchToken);
+    this.waitFor(DoneDataStore.dispatchToken);
     const CFFStoreState = CFFStore.getState();
-    const isLoading = CFFStoreState.isLoadingMain || CFFStoreState.isLoadingBank || CFFStoreState.isLoadingManual;
+    const isLoading = CFFStoreState.isLoadingMain || CFFStoreState.isLoadingBank || CFFStoreState.isLoadingManual || MatchesStore.getState().isLoadingMatches;
     if (isLoading) {
       this.cashflowData = undefined;
       return true;
@@ -60,10 +71,19 @@ class CashflowStore {
       sourceDescription: 'Manual lines',
       lines: manualLines
     };
+    const emptyMatchesDataIDs = DoneDataStore.getAll().filter((obj) => obj.main === undefined).map((m) => m.data.id).join('|');
+    // console.log(emptyMatchesDataIDs);
+    // console.log(costsCFF.lines[0].payments[0].id);
     if (costsCFF) {
-      costsCFF.lines = costsCFF.lines.filter((line) => COSTS.indexOf(line.payments[0].methodType) > -1);
+      costsCFF.lines = costsCFF.lines.filter((line) => {
+        // if (emptyMatchesDataIDs.indexOf(line.payments[0].id) > -1) {
+        //   console.log(line);
+        // }
+        return COSTS.indexOf(line.payments[0].methodType) > -1 || emptyMatchesDataIDs.indexOf(line.payments[0].id) > -1;
+      });
     }
     const inputCFFs = [mainCFF, costsCFF, manualCFF].filter((cff) => typeof cff !== 'undefined');
+    // const inputCFFs = [_.clone(CFFStoreState.bank, true)];
     if (inputCFFs.length === 0) {
       this.cashflowData = undefined;
       return true;
@@ -73,6 +93,7 @@ class CashflowStore {
       report.errors.forEach((error) => console.error(error));
     }
     this.cashflowData = report.cashflow;
+    return true;
   }
 
 }

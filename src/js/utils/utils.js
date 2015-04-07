@@ -27,6 +27,10 @@ const getCurrency = (currencyName) => {
   return currencies[currencyName];
 };
 
+// const getValueInEuro = (payment) {
+//   return payment.grossAmount / (payment.info.)
+// }
+
 const shiftDate = (dateString, numberOfDays) => {
   if (typeof dateString === 'undefined') {
     return undefined;

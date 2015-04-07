@@ -22,11 +22,11 @@ const MatchesMain = React.createClass({
 
   componentDidMount: function() {
     this.listenTo(MatchesStore, this._onChange);
-    MatchActions.getMatches.defer();
+    // MatchActions.getMatches.defer();
   },
 
   render: function() {
-    if (this.state.isLoading) {
+    if (this.state.isLoadingMatches) {
       return (
         <div className="ui segment">
           <div className="ui active inverted dimmer">

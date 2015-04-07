@@ -48,6 +48,10 @@ const ModalWrapper = React.createClass({
     this.refs.match.stageMatch();
   },
 
+  checkAsDone: function() {
+    this.refs.match.checkAsDone();
+  },
+
   getContent: function() {
     if (this.state.primaryPayment) {
       return (
@@ -74,6 +78,7 @@ const ModalWrapper = React.createClass({
         {this.getContent()}
         <div className='actions'>
           <div className='ui cancel button'>Cancel</div>
+          {this.props.primaryPayment && this.props.primaryPayment.type === 'data' ? <div className='ui blue button' onClick={this.checkAsDone}>Check as done</div> : null}
           <div className='ui positive button'>Save</div>
         </div>
       </div>

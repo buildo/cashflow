@@ -76,7 +76,9 @@ module.exports = {
 
     commit: () => axios.post(path(['matches', 'stage', 'commit']), {}, getConfig()),
 
-    stageMatch: (match) => axios.put(path(['matches', 'stage', 'mainPaymentId', match.main.id, 'dataPaymentId', match.data.id]), {}, getConfig()),
+    stageMatch: (match) => axios.put(path(['matches', 'stage', 'mainPaymentId', match.main ? match.main.id : '_empty_', 'dataPaymentId', match.data.id]), {}, getConfig()),
+
+    stageEmptyMatch: (match) => axios.put(path(['matches', 'stage', 'dataPaymentId', match.data.id]), {}, getConfig()),
 
     unstageMatch: (match) => axios.delete(path(['matches', 'stage', match.id]), getConfig()),
 

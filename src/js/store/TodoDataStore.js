@@ -18,7 +18,9 @@ class TodoDataStore extends OptimisticDataStore {
   }
 
   onStageMatch(data) {
-    this.delete(data.main.id);
+    if (data.main) {
+      this.delete(data.main.id);
+    }
     this.delete(data.data.id);
   }
 

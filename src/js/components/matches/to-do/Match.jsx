@@ -38,6 +38,18 @@ const Match = React.createClass({
     MatchActions.stageMatchOptimistic(match);
   },
 
+  checkAsDone: function() {
+    console.log('CHECKING AS DONE');
+    const data = Immutable.fromJS(this.props.match);
+
+    const match = Immutable.fromJS({
+      id: '_empty_' + data.get('id'),
+      main: undefined, // this is a fake match
+      data: data,
+    });
+    MatchActions.stageMatchOptimistic(match);
+  },
+
   render: function() {
     const match = this.props.match;
     const matches = this.props.match.matches;

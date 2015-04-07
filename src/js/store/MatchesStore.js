@@ -7,21 +7,21 @@ class MatchesStore {
   constructor() {
     this.bindActions(MatchActions);
     this.bindAction(MatchActions.commitMatchesSuccess, this.onUpdate);
-    this.isLoading = true;
+    this.isLoadingMatches = true;
   }
 
   onGetMatches() {
     this.isOutdated = false;
-    this.isLoading = true;
+    this.isLoadingMatches = true;
   }
 
   onGetMatchesSuccess() {
-    this.isLoading = false;
+    this.isLoadingMatches = false;
   }
 
   onUpdate() {
     this.isOutdated = true;
-    this.isLoading = true;
+    this.isLoadingMatches = true;
   }
 
 }
