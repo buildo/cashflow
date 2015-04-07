@@ -52,10 +52,13 @@ var getFattureInCloud = function (db, userId, credentialsFattureInCloud, oldCFF)
     });
 };
 
-var getBank = function (bankCredentials, inputParameters) {
+var getBank = function (bankCredentials, inputParameters, oldLines) {
   var scraper = banks.filter(function(bankObj) {return bankObj.id === bankCredentials.bankId;})[0].scraper;
-  return scraper(bankCredentials.credentials, inputParameters)
-    .then(function(bankReport) {return _Promise.resolve({bank: bankReport});});
+  return scraper(bankCredentials.credentials, inputParameters, oldLines)
+    .then(function(bankReport) {
+      bankReport.cffs = bankReport.cffs || [bankReport.cff];
+      return _Promise.resolve({bank: bankReport});
+    });
 };
 
 module.exports = {
