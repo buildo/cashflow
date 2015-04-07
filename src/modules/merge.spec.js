@@ -52,8 +52,8 @@ const immutableCFFs = Immutable.fromJS(cffs);
 const report = mergeCFFs(immutableCFFs).toJS();
 const output = report.output;
 const lines = output.lines;
-const mergedLine = lines[2];
-const uniqueLine = lines[0];
+const mergedLine = lines[0];
+const uniqueLine = lines[2];
 
 describe('mergeCFFs', () => {
   it('should return new object with sourceId, sourceDescription and lines', () => {
