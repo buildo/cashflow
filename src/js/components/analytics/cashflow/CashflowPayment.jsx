@@ -37,7 +37,7 @@ const CashflowPayment = React.createClass({
           <i className={iconClasses}></i>
           <h4 className='content'>{payment.description}</h4>
         </div>
-        <div><strong>Valore:</strong> {payment.grossAmount.toFixed(2)}{currency}</div>
+        <div><strong>Valore:</strong> {(payment.grossAmount * payment.currency.conversion).toFixed(2)}{currency}</div>
         <div><strong>Data:</strong> {payment.date}</div>
         {client}
         <div><strong>Metodo:</strong> {payment.method ? payment.method : payment.methodType}</div>

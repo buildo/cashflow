@@ -15,7 +15,7 @@ const getStateFromStores = function () {
 const CashflowMain = React.createClass({
 
   propTypes: {
-    isLoadingCFFs: React.PropTypes.bool
+    isLoadingData: React.PropTypes.bool
   },
 
   mixins: [ListenerMixin],
@@ -35,7 +35,7 @@ const CashflowMain = React.createClass({
 
   render: function() {
 
-    if (this.props.isLoadingCFFs || !this.state.cashflowData) {
+    if (this.props.isLoadingData || !this.state.cashflowData) {
       return (
         <div className="ui segment">
           <div className="ui active inverted dimmer">
@@ -50,6 +50,7 @@ const CashflowMain = React.createClass({
       );
     }
 
+    const cumulativeAmountOfDay = this.getSelectedPayments() ? 'TOTAL: '+this.getSelectedPayments().reduce((amount, p) => amount + (p.grossAmount), 0).toFixed(2) : null;
     return (
       <div>
         <div className='cashflow-graph ui segment'>
@@ -59,6 +60,7 @@ const CashflowMain = React.createClass({
           Pagamenti
         </h4>
         <br></br>
+        {cumulativeAmountOfDay}
         <div className='cashflow-payments'>
           <CashflowPayments payments={this.getSelectedPayments()}/>
         </div>

@@ -7,6 +7,8 @@ const c3 = require('c3');
 const CashflowActions = require('../../../actions/CashflowActions.js');
 const utils = require('../../../utils/utils.js');
 
+let chart;
+
 const tooltipContentHandler = function (d, defaultTitleFormat, defaultValueFormat, color) {
   /* jshint ignore:start */
   var $$ = this, config = $$.config,
@@ -55,7 +57,7 @@ const initGraph = (data) => {
   const worstSize = data.worst.length;
   const rightDate = utils.shiftDate(data.best[bestSize - 1].date > data.worst[worstSize - 1].date ? data.best[bestSize - 1].date : data.worst[worstSize - 1].date, 7);
 
-  let chart = c3.generate({
+  chart = c3.generate({
     size: {
       height: 480
     },
@@ -113,10 +115,30 @@ const initGraph = (data) => {
   });
 };
 
+
+const updateGraphData = (data) => {
+  const paths = ['History', 'Best', 'Worst'];
+  // repeat last History value inside Best and Worst to show continued line
+  data.best = [data.history[data.history.length - 1]].concat(data.best);
+  data.worst = [data.history[data.history.length - 1]].concat(data.worst);
+
+  const columnsX = paths.map((path) => [('x-' + path)].concat(data[path.toLowerCase()].map((d) => new Date(d.date).getTime())));
+  const columnsY = paths.map((path) => [path].concat(data[path.toLowerCase()].map((d) => d.grossAmount)));
+  chart.load({
+    columns: columnsX.concat(columnsY)
+  });
+};
+
 const CasflowAnalytics = React.createClass({
 
   propTypes: {
     cashflows: React.PropTypes.object.isRequired
+  },
+
+  getInitialState: function() {
+    return {
+      cashflows: this.props.cashflows
+    };
   },
 
   componentDidMount: function() {
@@ -134,6 +156,11 @@ const CasflowAnalytics = React.createClass({
       </div>
     );
   },
+
+  // componentDidUpdate: function(prevProps, prevState) {
+  //   // _.deepEqual(prevProps.cashflows, this.state.cashflows);
+  //   updateGraphData(this.props.cashflows);
+  // },
 
 });
 
