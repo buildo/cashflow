@@ -501,7 +501,7 @@ app.get('/matches', function *() {
   });
 
   var filteredDataPayments = dataPayments.filter(function(dataPayment) {
-    return dataPaymentsIDs.indexOf(dataPayment.id) === -1 && dataPayment.methodType !== 'cost' && dataPayment.methodType !== 'ignore';
+    return dataPaymentsIDs.indexOf(dataPayment.id) === -1 && dataPayment.methodType !== 'bank fee' && dataPayment.methodType !== 'ignore';
   });
 
   const allMatches = getMatches({
@@ -509,29 +509,47 @@ app.get('/matches', function *() {
     main: mainPayments
   });
 
+  const firstDayOfYear = [(new Date()).getFullYear(), '01', '01'].join('-');
+
+  const filterByDate = function(payment) {
+    return payment.date >= firstDayOfYear;
+  };
+
   // create body
   const todo = getMatches({
-    data: filteredDataPayments,
-    main: filteredMainPayments
+    data: filteredDataPayments.filter(filterByDate),
+    main: filteredMainPayments.filter(filterByDate)
   });
-  const stage = stagedMatches.map(function(match) {
-    const main = allMatches.main.filter(function(p) {return p.id === match.main;})[0];
-    const data = allMatches.data.filter(function(p) {return p.id === match.data;})[0];
-    return {
-      id: main.id + data.id,
-      main: main,
-      data: data
-    };
-  });
-  const done = matches.map(function(match) {
-    const main = allMatches.main.filter(function(p) {return p.id === match.main;})[0];
-    const data = allMatches.data.filter(function(p) {return p.id === match.data;})[0];
-    return {
-      id: main.id + data.id,
-      main: main,
-      data: data
-    };
-  });
+  const stage = stagedMatches.map(function(match, index) {
+    try {
+      const main = match.main !== ' _empty_' ? allMatches.main.filter(function(p) {return p.id === match.main;})[0] : undefined;
+      const data = allMatches.data.filter(function(p) {return p.id === match.data;})[0];
+      return {
+        id: match.main + match.data,
+        main: main,
+        data: data
+      };
+    } catch(e) {
+      console.log('STAGE', index, match);
+      db.stagedMatches.remove(match);
+      return;
+    }
+  }).filter(function(x){ return typeof x !== 'undefined'});
+  const done = matches.map(function(match, index) {
+    try {
+      const main = match.main !== '_empty_' ? allMatches.main.filter(function(p) {return p.id === match.main;})[0] : undefined;
+      const data = allMatches.data.filter(function(p) {return p.id === match.data;})[0];
+      return {
+        id: match.main + match.data,
+        main: main,
+        data: data
+      };
+    } catch(e) {
+      console.log(index, match);
+      db.matches.remove(match);
+      return;
+    }
+  }).filter(function(x){ return typeof x !== 'undefined'});
 
   this.objectName = 'matches';
   this.body = {
