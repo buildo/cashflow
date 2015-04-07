@@ -42,20 +42,24 @@ const calculateExpectedCashflow = (cff) => {
       let grosses = Immutable.List.of(payment.get('grossAmount') || payment.getIn(['expectedGrossAmount', 0]),
         payment.get('grossAmount') || payment.getIn(['expectedGrossAmount', 1]));
 
-      const convertToEuros = (amount) => amount / payment.getIn(['info', 'currency', 'conversion']);
+      // const convertToEuros = (amount) => amount / payment.getIn(['info', 'currency', 'conversion']);
       // if flowDirection 'out' invert previous worsts / bests and set gross sign to negative
       if (payment.getIn(['info', 'flowDirection']) === 'out') {
         dates = dates.reverse();
         grosses = grosses.reverse().map((g) => -g);
       }
 
+      grosses = grosses.map((gross) => {
+        return gross / payment.getIn(['info', 'currency', 'conversion']);
+      });
+
       if (closestDate < splitDate) {
         // we're in the history line -> best and worst values coincide.
         const point = Immutable.Map({
           name: 'history',
           date: dates.get(0),
-          grossAmount: convertToEuros(grosses.get(0)),
-          info: payment.get('info').set('date', dates.get(0)).set('grossAmount', convertToEuros(grosses.get(0)))
+          grossAmount: grosses.get(0),
+          info: payment.get('info').set('date', dates.get(0)).set('grossAmount', grosses.get(0))
         });
         cashflowsAcc = cashflowsAcc.set('history', cashflowsAcc.get('history').push(point));
       } else {
@@ -63,17 +67,16 @@ const calculateExpectedCashflow = (cff) => {
         const worstPoint = Immutable.Map({
           name: 'worst',
           date: dates.get(0),
-          grossAmount: convertToEuros(grosses.get(0)),
-          info: payment.get('info').set('date', dates.get(0)).set('grossAmount', convertToEuros(grosses.get(0)))
+          grossAmount: grosses.get(0),
+          info: payment.get('info').set('date', dates.get(0)).set('grossAmount', grosses.get(0))
         });
 
         const bestPoint = Immutable.Map({
           name: 'best',
           date: dates.get(1),
-          grossAmount: convertToEuros(grosses.get(1)),
-          info: payment.get('info').set('date', dates.get(1)).set('grossAmount', convertToEuros(grosses.get(1)))
+          grossAmount: grosses.get(1),
+          info: payment.get('info').set('date', dates.get(1)).set('grossAmount', grosses.get(1))
         });
-
         cashflowsAcc = cashflowsAcc.set('worst', cashflowsAcc.get('worst').push(worstPoint));
         cashflowsAcc = cashflowsAcc.set('best', cashflowsAcc.get('best').push(bestPoint));
       }

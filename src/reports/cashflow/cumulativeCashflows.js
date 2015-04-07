@@ -42,7 +42,8 @@ const cumulateCashflows = (cashflows, startPoint) => {
     if (!leftPoint) {
       return startPoint.get('grossAmount');
     }
-    return startPoint.get('grossAmount') - ((rightPoint.get('grossAmount') + leftPoint.get('grossAmount')) / 2);
+    // return startPoint.get('grossAmount') - ((rightPoint.get('grossAmount') + leftPoint.get('grossAmount')) / 2);
+    return startPoint.get('grossAmount') - leftPoint.get('grossAmount');
   };
   const deltaValue = startPoint ? getDeltaValue(getCumulativeFlow(historyFlow), startPoint) : 0;
   const cumulativeHistory = getCumulativeFlow(historyFlow, deltaValue);

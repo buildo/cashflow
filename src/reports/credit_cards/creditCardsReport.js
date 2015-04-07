@@ -18,7 +18,7 @@ const generateCreditCardsReport = (cff, configs) => {
 
   const updateMonth = (monthMap, payment) => {
     const person = payment.get('method').split(' ')[1];
-    console.log(payment.get('info'));
+    // console.log(payment.get('info'));
     const convertAmountToEuros = (amount) => amount / payment.getIn(['info', 'currency', 'conversion']);
 
     const updatePerson = (personMap) => {
