@@ -239,16 +239,20 @@ app.post('/cffs/bank/pull', function *() {
     this.throw(400, 'incorrect password');
   }
 
+
+
   var reports = yield bankCredentialsArray.map(function(bankCredentials) {
     return co(function *() {
       var status = 'trying';
       var result;
       var attempts = 0;
+
       while (status === 'trying') {
         result = yield scrapers.getBank(bankCredentials, inputParameters);
         attempts += 1;
         status = result.bank.status.name === utils.unknownError && attempts < utils.maxAttempts ? 'trying' : result.bank.status.name;
       }
+
       return {
         bankId: bankCredentials.bankId,
         status: status,
@@ -263,26 +267,29 @@ app.post('/cffs/bank/pull', function *() {
       switch (report.status) {
         case 'success':
           // retrieve stored lines
-          var closestDateOldLines;
-          var oldLines = yield db.cffs.find({userId: user._id, type: 'bank', bankId: report.bankId}).toArray();
-          if (oldLines.length > 0) {
-            closestDateOldLines = oldLines.map(function(lineDoc){return lineDoc.line.payments[0].date;})
-              .reduce(function(acc, date){return date > acc ? date : acc;});
-          }
-          var cff = report.result.bank.cff;
-          var filteredNewLines = cff.lines.filter(function(line){
-            var date = line.payments[0].date;
-            return !closestDateOldLines || date > closestDateOldLines || date === utils.getTodayFormatted();
-          });
-          var filteredOldLines =  closestDateOldLines !== utils.getTodayFormatted() ? [] :
-            oldLines.filter(function(lineDoc) {return lineDoc.line.payments[0].date === closestDateOldLines;});
-          // remove today lines (avoid conflicts)
-          yield filteredOldLines.map(function(lineDoc) {
-            return {
-              remove: db.cffs.remove(lineDoc)
-            };
-          });
 
+          // var closestDateOldLines;
+          var oldLines = yield db.cffs.find({userId: user._id, type: 'bank', bankId: report.bankId}).toArray();
+          var oldLinesIDs = oldLines.map(function(line) {return line.id;}).join('|');
+          // if (oldLines.length > 0) {
+          //   closestDateOldLines = oldLines.map(function(lineDoc){return lineDoc.line.payments[0].date;})
+          //     .reduce(function(acc, date){return date > acc ? date : acc;});
+          // }
+          var cff = report.result.bank.cff;
+          // var filteredNewLines = cff.lines.filter(function(line){
+          //   var date = line.payments[0].date;
+          //   return !closestDateOldLines || date > closestDateOldLines || date === utils.getTodayFormatted();
+          // });
+          // var filteredOldLines =  closestDateOldLines !== utils.getTodayFormatted() ? [] :
+          //   oldLines.filter(function(lineDoc) {return lineDoc.line.payments[0].date === closestDateOldLines;});
+          // // remove today lines (avoid conflicts)
+          // yield filteredOldLines.map(function(lineDoc) {
+          //   return {
+          //     remove: db.cffs.remove(lineDoc)
+          //   };
+          // });
+
+          var filteredNewLines = cff.lines.filter(function(line) {return oldLines.indexOf(line.id) === -1});
           // save new lines
           yield filteredNewLines.map(function(line) {
             line.sourceId = cff.sourceId;
