@@ -1,9 +1,12 @@
 'use strict';
 
+const Immutable = require('immutable');
+
 const creditCardsMethods = ['buildocard', 'Carta di credito'];
 
 module.exports = [
   {
+    // credit cards end of month
     match: (line) => true,
     edit: (line) => {
       const monthDays = 30;
@@ -24,6 +27,30 @@ module.exports = [
         }
         return payment;
       }));
+    }
+  }, 
+  {
+    // change expected date with parsed instructions
+    match: (line) => {
+      return line.has('payments') && line.get('payments').some((payment) => payment.has('heuristicInstructions') && payment.get('heuristicInstructions').count() > 0);
+    },
+    edit: (line) => {
+      const putBigFirst = (interval) => {
+        return Immutable.List.isList(interval) && interval.get(1) > interval.get(0) ?
+          interval.reverse() : interval;
+      };
+      const newPayments = line.get('payments').reduce((acc, payment) => {
+          const instructions = payment.get('heuristicInstructions');
+          const _expectedDate = instructions.get('expectedDate');
+          const expectedDate = Immutable.List.isList(_expectedDate) ? _expectedDate : Immutable.List([_expectedDate, _expectedDate]);
+          if (expectedDate) {
+            payment = payment.set('expectedDate', putBigFirst(expectedDate));
+          }
+          return acc.push(payment);
+        },
+        Immutable.List()
+      );
+      return line.set('payments', newPayments);
     }
   }
 ];
