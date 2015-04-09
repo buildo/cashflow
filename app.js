@@ -501,7 +501,7 @@ app.get('/matches', function *() {
   });
 
   var filteredDataPayments = dataPayments.filter(function(dataPayment) {
-    return dataPaymentsIDs.indexOf(dataPayment.id) === -1 && dataPayment.methodType !== 'bank fee' && dataPayment.methodType !== 'ignore';
+    return dataPaymentsIDs.indexOf(dataPayment.id) === -1 && dataPayment.methodType !== 'ignore';
   });
 
   const allMatches = getMatches({
