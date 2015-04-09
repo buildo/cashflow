@@ -520,36 +520,49 @@ app.get('/matches', function *() {
     data: filteredDataPayments.filter(filterByDate),
     main: filteredMainPayments.filter(filterByDate)
   });
+
+  const toRemove = [];
+
   const stage = stagedMatches.map(function(match, index) {
-    try {
-      const main = match.main !== ' _empty_' ? allMatches.main.filter(function(p) {return p.id === match.main;})[0] : undefined;
-      const data = allMatches.data.filter(function(p) {return p.id === match.data;})[0];
-      return {
-        id: match.main + match.data,
-        main: main,
-        data: data
-      };
-    } catch(e) {
-      console.log('STAGE', index, match);
-      db.stagedMatches.remove(match);
+    const payments = ['main', 'data'].map(function(type) {
+      return allMatches[type].filter(function(p) {return p.id === match[type];})[0];
+    });
+
+    if ((!payments[0] && match.main !== '_empty_') || (!payments[1] && match.data !== '_empty_')) {
+      toRemove.push({match: match, collection: 'stagedMatches'});
       return;
     }
-  }).filter(function(x){ return typeof x !== 'undefined'});
+
+    return {
+      id: match.main + match.data,
+      main: payments[0],
+      data: payments[1]
+    };
+  }).filter(function(x){ return x;});
+
   const done = matches.map(function(match, index) {
-    try {
-      const main = match.main !== '_empty_' ? allMatches.main.filter(function(p) {return p.id === match.main;})[0] : undefined;
-      const data = allMatches.data.filter(function(p) {return p.id === match.data;})[0];
-      return {
-        id: match.main + match.data,
-        main: main,
-        data: data
-      };
-    } catch(e) {
-      console.log(index, match);
-      db.matches.remove(match);
+    const payments = ['main', 'data'].map(function(type) {
+      return allMatches[type].filter(function(p) {return p.id === match[type];})[0];
+    });
+
+    if ((!payments[0] && match.main !== '_empty_') || (!payments[1] && match.data !== '_empty_')) {
+      toRemove.push({match: match, collection: 'matches'});
       return;
     }
-  }).filter(function(x){ return typeof x !== 'undefined'});
+
+    return {
+      id: match.main + match.data,
+      main: payments[0],
+      data: payments[1]
+    };
+  }).filter(function(x){ return x;});
+
+
+  var a = yield toRemove.map(function(obj) {
+    return {
+      remove: db[obj.collection].remove(obj.match)
+    };
+  });
 
   this.objectName = 'matches';
   this.body = {
