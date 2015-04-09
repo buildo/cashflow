@@ -1,8 +1,9 @@
 {
   "name": "cashflow",
-  "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.1",
+  "description": "cashflow report app",
+  "main": "dist/index.js",
+  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,12 +11,11 @@
     "type": "git",
     "url": "git@git.our.buildo.io:buildo/cashflow"
   },
-  "author": "",
+  "author": "Francesco Cioria",
   "license": "ISC",
   "dependencies": {
     "immutable": "^3.7.1",
-    "lodash": "^2.4.1",
-    "xlsjs": "~0.7.1"
+    "lodash": "^2.4.1"
   },
   "devDependencies": {
     "chai": "^1.9.2",
