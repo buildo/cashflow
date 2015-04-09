@@ -2,9 +2,10 @@
 
 var _Promise = require('bluebird');
 var co = require('co');
-var scrapeBperCreditCard = require('bper-credit-card');
-var scrapeFattureInCloud = require('fatture-in-cloud');
-var bper = require('bper').scrapeBPER;
+var cashflowScrapers = require('cashflow-scrapers');
+var scrapeBperCreditCard = cashflowScrapers.bperCreditCard;
+var scrapeFattureInCloud = cashflowScrapers.fattureInCloud;
+var bper = cashflowScrapers.bper.scrapeBPER;
 
 var setProgressFattureInCloud = function(db, userId, progressObject) {
   co(function *() {
@@ -46,7 +47,7 @@ var getFattureInCloud = function (db, userId, credentialsFattureInCloud, oldCFF)
   var progressCallback = function (progressObject) {
     setProgressFattureInCloud(db, userId, progressObject);
   };
-  return scrapeFattureInCloud(credentialsFattureInCloud.credentials, progressCallback, oldCFF)
+  return scrapeFattureInCloud(credentialsFattureInCloud.credentials, progressCallback, oldCFF, {minDate: '2015-01-01'})
     .then(function(fattureInCloudReport) {
       return _Promise.resolve({fattureInCloud: fattureInCloudReport});
     });

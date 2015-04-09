@@ -1,7 +1,7 @@
 {
   "name": "cashflow-api",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "cashflow API",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,12 +14,10 @@
   "license": "ISC",
   "dependencies": {
     "bluebird": "^2.3.11",
-    "bper": "file:../cashflow-scrapers/bper",
-    "bper-credit-card": "file:../cashflow-scrapers/bper-credit-card",
-    "cff-manager-assistant": "file:../CFF-manager-assistant",
+    "cff-manager-assistant": "git+ssh://git@git.our.buildo.io:buildo/cff-manager-assistant",
     "co": "^4.0.1",
     "co-mongo": "0.0.2",
-    "fatture-in-cloud": "file:../cashflow-scrapers/fatture-in-cloud",
+    "cashflow-scrapers": "git+ssh://git@git.our.buildo.io:buildo/cashflow-scrapers",
     "koa": "^0.13.0",
     "koa-body-parser": "~1.0.0",
     "koa-compress": "~1.0.2",
