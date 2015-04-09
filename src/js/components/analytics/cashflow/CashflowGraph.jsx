@@ -8,6 +8,7 @@ const CashflowActions = require('../../../actions/CashflowActions.js');
 const utils = require('../../../utils/utils.js');
 
 let chart;
+const paths = ['Bank', 'History', 'Best', 'Worst'];
 
 const tooltipContentHandler = function (d, defaultTitleFormat, defaultValueFormat, color) {
   /* jshint ignore:start */
@@ -42,7 +43,6 @@ const initGraph = (data) => {
   if(!data) {
     return;
   }
-  const paths = ['History', 'Best', 'Worst'];
   // repeat last History value inside Best and Worst to show continued line
   data.best = [data.history[data.history.length - 1]].concat(data.best);
   data.worst = [data.history[data.history.length - 1]].concat(data.worst);
@@ -63,6 +63,7 @@ const initGraph = (data) => {
     },
     data: {
       xs: {
+        'Bank': 'x-Bank',
         'History': 'x-History',
         'Best': 'x-Best',
         'Worst': 'x-Worst',
@@ -103,7 +104,7 @@ const initGraph = (data) => {
       duration: 500
     },
     color: {
-      pattern: ['blue', 'orange', 'green']
+      pattern: ['gray', 'blue', 'orange', 'green']
     },
     tooltip: {
       grouped: false,
@@ -117,7 +118,6 @@ const initGraph = (data) => {
 
 
 const updateGraphData = (data) => {
-  const paths = ['History', 'Best', 'Worst'];
   // repeat last History value inside Best and Worst to show continued line
   data.best = [data.history[data.history.length - 1]].concat(data.best);
   data.worst = [data.history[data.history.length - 1]].concat(data.worst);
@@ -129,7 +129,7 @@ const updateGraphData = (data) => {
   });
 };
 
-const CasflowAnalytics = React.createClass({
+const CasflowGraph = React.createClass({
 
   propTypes: {
     cashflows: React.PropTypes.object.isRequired
@@ -157,12 +157,7 @@ const CasflowAnalytics = React.createClass({
     );
   },
 
-  // componentDidUpdate: function(prevProps, prevState) {
-  //   // _.deepEqual(prevProps.cashflows, this.state.cashflows);
-  //   updateGraphData(this.props.cashflows);
-  // },
-
 });
 
-module.exports = CasflowAnalytics;
+module.exports = CasflowGraph;
 

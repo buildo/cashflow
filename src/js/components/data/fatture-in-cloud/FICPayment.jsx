@@ -3,12 +3,7 @@
 'use strict';
 
 const React = require('react');
-
-const currencies = {
-  EUR: '€',
-  USD: '$',
-  GBP: '£',
-};
+const utils = require('../../../utils/utils.js');
 
 const Expense = React.createClass({
 
@@ -19,7 +14,7 @@ const Expense = React.createClass({
   render: function () {
     const line = this.props.line;
     const isInvoice = line.flowDirection === 'in';
-    const currency = line.currency ? currencies[line.currency.name] : '€';
+    const currency = utils.getCurrency(line.currency.name);
     const link = ('https://secure.fattureincloud.it/' + line.id.replace('inv_', 'invoices-edit-').replace('exp_', 'expenses-edit-'));
     const label = (
       <a href={link} className='ui black corner label'>
@@ -35,8 +30,8 @@ const Expense = React.createClass({
           <h4 className='content'>{line.description}</h4>
         </div>
         <div><strong>ID:</strong> {line.id}</div>
-        <div><strong>Lordo:</strong> {line.amount.gross}{currency}</div>
-        <div><strong>Netto:</strong> {line.amount.net}{currency}</div>
+        <div><strong>Lordo:</strong> {(line.amount.gross * line.currency.conversion).toFixed(2)}{currency}</div>
+        <div><strong>Netto:</strong> {(line.amount.net * line.currency.conversion).toFixed(2)}{currency}</div>
         <div><strong>Data:</strong> {line.invoice.date}</div>
         <div><strong>{isInvoice ? 'Cliente:' : 'Fornitore:'}</strong> {line.company.description}</div>
       </div>

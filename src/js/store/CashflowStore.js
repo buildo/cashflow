@@ -18,8 +18,8 @@ const cashflowConfigs = {
   //   date: '2015-02-01'
   // },
   startPoint: {
-    grossAmount: 6669.35,
-    date: '2015-03-28'
+    grossAmount: 10107,
+    date: '2015-03-09'
   },
   filterParameters: {}
 };
@@ -64,6 +64,7 @@ class CashflowStore {
       return true;
     }
     const mainCFF = CFFStoreState.main;
+    const bankCFF = _.clone(CFFStoreState.bank, true);
     const costsCFF = _.clone(CFFStoreState.bank, true);
     const manualLines = ManualCFFDataStore.getAll().map((obj) => obj.line);
     const manualCFF = {
@@ -72,18 +73,13 @@ class CashflowStore {
       lines: manualLines
     };
     const emptyMatchesDataIDs = DoneDataStore.getAll().filter((obj) => obj.main === undefined).map((m) => m.data.id).join('|');
-    // console.log(emptyMatchesDataIDs);
-    // console.log(costsCFF.lines[0].payments[0].id);
     if (costsCFF) {
       costsCFF.lines = costsCFF.lines.filter((line) => {
-        // if (emptyMatchesDataIDs.indexOf(line.payments[0].id) > -1) {
-        //   console.log(line);
-        // }
-        return COSTS.indexOf(line.payments[0].methodType) > -1 || emptyMatchesDataIDs.indexOf(line.payments[0].id) > -1;
+        // return COSTS.indexOf(line.payments[0].methodType) > -1 || emptyMatchesDataIDs.indexOf(line.payments[0].id) > -1;
+        return emptyMatchesDataIDs.indexOf(line.payments[0].id) > -1;
       });
     }
     const inputCFFs = [mainCFF, costsCFF, manualCFF].filter((cff) => typeof cff !== 'undefined');
-    // const inputCFFs = [_.clone(CFFStoreState.bank, true)];
     if (inputCFFs.length === 0) {
       this.cashflowData = undefined;
       return true;
@@ -93,6 +89,15 @@ class CashflowStore {
       report.errors.forEach((error) => console.error(error));
     }
     this.cashflowData = report.cashflow;
+    if (!bankCFF) {
+      return true;
+    }
+    bankCFF.lines = bankCFF.lines.filter((line) => line.payments[0].methodType !== 'credit card');
+    const bankReport = reportApp.processInputs([bankCFF], cashflowConfigs, heuristics);
+    if (bankReport.errors) {
+      bankReport.errors.forEach((error) => console.error(error));
+    }
+    this.cashflowData.bank = bankReport.cashflow.history.filter((p) => p.date >= '2015-01-01');
     return true;
   }
 

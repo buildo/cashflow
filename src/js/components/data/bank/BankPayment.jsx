@@ -15,7 +15,6 @@ const Expense = React.createClass({
     const line = this.props.line;
     const isInvoice = line.flowDirection === 'in';
 
-    console.log(line);
     return (
       <div className='ui segment line'>
         <div className={'ui dividing ' + (isInvoice ? 'green' : 'red') + ' header'}>
