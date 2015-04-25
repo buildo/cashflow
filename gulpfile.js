@@ -31,10 +31,10 @@ var PATHS = {
   js: './src/**/*.{js,jsx}',
   assets: './src/**/*.{png,jpg,jpeg,gif,svg,woff,ttf}',
   scss: './src/**/*.scss',
-  vendor: [es6ify.runtime, './node_modules/jquery/dist/jquery.min.js', './Semantic-UI/dist/semantic.js'],
-  vendorCss: ['./vendor/**/*.css', './Semantic-UI/dist/semantic.min.css', './node_modules/c3/c3.min.css', './node_modules/jsoneditor/jsoneditor.min.css'],
-  themes: './Semantic-UI/dist/themes/**/*',
-  themesBase: './Semantic-UI/dist',
+  vendor: [es6ify.runtime, './node_modules/jquery/dist/jquery.min.js', './semantic/dist/semantic.js'],
+  vendorCss: ['./vendor/**/*.css', './semantic/dist/semantic.min.css', './node_modules/c3/c3.min.css', './node_modules/jsoneditor/jsoneditor.min.css'],
+  themes: './semantic/dist/themes/**/*',
+  themesBase: './semantic/dist',
   i18n: './i18n/**/*.json'
 };
 
