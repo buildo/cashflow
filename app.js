@@ -235,6 +235,7 @@ app.post('/cffs/bank/pull', function *() {
   }
 
   var bperCredentials = yield db.credentials.findOne({userId: user._id, type: 'bank', bankId: 'bper'});
+  assert(bperCredentials);
   if (bperCredentials && (bperCredentials.credentials.password !== bperCredentialsJSON.password || bperCredentials.credentials.user !== bperCredentialsJSON.user)) {
     this.throw(400, 'incorrect password');
   }
