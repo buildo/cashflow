@@ -47,9 +47,8 @@ const Line = React.createClass({
     };
   },
 
-  getJSON: function() {
+  parseJSON: function(value) {
     try {
-      const value = this.refs.jsonEditor.getValue();
       return JSON.parse(value);
     } catch (e) {
       return;
@@ -58,20 +57,23 @@ const Line = React.createClass({
 
   saveLine: function() {
     if (!this.props.isLoading) {
-      this.props.onSave({line: this.getJSON(), id: this.state.id});
+      this.props.onSave({line: this.parseJSON(this.state.value), id: this.state.id});
     }
   },
 
   deleteLine: function() {
     if (!this.props.isLoading) {
-      this.props.onDelete({line: this.getJSON(), id: this.state.id});
+      this.props.onDelete({line: this.parseJSON(this.state.value), id: this.state.id});
     }
   },
 
-  onDocumentChange: function() {
-    const hasBeenModified = _.isEqual(this.state.line, this.getJSON());
-    this.setState({saveButtonState: hasBeenModified ? 'disabled' : 'positive'});
-    this.setState({resetButtonState: hasBeenModified ? 'disabled' : 'neutral'});
+  onDocumentChange: function(value) {
+    const hasBeenModified = _.isEqual(this.state.line, this.parseJSON(value));
+    this.setState({
+      value,
+      saveButtonState: hasBeenModified ? 'disabled' : 'positive',
+      resetButtonState: hasBeenModified ? 'disabled' : 'neutral'
+    });
   },
 
   resetEditor: function() {

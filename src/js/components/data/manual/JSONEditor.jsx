@@ -9,8 +9,6 @@ require('brace/mode/json');
 require('brace/theme/textmate');
 const validateCFF = require('../../../../../../cashflow/dist/src/validators/CFFValidator.js');
 
-var editor;
-
 const JSONEditor = React.createClass({
 
   propTypes: {
@@ -23,27 +21,22 @@ const JSONEditor = React.createClass({
   },
 
   getInitialState: function() {
-    return {
-      initialData: this.props.data || {},
-      id: this.props.id || ('' + (new Date()).getTime())
-    };
+    const id = this.props.id || ('' + (new Date()).getTime());
+
+    const initialData = this.props.data || {};
+
+    return { initialData, id };
   },
 
   componentDidMount: function() {
-    this.setValue(this.state.initialData);
+    this._initializeEditor(() => {
+      this.setValue(this.state.initialData);
+    });
   },
 
-  getValue: function() {
-    return editor.getValue();
-  },
-
-  resetData: function() {
-    editor.destroy();
-    this.setValue(this.state.initialData);
-  },
-
-  setValue: function(data) {
-    editor = ace.edit('json-editor' + this.state.id);
+  _initializeEditor(cb) {
+    const editor = ace.edit('json-editor' + this.state.id);
+    editor.on('change', this.onChange);
     editor.setOptions({
       mode: 'ace/mode/json',
       theme: 'ace/theme/textmate',
@@ -52,9 +45,25 @@ const JSONEditor = React.createClass({
       autoScrollEditorIntoView: true,
       wrap: true
     });
-    editor.setValue(JSON.stringify(data, undefined, 2));
-    editor.on('change', this.props.onDocumentChange, false);
-    editor.clearSelection();
+    this.setState({editor}, cb);
+  },
+
+  _getValue: function() {
+    return this.state.editor.getValue();
+  },
+
+  resetData: function() {
+    //this.state.editor.destroy();
+    this.setValue(this.state.initialData);
+  },
+
+  onChange() {
+    this.props.onDocumentChange(this._getValue());
+  },
+
+  setValue: function(data) {
+    this.state.editor.setValue(JSON.stringify(data, undefined, 2));
+    this.state.editor.clearSelection();
   },
 
   render: function () {
