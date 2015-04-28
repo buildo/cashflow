@@ -6,3 +6,4 @@ bperCredentials.json
 *.log
 ngris.sublime-project
 ngris.sublime-workspace
+config.json

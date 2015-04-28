@@ -18,6 +18,7 @@ var utils = require('./src/utils.js');
 var saveOnFattureInCloud = require('cff-manager-assistant').saveOnFattureInCloud;
 var getMatches = require('cff-manager-assistant').getMatches;
 var bperCredentialsJSON = require('./bperCredentials.json');
+var config = require('./config.json');
 var db;
 
 var HOST = 'localhost';
@@ -40,9 +41,9 @@ app.use(function *(next) {
 app.use(router(app));
 
 comongo.configure({
-  host: HOST,
-  port: 27017,
-  name: 'cashflow',
+  host: config.db.host,
+  port: config.db.port,
+  name: config.db.name,
   pool: 10,
   collections: ['users', 'credentials', 'cffs', 'projects', 'resources', 'sessions', 'progresses', 'bankSessions', 'matches', 'stagedMatches']
 });
