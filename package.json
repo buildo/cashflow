@@ -14,7 +14,7 @@
   "author": "Francesco Cioria",
   "license": "ISC",
   "dependencies": {
-    "immutable": "^3.7.1",
+    "immutable": "^3.7.2",
     "lodash": "^2.4.1"
   },
   "devDependencies": {
