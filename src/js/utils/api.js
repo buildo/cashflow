@@ -1,10 +1,10 @@
 'use strict';
 
-const HOST = 'http://localhost:9000';
 const axios = require('axios');
+const config = require('../../../config.js');
 const _ = require('lodash');
 
-const BASE_URL = 'http://localhost:9000/';
+const BASE_URL = config.endpoint;
 
 const path = (paths) => {
   if (_.isArray(paths)) {
