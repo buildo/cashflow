@@ -7,7 +7,8 @@ const Immutable = require('immutable');
 const ace = require('brace');
 require('brace/mode/json');
 require('brace/theme/textmate');
-const validateCFF = require('../../../../../../cashflow/dist/src/validators/CFFValidator.js');
+
+const validateCFF = require('cashflow').validateCFF;
 
 const JSONEditor = React.createClass({
 
