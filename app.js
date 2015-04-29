@@ -484,8 +484,9 @@ app.get('/matches', function *() {
 
   var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
   var bankLines = yield db.cffs.find({userId: user._id, type: 'bank'}).toArray();
+  var manualLines = yield db.cffs.find({userId: user._id, type: 'manual'}).toArray();
 
-  if (mainLines.length === 0 || bankLines.length === 0) {
+  if (mainLines.length === 0 || (bankLines.length === 0 && manualLines.length === 0)) {
     this.throw(400, 'database is incomplete, please run scrapers.');
   }
 
@@ -497,6 +498,13 @@ app.get('/matches', function *() {
 
   var mainPayments = utils.getPaymentsFromDocumentLines(mainLines);
   var dataPayments = utils.getPaymentsFromDocumentLines(bankLines);
+  var manualPayments = utils.getPaymentsFromDocumentLines(manualLines).map(function(p) {
+    p.manual = true;
+    return p;
+  });
+
+  // add manual payments to bank payments
+  dataPayments = dataPayments.concat(manualPayments);
 
   var filteredMainPayments = mainPayments.filter(function(mainPayment) {
     return mainPaymentsIDs.indexOf(mainPayment.id) === -1;
