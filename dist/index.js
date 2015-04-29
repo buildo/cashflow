@@ -72,4 +72,5 @@ var processInputs = function(inputCFFs, configs, heuristics)  {
 
 module.exports = {
   processInputs: processInputs,
+  validateCFF: validateCFF
 };
