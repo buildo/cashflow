@@ -25,7 +25,7 @@ const CashflowPayments = React.createClass({
     const payments = this.props.payments.map((payment, index) => <CashflowPayment payment={payment} key={index}/>);
 
     return (
-      <div>
+      <div className='cashflow-payments'>
         {payments}
         <br></br>
       </div>

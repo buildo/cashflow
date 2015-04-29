@@ -21,19 +21,29 @@ const CashflowMain = React.createClass({
   mixins: [ListenerMixin],
 
 
-  getInitialState: function() {
-    return getStateFromStores();
+  getInitialState() {
+    return this.getStateFromStores();
   },
 
-  componentDidMount: function() {
+  getStateFromStores() {
+    return CashflowStore.getState();
+  },
+
+  componentDidMount() {
     this.listenTo(CashflowStore, this._onChange);
   },
 
-  getSelectedPayments: function() {
+  getSelectedPayments() {
     return this.state.cashflowData && this.state.pathId && this.state.index > -1 ? this.state.cashflowData[this.state.pathId][this.state.index].info : undefined;
   },
 
-  render: function() {
+  refresh() {
+    CFFActions.getMain();
+    CFFActions.getBank();
+    CFFActions.getManual();
+  },
+
+  render() {
 
     if (this.props.isLoadingData || !this.state.cashflowData) {
       return (
@@ -53,23 +63,18 @@ const CashflowMain = React.createClass({
     const cumulativeAmountOfDay = this.getSelectedPayments() ? 'TOTAL: '+this.getSelectedPayments().reduce((amount, p) => amount + (p.grossAmount), 0).toFixed(2) : null;
     return (
       <div>
-        <div className='cashflow-graph ui segment'>
-          <CashflowGraph cashflows={this.state.cashflowData}/>
-        </div>
-        <h4 className='ui top attached inverted header'>
-          Pagamenti
-        </h4>
+        <div className='ui top attached button' onClick={this.refresh}>Refresh</div>
+        <CashflowGraph cashflows={this.state.cashflowData}/>
+        <h4 className='ui top attached inverted header'>Pagamenti</h4>
         <br></br>
         {cumulativeAmountOfDay}
-        <div className='cashflow-payments'>
-          <CashflowPayments payments={this.getSelectedPayments()}/>
-        </div>
+        <CashflowPayments payments={this.getSelectedPayments()}/>
       </div>
     );
   },
 
-  _onChange: function() {
-    this.setState(getStateFromStores());
+  _onChange() {
+    this.setState(this.getStateFromStores());
   }
 
 });

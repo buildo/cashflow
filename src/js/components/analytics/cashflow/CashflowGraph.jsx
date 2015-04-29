@@ -147,12 +147,8 @@ const CasflowGraph = React.createClass({
 
   render: function() {
     return (
-      <div >
-        <h5 className='ui top dividing header'>
-          Cashflow
-        </h5>
-        <div id='chart'>
-        </div>
+      <div className='cashflow-graph ui attached segment'>
+        <div id='chart'/>
       </div>
     );
   },
