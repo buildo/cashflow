@@ -51,8 +51,20 @@ class CFFStore {
     this.isLoadingManual = false;
   }
 
+  onPullMain() {
+    // this.isLoadingMain = true;
+  }
+
+  onPullMainFail() {
+    // this.isLoadingMain = false;
+  }
+
   onPullBank() {
     this.isLoadingBank = true;
+  }
+
+  onPullBankFail() {
+    this.isLoadingBank = false;
   }
 
 }

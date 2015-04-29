@@ -102,10 +102,18 @@ class CFFActions {
   }
 
   pullBank() {
-    API.cff.pullBank().then(this.actions.getBank, handleError);
+    API.cff.pullBank().then(this.actions.pullBankSuccess, this.actions.pullBankFail);
     this.dispatch();
   }
 
+  pullBankSuccess() {
+    this.actions.getBank.defer();
+    this.dispatch();
+  }
+
+  pullBankFail() {
+    this.dispatch();
+  }
 }
 
 module.exports = alt.createActions(CFFActions);

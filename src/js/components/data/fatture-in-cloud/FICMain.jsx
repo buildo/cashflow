@@ -37,12 +37,12 @@ const CFFMain = React.createClass({
 
   render() {
 
-    if (this.state.isLoadingMain) {
-      return <Loader />;
-    }
-
     if (this.state.isPullingMain && this.state.progressMain) {
       return <PullProgress progress={this.state.progressMain} />;
+    }
+
+    if (this.state.isLoadingMain) {
+      return <Loader />;
     }
 
     const cffLines = this.state.main ? this.state.main.lines : [];
