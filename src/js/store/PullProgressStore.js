@@ -1,7 +1,6 @@
 'use strict';
 
 const alt = require('../alt');
-const _ = require('lodash');
 const CFFActions = require('../actions/CFFActions');
 
 class PullProgressStore {
@@ -19,7 +18,6 @@ class PullProgressStore {
   }
 
   onGetMainPullProgress(data) {
-    this.isToUpdate = !_.isEqual(this.progressMain, data);
     this.progressMain = data;
   }
 

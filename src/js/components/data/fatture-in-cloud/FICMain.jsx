@@ -10,58 +10,39 @@ const ListenerMixin = require('alt/mixins/ListenerMixin');
 const CFFStore = require('../../../store/CFFStore.js');
 const PullProgressStore = require('../../../store/PullProgressStore.js');
 const CFFActions = require('../../../actions/CFFActions.js');
+const PullProgress = require('./PullProgress.jsx');
 const Loader = require('../../Loader.jsx');
 
-
-const getStateFromStores = function () {
-  return _.extend(CFFStore.getState(), PullProgressStore.getState());
-};
 
 const CFFMain = React.createClass({
 
   mixins: [State, ListenerMixin],
 
-  getInitialState: function() {
-    return getStateFromStores();
+  getInitialState() {
+    return this.getStateFromStores();
   },
 
-  componentDidMount: function() {
+  getStateFromStores() {
+    return _.extend(CFFStore.getState(), PullProgressStore.getState());
+  },
+
+  componentDidMount() {
     this.listenTo(CFFStore, this._onChange);
     this.listenTo(PullProgressStore, this._onChange);
   },
 
-  pullMain: function() {
+  pullMain() {
     CFFActions.pullMain();
   },
 
-  render: function() {
+  render() {
 
     if (this.state.isLoadingMain) {
       return <Loader />;
     }
 
-    const progress = this.state.progressMain;
-
-    if (this.state.isPullingMain) {
-      let percent = 0;
-      if (progress && this.state.isToUpdate) {
-        percent += progress.authentication === 'done' ? 20 : 0;
-        percent += progress.invoices.list === 'done' ? 5 : 0;
-        percent += progress.expenses.list === 'done' ? 5 : 0;
-        const todo = (Array.isArray(progress.invoices.data) ? progress.invoices.data[1] : 0) + (Array.isArray(progress.expenses.data) ? progress.expenses.data[1] : 0);
-        const done = (Array.isArray(progress.invoices.data) ? progress.invoices.data[0] : 0) + (Array.isArray(progress.expenses.data) ? progress.expenses.data[0] : 0);
-        percent += todo !== 0 ? (70 * (done / todo)) : 0;
-        percent = progress.completed ? 100 : percent;
-        if (this.refs.pullProgressBar) {
-          $(this.refs.pullProgressBar.getDOMNode()).progress({percent: percent});
-        }
-      }
-      return (
-        <div className='ui green active progress' ref='pullProgressBar' id='pullProgressBar' key='2'>
-          <div className='bar'></div>
-          <div className='label'>Aggiornamento in corso</div>
-        </div>
-      );
+    if (this.state.isPullingMain && this.state.progressMain) {
+      return <PullProgress progress={this.state.progressMain} />;
     }
 
     const cffLines = this.state.main ? this.state.main.lines : [];
@@ -81,8 +62,8 @@ const CFFMain = React.createClass({
     );
   },
 
-  _onChange: function() {
-    const newState = getStateFromStores();
+  _onChange() {
+    const newState = this.getStateFromStores();
     this.setState(newState);
     if (newState.isPullingMain && newState.progressMain && newState.progressMain.completed) {
       CFFActions.resetMainPullProgress();
