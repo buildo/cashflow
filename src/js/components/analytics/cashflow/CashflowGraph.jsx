@@ -97,7 +97,7 @@ const initGraph = (data) => {
         lines: [{value: new Date().getTime(), class: 'grid-today', text: 'TODAY'}]
       },
       y: {
-        lines: [{value: 18000, class: 'grid-alert', text: '18000€'}]
+        lines: [{value: 18000, class: 'grid-alert', text: '18000€'}, {value: 0}]
       }
     },
     transition: {
