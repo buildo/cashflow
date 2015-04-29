@@ -25,15 +25,6 @@ const AnalyticsMain = React.createClass({
   componentDidMount: function() {
     this.listenTo(CFFStore, this._onChange);
     this.listenTo(MatchesStore, this._onChange);
-    // if (!this.state.main) {
-    //   CFFActions.getMain.defer();
-    // }
-    // if (!this.state.bank) {
-    //   CFFActions.getBank.defer();
-    // }
-    // if (!this.state.manual) {
-    //   CFFActions.getManual.defer();
-    // }
   },
 
   render: function () {

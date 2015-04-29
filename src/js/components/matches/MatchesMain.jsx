@@ -7,6 +7,7 @@ const RouteHandler = require('react-router').RouteHandler;
 const ListenerMixin = require('alt/mixins/ListenerMixin');
 const MatchActions = require('../../actions/MatchActions');
 const MatchesStore = require('../../store/MatchesStore.js');
+const Loader = require('../Loader.jsx');
 
 const getStateFromStores = function () {
   return MatchesStore.getState();
@@ -27,18 +28,7 @@ const MatchesMain = React.createClass({
 
   render: function() {
     if (this.state.isLoadingMatches) {
-      return (
-        <div className="ui segment">
-          <div className="ui active inverted dimmer">
-            <div className="ui indeterminate text active loader">
-              Caricamento...
-            </div>
-          </div>
-          <br></br>
-          <br></br>
-          <br></br>
-        </div>
-      );
+      return <Loader />;
     }
     return <RouteHandler/>;
   },

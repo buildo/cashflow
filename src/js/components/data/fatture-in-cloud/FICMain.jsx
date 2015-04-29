@@ -10,6 +10,7 @@ const ListenerMixin = require('alt/mixins/ListenerMixin');
 const CFFStore = require('../../../store/CFFStore.js');
 const PullProgressStore = require('../../../store/PullProgressStore.js');
 const CFFActions = require('../../../actions/CFFActions.js');
+const Loader = require('../../Loader.jsx');
 
 
 const getStateFromStores = function () {
@@ -36,18 +37,7 @@ const CFFMain = React.createClass({
   render: function() {
 
     if (this.state.isLoadingMain) {
-      return (
-        <div className="ui segment" id='loadingSegment' key='1'>
-          <div className="ui active inverted dimmer">
-            <div className="ui indeterminate text active loader">
-              Caricamento...
-            </div>
-          </div>
-          <br></br>
-          <br></br>
-          <br></br>
-        </div>
-      );
+      return <Loader />;
     }
 
     const progress = this.state.progressMain;

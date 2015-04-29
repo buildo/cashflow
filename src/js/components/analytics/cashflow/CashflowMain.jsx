@@ -5,12 +5,10 @@
 const React = require('react');
 const ListenerMixin = require('alt/mixins/ListenerMixin');
 const CashflowStore = require('../../../store/CashflowStore.js');
+const CFFActions = require('../../../actions/CFFActions.js');
 const CashflowGraph = require('./CashflowGraph.jsx');
 const CashflowPayments = require('./CashflowPayments.jsx');
-
-const getStateFromStores = function () {
-  return CashflowStore.getState();
-};
+const Loader = require('../../Loader.jsx');
 
 const CashflowMain = React.createClass({
 
@@ -46,18 +44,7 @@ const CashflowMain = React.createClass({
   render() {
 
     if (this.props.isLoadingData || !this.state.cashflowData) {
-      return (
-        <div className="ui segment">
-          <div className="ui active inverted dimmer">
-            <div className="ui indeterminate text active loader">
-              Caricamento...
-            </div>
-          </div>
-          <br></br>
-          <br></br>
-          <br></br>
-        </div>
-      );
+      return <Loader />;
     }
 
     const cumulativeAmountOfDay = this.getSelectedPayments() ? 'TOTAL: '+this.getSelectedPayments().reduce((amount, p) => amount + (p.grossAmount), 0).toFixed(2) : null;

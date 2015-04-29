@@ -12,6 +12,7 @@ const NewLine = require('./NewLine.jsx');
 const ManualCFFDataStore = require('../../../store/ManualCFFDataStore.js');
 const CFFStore = require('../../../store/CFFStore.js');
 const CFFActions = require('../../../actions/CFFActions.js');
+const Loader = require('../../Loader.jsx');
 
 
 const getStateFromStores = function () {
@@ -77,7 +78,7 @@ const ManualMain = React.createClass({
   render: function() {
 
     if (this.state.isLoadingManual) {
-      return null;
+      return <Loader />;
     }
 
     const lines = this.state.lines.map((line, index) =>
