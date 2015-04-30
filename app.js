@@ -334,7 +334,7 @@ app.get('/cffs/manual', function *() {
   if (manualLines.length === 0) {
     this.throw(400, 'user does not have a manual cff in database');
   }
-  var lines = manualLines.map(function(docLine) {return {line: docLine.line, id: docLine.id};});
+  var lines = manualLines.map(function(docLine) {return {line: docLine.line, _id: docLine.id};});
   // var sortedLines = lines.sort(utils.sortCFFLinesByDate);
   // var cff = {
   //   sourceId: sortedLines[0].sourceId,
@@ -345,11 +345,42 @@ app.get('/cffs/manual', function *() {
   this.body = {manualLines: lines};
 });
 
+app.post('/cffs/manual', function *() {
+  var token = utils.parseAuthorization(this.request.header.authorization);
+  var user = yield utils.getUserByToken(db, token);
+  var line = this.request.body;
+
+  const otherLineWithSameId = yield db.cffs.findOne({userId: user._id, type: 'manual', 'line.id': line.id});
+  if (otherLineWithSameId) {
+    this.throw(400, 'Line with same id already existing');
+  }
+
+  const query = {userId: user._id, type: 'manual', line: line};
+  yield db.cffs.insert(query);
+
+  const newLine = yield db.cffs.findOne(query);
+  const generatedId = newLine._id.toString();
+
+  yield db.cffs.update(newLine, {$set: {id: generatedId}}, {upsert: true});
+
+  this.objectName = 'newLine';
+  this.body = {
+    line: newLine.line,
+    _id: generatedId
+  };
+});
+
 app.post('/cffs/manual/:lineId', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
   var lineId = this.params.lineId;
   var line = this.request.body;
+
+  const otherLineWithSameId = yield db.cffs.findOne({userId: user._id, type: 'manual', id: {$ne: lineId}, 'line.id': line.id});
+  if (otherLineWithSameId) {
+    this.throw(400, 'Line with same id already existing');
+  }
+
   yield db.cffs.update({userId: user._id, type: 'manual', id: lineId}, {$set: {line: line}}, {upsert: true});
 });
 
