@@ -17,26 +17,25 @@ const JSONEditor = React.createClass({
       React.PropTypes.string,
       React.PropTypes.number,
     ]),
-    data: React.PropTypes.object.isRequired,
-    onDocumentChange: React.PropTypes.func.isRequired
+    value: React.PropTypes.string.isRequired,
+    onChange: React.PropTypes.func.isRequired
   },
 
-  getInitialState: function() {
-    const id = this.props.id || ('' + (new Date()).getTime());
-
-    const initialData = this.props.data || {};
-
-    return { initialData, id };
+  getDefaultProps() {
+    return {
+      id: '' + (new Date()).getTime(),
+      value: '{}',
+    };
   },
 
-  componentDidMount: function() {
+  componentDidMount() {
     this._initializeEditor(() => {
-      this.setValue(this.state.initialData);
+      this.setValue(this.props.value);
     });
   },
 
   _initializeEditor(cb) {
-    const editor = ace.edit('json-editor' + this.state.id);
+    const editor = ace.edit('json-editor' + this.props.id);
     editor.on('change', this.onChange);
     editor.setOptions({
       mode: 'ace/mode/json',
@@ -46,31 +45,33 @@ const JSONEditor = React.createClass({
       autoScrollEditorIntoView: true,
       wrap: true
     });
+    editor.$blockScrolling = Infinity;
     this.setState({editor}, cb);
   },
 
-  _getValue: function() {
-    return this.state.editor.getValue();
-  },
-
-  resetData: function() {
-    //this.state.editor.destroy();
-    this.setValue(this.state.initialData);
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.value !== this.getValue()) {
+      this.setValue(nextProps.value);
+    }
   },
 
   onChange() {
-    this.props.onDocumentChange(this._getValue());
+    this.props.onChange(this.getValue());
   },
 
-  setValue: function(data) {
-    this.state.editor.setValue(JSON.stringify(data, undefined, 2));
+  getValue() {
+    return this.state.editor.getValue();
+  },
+
+  setValue(data) {
+    this.state.editor.setValue(data);
     this.state.editor.clearSelection();
   },
 
-  render: function () {
+  render () {
     return (
       <div className='json-editor-container'>
-        <div className='json-editor' id={'json-editor' + this.state.id}></div>
+        <div className='json-editor' id={'json-editor' + this.props.id} />
       </div>
     );
   },

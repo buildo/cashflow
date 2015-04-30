@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "alt": "0.15.1",
-    "axios": "0.5.0",
+    "axios": "0.5.1",
     "better-console": "^0.2.4",
     "brace": "^0.5.0",
     "c3": "^0.4.7",

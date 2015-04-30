@@ -1,70 +1,109 @@
 'use strict';
 
 const alt = require('../alt');
+const _ = require('lodash');
 const DataStore = require('./DataStore');
 const CFFActions = require('../actions/CFFActions');
+const ManualActions = require('../actions/ManualActions');
+
 
 class ManualCFFDataStore extends DataStore {
 
   constructor() {
     super(ManualCFFDataStore);
     this.bindActions(CFFActions);
-    this.bindAction(CFFActions.deleteManualLine, this.addToLoadingLines);
-    this.bindAction(CFFActions.deleteManualLineFail, this.removeFromLoadingLines);
-    this.bindAction(CFFActions.saveManualLine, this.addToLoadingLines);
-    this.bindAction(CFFActions.saveManualLineFail, this.removeFromLoadingLines);
-    this.loadingLines = [];
-    this.creatingStatus = undefined;
+    this.bindActions(ManualActions);
+    this.newLine = {
+      loading: false,
+      show: false,
+      error: undefined
+    };
+  }
+
+  onGetManual() {
+    this.deleteAll();
   }
 
   onGetManualSuccess(data) {
-    this.deleteAll();
     // insert payments
-    data.forEach((line) => this.insert(line.id, line));
+    data.forEach((line) => this.insert(line._id, line));
   }
 
-  onGetManualFail() {
-    this.deleteAll();
+  onDeleteManualLine(lineId) {
+    this.setLoading(lineId, true);
   }
 
   onDeleteManualLineSuccess(lineId) {
     this.delete(lineId);
-    this.removeFromLoadingLines({id: lineId});
+  }
+
+  onDeleteManualLineFail(res) {
+    this.setLoading(res._id, false);
+    this.setError(res._id, res.error.data.message);
+  }
+
+  _resetNewLine() {
+    this.newLine.loading = false;
+    this.newLine.show = false;
+    this.newLine.error = undefined;
+  }
+
+  onHideNewLine() {
+    this._resetNewLine();
+  }
+
+  onShowNewLine() {
+    this.newLine.show = true;
+  }
+
+  onSetNewLineError(err) {
+    this.newLine.error = err;
+  }
+
+  onSetLineError(data) {
+    this.setError(data._id, data.error);
   }
 
   onCreateManualLine() {
-    this.creatingStatus = 'CREATE';
+    this.newLine.loading = true;
   }
 
-  onCreateManualLineSuccess(line) {
-    this.insert(line.id, line);
-    this.creatingStatus = 'CREATE_SUCCESS';
+  onCreateManualLineSuccess(newLine) {
+    this._resetNewLine();
+    this.insert(newLine._id, newLine);
   }
 
-  onCreateManualLineFail() {
-    this.creatingStatus = 'CREATE_FAIL';
+  onCreateManualLineFail(err) {
+    this.newLine.loading = false;
+    this.newLine.error = err.data.message;
+  }
+
+  onSaveManualLine(line) {
+    this.setLoading(line._id, true);
+    this.setError(line._id, undefined);
   }
 
   onSaveManualLineSuccess(line) {
-    this.upsert(line.id, line);
-    this.removeFromLoadingLines(line);
+    this.upsert(line._id, line);
+    this.resetLine(line._id);
   }
 
-  addToLoadingLines(line) {
-    if (this.loadingLines.indexOf(line.id) === -1) {
-      this.loadingLines.push(line.id);
-      return true;
-    }
-    return false;
+  onSaveManualLineFail(res) {
+    this.setLoading(res._id, false);
+    this.setError(res._id, res.error.data.message);
   }
 
-  removeFromLoadingLines(line) {
-    const index = this.loadingLines.indexOf(line.id);
-    if (index > -1) {
-      this.loadingLines.splice(index, 1);
-      return true;
-    }
-    return false;
+  resetLine(lineId) {
+    this.setLoading(lineId, false);
+    this.setError(lineId, undefined);
+  }
+
+  setLoading(lineId, value) {
+    this.update(lineId, {loading: value});
+  }
+
+  setError(lineId, value) {
+    this.update(lineId, {error: value});
   }
 
 }

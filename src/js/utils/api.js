@@ -56,7 +56,9 @@ module.exports = {
 
     pullBank: () => axios.post(path(['cffs', 'bank', 'pull']), {}, getConfig()),
 
-    saveManualLine: (line) => axios.post(path(['cffs', 'manual', line.id]), line.line, getJSONConfig()),
+    createManualLine: (line) => axios.post(path(['cffs', 'manual']), line, getJSONConfig()),
+    
+    saveManualLine: (lineId, line) => axios.post(path(['cffs', 'manual', lineId]), line, getJSONConfig()),
 
     deleteManualLine: (lineId) => axios.delete(path(['cffs', 'manual', lineId]), getConfig()),
 

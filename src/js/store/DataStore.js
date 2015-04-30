@@ -7,33 +7,50 @@ class DataStore {
 
   constructor(classObj) {
     this._data = Immutable.Map();
-    // this.exportPublicMethods({
-    //   get: this.get,
-    //   getAll: this.getAll
-    // });
-    classObj.getAll = DataStore.getAll;
-    classObj.get = DataStore.get;
+    this.exportPublicMethods({
+      get: this._get,
+      getIn: this._getIn,
+      getAll: this._getAll
+    });
+    // classObj.getAll = DataStore.getAll;
+    // classObj.get = DataStore.get;
   }
 
-  static get(id, missingValue) {
+  _get(id, missingValue) {
     const value = this.getState()._data.get(id + '', missingValue);
     return value && value.toJS ? value.toJS() : value;
   }
 
-  static getAll() {
+  _getAll() {
     return Object.keys(this.getState()._data.toJS()).map(id => {
       return this.get(id);
     });
   }
 
-  _get(id, missingValue) {
+  _getIn(path) {
+    const value = this.getState()._data.getIn(path);
+    return value && value.toJS ? value.toJS() : undefined;
+  }
+
+  get(id, missingValue) {
     const value = this._data.get(id + '', missingValue);
     return value && value.toJS ? value.toJS() : value;
   }
 
+  getAll() {
+    return Object.keys(this._data.toJS()).map(id => {
+      return this.get(id);
+    });
+  }
+
+  getIn(path) {
+    const value = this._data.getIn(path);
+    return value && value.toJS ? value.toJS() : undefined;
+  }
+
   upsert(id, obj) {
     let immObj = Immutable.fromJS(obj);
-    if (!Immutable.is(this._get(id), immObj)) {
+    if (!Immutable.is(this.get(id), immObj)) {
       this._data = this._data.set(id + '', immObj);
       return true;
     }
@@ -49,10 +66,13 @@ class DataStore {
   }
 
   update(id, patch, path) {
-    let current = this._data.get(id + '', Immutable.Map({}));
-    let updated = current.mergeDeepIn(path || [], Immutable.fromJS(patch));
+    path = [].concat(path || []);
+    const current = this._data.get(id + '', Immutable.Map({}));
+    const updated = current.mergeDeepIn(path || [], Immutable.fromJS(patch));
     if (!Immutable.is(current, updated)) {
       this._data = this._data.set(id + '', updated);
+      const x = this.get(id);
+      console.log(x);
       return true;
     }
     return false;

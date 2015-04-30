@@ -9,6 +9,7 @@ const ManualCFFDataStore = require('./ManualCFFDataStore.js');
 const reportApp = require('cashflow');
 const CashflowActions = require('../actions/CashflowActions');
 const CFFActions = require('../actions/CFFActions.js');
+const ManualActions = require('../actions/ManualActions.js');
 const MatchesActions = require('../actions/MatchActions.js');
 
 const heuristics = require('../../files/Heuristics.js');
@@ -31,9 +32,9 @@ class CashflowStore {
     this.bindAction(CFFActions.getMainSuccess, this.onUpdate);
     this.bindAction(CFFActions.getBankSuccess, this.onUpdate);
     this.bindAction(CFFActions.getManualSuccess, this.onUpdate);
-    this.bindAction(CFFActions.deleteManualLineSuccess, this.onUpdate);
-    this.bindAction(CFFActions.saveManualLineSuccess, this.onUpdate);
-    this.bindAction(CFFActions.createManualLineSuccess, this.onUpdate);
+    this.bindAction(ManualActions.deleteManualLineSuccess, this.onUpdate);
+    this.bindAction(ManualActions.saveManualLineSuccess, this.onUpdate);
+    this.bindAction(ManualActions.createManualLineSuccess, this.onUpdate);
     this.bindAction(MatchesActions.getMatchesSuccess, this.onUpdate);
   }
 
@@ -52,7 +53,7 @@ class CashflowStore {
   }
 
   onUpdate() {
-    console.log('ON_UPDATE');
+    // console.log('ON_UPDATE');
     this.resetPointSelection();
     this.waitFor(CFFStore.dispatchToken);
     this.waitFor(MatchesStore.dispatchToken);

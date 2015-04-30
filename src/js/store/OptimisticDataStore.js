@@ -73,15 +73,18 @@ const handleSuccess = (id, context, m) => {
 class OptimisticDataStore extends DataStore {
 
   constructor(classObj) {
+    if (!classObj) {
+      throw new Error('Pass a class reference to the super constructor method.');
+    }
     this._optimisticData = Immutable.Map();
     this._data = Immutable.Map();
     this.__stable = true;
-    // this.exportPublicMethods({
-      // get: this.get,
-      // getAll: this.getAll
-    // });
-    classObj.getAll = OptimisticDataStore.getAll;
-    classObj.get = OptimisticDataStore.get;
+    this.exportPublicMethods({
+      get: this._get,
+      getAll: this._getAll
+    });
+    // classObj.getAll = OptimisticDataStore.getAll;
+    // classObj.get = OptimisticDataStore.get;
     buildClassFunctions(classObj, this);
     // build setter wrappers:
     const self = this;
@@ -116,12 +119,12 @@ class OptimisticDataStore extends DataStore {
     });
   }
 
-  static get(id, missingValue) {
+  _get(id, missingValue) {
     const value = this.getState()._optimisticData.get(id + '', missingValue);
     return value && value.toJS ? value.toJS() : value;
   }
 
-  static getAll() {
+  _getAll() {
     return Object.keys(this.getState()._optimisticData.toJS()).map(id => {
       return this.get(id);
     });
