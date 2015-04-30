@@ -503,8 +503,8 @@ app.get('/matches', function *() {
     return p;
   });
 
-  // add manual payments to bank payments
-  dataPayments = dataPayments.concat(manualPayments);
+  // merge manual payments with FIC payments
+  mainPayments = mainPayments.concat(manualPayments);
 
   var filteredMainPayments = mainPayments.filter(function(mainPayment) {
     return mainPaymentsIDs.indexOf(mainPayment.id) === -1;
