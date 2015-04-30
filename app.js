@@ -349,11 +349,12 @@ app.post('/cffs/manual', function *() {
   var token = utils.parseAuthorization(this.request.header.authorization);
   var user = yield utils.getUserByToken(db, token);
   var line = this.request.body;
+  delete line.id
 
-  const otherLineWithSameId = yield db.cffs.findOne({userId: user._id, type: 'manual', 'line.id': line.id});
-  if (otherLineWithSameId) {
-    this.throw(400, 'Line with same id already existing');
-  }
+  // const otherLineWithSameId = yield db.cffs.findOne({userId: user._id, type: 'manual', 'line.id': line.id});
+  // if (otherLineWithSameId) {
+  //   this.throw(400, 'Line with same id already existing');
+  // }
 
   const query = {userId: user._id, type: 'manual', line: line};
   yield db.cffs.insert(query);
@@ -375,11 +376,12 @@ app.post('/cffs/manual/:lineId', function *() {
   var user = yield utils.getUserByToken(db, token);
   var lineId = this.params.lineId;
   var line = this.request.body;
+  delete line.id
 
-  const otherLineWithSameId = yield db.cffs.findOne({userId: user._id, type: 'manual', id: {$ne: lineId}, 'line.id': line.id});
-  if (otherLineWithSameId) {
-    this.throw(400, 'Line with same id already existing');
-  }
+  // const otherLineWithSameId = yield db.cffs.findOne({userId: user._id, type: 'manual', id: {$ne: lineId}, 'line.id': line.id});
+  // if (otherLineWithSameId) {
+  //   this.throw(400, 'Line with same id already existing');
+  // }
 
   yield db.cffs.update({userId: user._id, type: 'manual', id: lineId}, {$set: {line: line}}, {upsert: true});
 });
