@@ -53,11 +53,12 @@ const ManualMain = React.createClass({
 
     // } else
 
-    if (!line.id || typeof line.id !== 'string') {
-      sendError(_id, '"id" missing or not a string');
-      return false;
+    // if (!line.id || typeof line.id !== 'string') {
+    //   sendError(_id, '"id" missing or not a string');
+    //   return false;
 
-    } else if (!line.payments || !Array.isArray(line.payments)) {
+    // }
+    if (!line.payments || !Array.isArray(line.payments)) {
       sendError(_id, '"payments" missing or not an array');
       return false;
     }

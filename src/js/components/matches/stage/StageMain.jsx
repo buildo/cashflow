@@ -62,7 +62,7 @@ const StageMain = React.createClass({
     const commitButton = (
       <div>
         <br></br>
-        <div className='ui right align blue button' onClick={this.commitMatches}>Salva modifiche su Fatture In Cloud</div>
+        <div className='ui right align blue button' onClick={this.commitMatches}>Salva matches in database</div>
       </div>
       );
 

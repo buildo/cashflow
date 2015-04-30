@@ -119,7 +119,8 @@ const Line = React.createClass({
 
     return (
       <div style={{marginTop: '2em'}}>
-        <div className={'ui' + (this.props.loading ? ' loading' : '') + ' segment manual-line'}>
+        <div className='ui header' style={{marginBottom: '0'}}>ID: {this.props._id}</div>
+        <div className={'ui' + (this.props.loading ? ' loading' : '') + ' segment manual-line'} style={{marginTop: '5px'}}>
           <JSONEditor id={this.props._id} value={this.state.value} onChange={this.onDocumentChange} />
           <div style={{padding: '5px'}}>
             <div className='ui negative button' onClick={this.deleteLine}>Elimina</div>

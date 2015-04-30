@@ -41,10 +41,18 @@ const CashflowMain = React.createClass({
     CFFActions.getManual();
   },
 
+  getErrorMessage() {
+    
+  },
+
   render() {
 
     if (this.props.isLoadingData || !this.state.cashflowData) {
       return <Loader />;
+    }
+
+    if (this.state.errors) {
+
     }
 
     const cumulativeAmountOfDay = this.getSelectedPayments() ? 'TOTAL: '+this.getSelectedPayments().reduce((amount, p) => amount + (p.grossAmount), 0).toFixed(2) : null;

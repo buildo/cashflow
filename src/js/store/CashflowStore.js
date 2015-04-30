@@ -54,6 +54,7 @@ class CashflowStore {
 
   onUpdate() {
     // console.log('ON_UPDATE');
+    this.errors = undefined;
     this.resetPointSelection();
     this.waitFor(CFFStore.dispatchToken);
     this.waitFor(MatchesStore.dispatchToken);
@@ -87,7 +88,7 @@ class CashflowStore {
     }
     const report = reportApp.processInputs(inputCFFs, cashflowConfigs, heuristics);
     if (report.errors) {
-      report.errors.forEach((error) => console.error(error));
+      this.errors = report.errors;
     }
     this.cashflowData = report.cashflow;
     if (!bankCFF) {

@@ -104,7 +104,7 @@ const initGraph = (data) => {
       duration: 500
     },
     color: {
-      pattern: ['gray', 'blue', 'orange', 'green']
+      pattern: ['black', 'blue', 'lightgray', 'blue']
     },
     tooltip: {
       grouped: false,
