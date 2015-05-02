@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@git.our.buildo.io:buildo/cashflow-www"
+    "url": "https://github.com/buildo/cashflow.git"
   },
   "author": "Francesco Cioria",
   "license": "ISC",
