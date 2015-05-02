@@ -1,5 +1,5 @@
 {
-  "name": "cashflow-www",
+  "name": "@buildo/cashflow-web",
   "version": "0.0.1",
   "description": "cashflow web app",
   "main": "dist/app.js",
