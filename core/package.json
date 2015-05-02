@@ -1,9 +1,8 @@
 {
-  "name": "cashflow",
+  "name": "@buildo/cashflow-core",
   "version": "0.0.2",
   "description": "cashflow report app",
   "main": "dist/index.js",
-  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

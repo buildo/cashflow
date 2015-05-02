@@ -42,7 +42,7 @@
     "better-console": "^0.2.4",
     "brace": "^0.5.0",
     "c3": "^0.4.7",
-    "cashflow": "git+ssh://git@git.our.buildo.io:/buildo/cashflow",
+    "cashflow-core": "@buildo/cashflow-core",
     "d3": "^3.5.1",
     "flux": "~2.0.1",
     "fs": "0.0.2",

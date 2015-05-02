@@ -1,5 +1,5 @@
 {
-  "name": "cashflow-api",
+  "name": "@buildo/cashflow-api",
   "version": "0.0.1",
   "description": "cashflow API",
   "main": "app.js",
