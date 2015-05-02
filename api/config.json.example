@@ -1,0 +1,7 @@
+{
+  "db": {
+    "host": "cashflow-mongo",
+    "port": 27017,
+    "name": "cashflow"
+  }
+}
