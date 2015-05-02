@@ -1,0 +1,6 @@
+node_modules
+test
+testrun.js
+.tmp
+ngris.sublime-project
+ngris.sublime-workspace
