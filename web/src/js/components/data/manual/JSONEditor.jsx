@@ -8,7 +8,7 @@ const ace = require('brace');
 require('brace/mode/json');
 require('brace/theme/textmate');
 
-const validateCFF = require('cashflow-core').validateCFF;
+const validateCFF = require('@buildo/cashflow-core').validateCFF;
 
 const JSONEditor = React.createClass({
 
