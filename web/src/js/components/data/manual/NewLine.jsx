@@ -13,7 +13,7 @@ const NewLine = React.createClass({
     _id: React.PropTypes.string.isRequired,
     show: React.PropTypes.bool,
     loading: React.PropTypes.bool,
-    error: React.PropTypes.string 
+    error: React.PropTypes.string
   },
 
   show() {

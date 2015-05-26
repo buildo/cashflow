@@ -23,7 +23,10 @@ const MatchesMain = React.createClass({
 
   componentDidMount: function() {
     this.listenTo(MatchesStore, this._onChange);
-    // MatchActions.getMatches.defer();
+
+    if (this.state.isOutdated) {
+      MatchActions.getMatches.defer();
+    }
   },
 
   render: function() {

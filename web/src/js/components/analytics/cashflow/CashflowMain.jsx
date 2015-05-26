@@ -24,7 +24,9 @@ const CashflowMain = React.createClass({
   },
 
   getStateFromStores() {
-    return CashflowStore.getState();
+    const state = CashflowStore.getState();
+    state.loading = this.props.isLoadingData || (!state.cashflowData && !state.errors);
+    return state;
   },
 
   componentDidMount() {
@@ -42,17 +44,25 @@ const CashflowMain = React.createClass({
   },
 
   getErrorMessage() {
-    
+    const errors = this.state.errors.map((e, i) => <li key={i}>{e.msg}</li>);
+    return (
+      <div className='ui error message'>
+        <div className='header'>Errors</div>
+        <ul className='list'>
+          {errors}
+        </ul>
+      </div>
+    );
   },
 
   render() {
 
-    if (this.props.isLoadingData || !this.state.cashflowData) {
+    if (this.state.loading) {
       return <Loader />;
     }
 
     if (this.state.errors) {
-
+      return this.getErrorMessage();
     }
 
     const cumulativeAmountOfDay = this.getSelectedPayments() ? 'TOTAL: '+this.getSelectedPayments().reduce((amount, p) => amount + (p.grossAmount), 0).toFixed(2) : null;

@@ -96,7 +96,7 @@ const ManualMain = React.createClass({
   },
 
   getLines() {
-    console.log(this.state.lines);
+    // console.log(this.state.lines);
     return this.state.lines.map((line, i) =>
       <Line
         line={line.line}

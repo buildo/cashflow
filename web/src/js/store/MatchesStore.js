@@ -2,11 +2,15 @@
 
 const alt = require('../alt');
 const MatchActions = require('../actions/MatchActions');
+const ManualActions = require('../actions/ManualActions');
 
 class MatchesStore {
   constructor() {
     this.bindActions(MatchActions);
     this.bindAction(MatchActions.commitMatchesSuccess, this.onUpdate);
+    this.bindListeners({
+      onUpdate: [MatchActions.commitMatchesSuccess, ManualActions.saveManualLineSuccess, ManualActions.createManualLineSuccess]
+    });
     this.isLoadingMatches = true;
   }
 

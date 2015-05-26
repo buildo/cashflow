@@ -20,7 +20,6 @@ const Line = React.createClass({
   getDefaultProps() {
     return {
       line: {
-        id: '',
         flowDirection: 'in/out',
         description: 'MANUAL',
         currency: {

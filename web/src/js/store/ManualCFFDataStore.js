@@ -5,6 +5,7 @@ const _ = require('lodash');
 const DataStore = require('./DataStore');
 const CFFActions = require('../actions/CFFActions');
 const ManualActions = require('../actions/ManualActions');
+const MatchActions = require('../actions/MatchActions');
 
 
 class ManualCFFDataStore extends DataStore {
@@ -13,14 +14,17 @@ class ManualCFFDataStore extends DataStore {
     super(ManualCFFDataStore);
     this.bindActions(CFFActions);
     this.bindActions(ManualActions);
+    this.bindAction(MatchActions.commitMatchesSuccess, this.update);
     this.newLine = {
       loading: false,
       show: false,
       error: undefined
     };
+    this.outdated = false;
   }
 
   onGetManual() {
+    this.outdated = false;
     this.deleteAll();
   }
 
@@ -104,6 +108,10 @@ class ManualCFFDataStore extends DataStore {
 
   setError(lineId, value) {
     this.update(lineId, {error: value});
+  }
+
+  update() {
+    this.outdated = true;
   }
 
 }

@@ -83,12 +83,15 @@ class CashflowStore {
     }
     const inputCFFs = [mainCFF, costsCFF, manualCFF].filter((cff) => typeof cff !== 'undefined');
     if (inputCFFs.length === 0) {
+      console.log('no input');
       this.cashflowData = undefined;
       return true;
     }
     const report = reportApp.processInputs(inputCFFs, cashflowConfigs, heuristics);
     if (report.errors) {
       this.errors = report.errors;
+      console.log(report.errors);
+      return true;
     }
     this.cashflowData = report.cashflow;
     if (!bankCFF) {
