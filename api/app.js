@@ -391,6 +391,10 @@ app.delete('/cffs/manual/:lineId', function *() {
   var user = yield utils.getUserByToken(db, token);
   var lineId = this.params.lineId;
   yield db.cffs.remove({userId: user._id, type: 'manual', id: lineId});
+
+  // REMOVE MATCHES
+  yield db.matches.remove({userId: user._id, main: lineId});
+  yield db.stagedMatches.remove({userId: user._id, main: lineId});
 });
 
 app.post('/matches/stage/commit', function*() {
@@ -409,9 +413,11 @@ app.post('/matches/stage/commit', function*() {
   }
 
   var mainLines = yield db.cffs.find({userId: user._id, type: 'main'}).toArray();
+  var manualLines = yield db.cffs.find({userId: user._id, type: 'manual'}).toArray();
+  var _manualLines = yield db.cffs.find({userId: user._id, type: 'manual'}).toArray(); //FUCK MUTABLE & FUCK YIELD!!!
   var bankLines = yield db.cffs.find({userId: user._id, type: 'bank'}).toArray();
 
-  var payments = utils.getPaymentsFromDocumentLines(mainLines).concat(utils.getPaymentsFromDocumentLines(bankLines));
+  var payments = utils.getPaymentsFromDocumentLines(mainLines).concat(utils.getPaymentsFromDocumentLines(bankLines)).concat(utils.getManualPaymentsFromDocumentLines(manualLines));
   var paymentsMap = payments.reduce(function(acc, payment) {
       acc[payment.id] = payment;
       return acc;
@@ -441,6 +447,18 @@ app.post('/matches/stage/commit', function*() {
     co(function *() {
       yield db.stagedMatches.remove(match);
       yield db.matches.insert(match);
+
+      const manualLine = _manualLines.filter(function(m) {return m.id === match.main})[0];
+      if (manualLine) {
+        // UPDATE MANUAL LINE WITH CORRECT VALUES
+        const dataPayment = paymentsMap[match.data]
+        manualLine.line.currency = dataPayment.info.currency;
+        manualLine.line.payments[0].date = dataPayment.date;
+        manualLine.line.payments[0].grossAmount = dataPayment.grossAmount;
+        manualLine.line.payments[0].method = dataPayment.method;
+        manualLine.line.payments[0].methodType = dataPayment.methodType;
+        yield db.cffs.update({userId: user._id, type: 'manual', id: manualLine.id}, {$set: {line: manualLine.line}}, {upsert: true});
+      }
     });
   });
 
@@ -531,10 +549,7 @@ app.get('/matches', function *() {
 
   var mainPayments = utils.getPaymentsFromDocumentLines(mainLines);
   var dataPayments = utils.getPaymentsFromDocumentLines(bankLines);
-  var manualPayments = utils.getPaymentsFromDocumentLines(manualLines).map(function(p) {
-    p.manual = true;
-    return p;
-  });
+  var manualPayments = utils.getManualPaymentsFromDocumentLines(manualLines);
 
   // merge manual payments with FIC payments
   mainPayments = mainPayments.concat(manualPayments);
@@ -555,7 +570,7 @@ app.get('/matches', function *() {
   const firstDayOfYear = [(new Date()).getFullYear(), '01', '01'].join('-');
 
   const filterByDate = function(payment) {
-    return payment.date >= firstDayOfYear;
+    return !payment.date || payment.date >= firstDayOfYear;
   };
 
   // create body

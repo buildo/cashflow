@@ -55,6 +55,23 @@ var getPaymentsFromDocumentLines = function (docLines) {
   return [].concat.apply([], payments);
 };
 
+var getManualPaymentsFromDocumentLines = function (manualDocLines) {
+
+  var _manualDocLines = manualDocLines.map(function(m) {
+    m.line.id = m.id;
+    return m;
+  });
+
+  var manualPayments = getPaymentsFromDocumentLines(_manualDocLines);
+
+  return manualPayments.map(function(p) {
+    p.manual = true;
+    p.id = p.info.lineId;
+    return p;
+  });
+
+};
+
 var getArrayFromObject = function(obj) {
   return Object.keys(obj).reduce(function(acc, key) {
       acc.push(obj[key]);
@@ -62,7 +79,7 @@ var getArrayFromObject = function(obj) {
     },
     []
   );
-}
+};
 
 var getTodayFormatted = function() {
   var today = new Date();
@@ -83,6 +100,7 @@ module.exports = {
   getUserByToken: getUserByToken,
   sortCFFLinesByDate: sortCFFLinesByDate,
   getPaymentsFromDocumentLines: getPaymentsFromDocumentLines,
+  getManualPaymentsFromDocumentLines: getManualPaymentsFromDocumentLines,
   getArrayFromObject: getArrayFromObject,
   getTodayFormatted: getTodayFormatted,
   getCffFromDocumentLines: getCffFromDocumentLines,
