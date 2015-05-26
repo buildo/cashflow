@@ -86,7 +86,7 @@ gulp.task('js', ['jshint'], function() {
 
     watchify.args.debug = true;
 
-    return watchify(browserify(filename, watchify.args))
+    return browserify(filename, watchify.args)
       .transform(reactify)
       .transform(es6ify.configure(/.jsx?/))
       .bundle();
