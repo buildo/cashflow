@@ -2,11 +2,10 @@
 set -e
 set -x
 
-echo "Please build cashflow-www manually and re-run this"
-
 LAST_COMMIT=$(git rev-parse HEAD)
 
 cp config.js ../web/.
+(cd ../web; npm install; cd semantic; gulp build; cd ..; gulp build)
 (cd ../api; npm update)
 
 (cd ..;
