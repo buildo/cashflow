@@ -8,6 +8,18 @@ class PullProgressStore {
     this.bindActions(CFFActions);
   }
 
+  onPullBank() {
+    this.isPullingBank = true;
+  }
+
+  onPullBankFail() {
+    this.isPullingBank = false;
+  }
+
+  onPullBankSuccess() {
+    this.isPullingBank = false;
+  }
+
   onPullMain() {
     this.isPullingMain = true;
     this.progressMain = undefined;

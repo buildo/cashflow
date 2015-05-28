@@ -63,14 +63,13 @@ const CFFMain = React.createClass({
   },
 
   _onChange() {
-    const newState = this.getStateFromStores();
-    this.setState(newState);
-    if (newState.isPullingMain && newState.progressMain && newState.progressMain.completed) {
-      CFFActions.resetMainPullProgress();
-      CFFActions.getMain.defer();
-    } else if(newState.isPullingMain) {
-      setTimeout(CFFActions.getMainPullProgress, 200);
-    }
+    this.setState(this.getStateFromStores());
+    // if (newState.isPullingMain && newState.progressMain && newState.progressMain.completed) {
+    //   CFFActions.resetMainPullProgress();
+    //   CFFActions.getMain.defer();
+    // } else if(newState.isPullingMain) {
+    //   setTimeout(CFFActions.getMainPullProgress, 200);
+    // }
   }
 
 });

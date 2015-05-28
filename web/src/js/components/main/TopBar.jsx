@@ -4,7 +4,10 @@
 
 const React = require('react');
 const Link = require('react-router').Link;
+const ListenerMixin = require('alt/mixins/ListenerMixin');
 const LoginActions = require('../../actions/LoginActions.js');
+const CFFActions = require('../../actions/CFFActions.js');
+const PullProgressStore = require('../../store/PullProgressStore.js');
 
 
 const TopBar = React.createClass({
@@ -14,19 +17,32 @@ const TopBar = React.createClass({
     selectedPage: React.PropTypes.string.isRequired
   },
 
-  getToken: function() {
-    console.log(localStorage.getItem('cashflow_token'));
+  mixins: [ListenerMixin],
+
+  getInitialState() {
+    return {};
   },
 
-  logOut: function() {
-    LoginActions.logOut();
-  },
+  componentDidMount() {
+    this.listenTo(PullProgressStore, this._onChange);
 
-  componentDidMount: function() {
     $(this.refs.dropdownMenu.getDOMNode()).dropdown();
   },
 
-  render: function () {
+  getToken() {
+    console.log(localStorage.getItem('cashflow_token'));
+  },
+
+  logOut() {
+    LoginActions.logOut();
+  },
+
+  runScrapers() {
+    CFFActions.pullMain();
+    CFFActions.pullBank();
+  },
+
+  render () {
 
     const selectedPage = this.props.selectedPage;
     const pages = this.props.pages.map((page, index) => {
@@ -47,16 +63,15 @@ const TopBar = React.createClass({
       );
     });
 
+    const pulling = this.state.updatingDatabase ? 'loading' : '';
+
     return (
       <div className='ui tiered menu'>
         <div className='menu'>
           {pages}
           <div className='right menu'>
             <div className='item'>
-              <div className='ui icon input'>
-                <input type='text' placeholder='Search...'/>
-                <i className='search icon'></i>
-              </div>
+              <div className={`ui ${pulling} button`} onClick={this.runScrapers}>Update database</div>
             </div>
             <div ref='dropdownMenu' className='ui dropdown item'>
               More
@@ -64,7 +79,6 @@ const TopBar = React.createClass({
               <div className='menu'>
                 <div className='item' onClick={this.getToken}><i className='edit icon'></i> Get Token</div>
                 <div className='item' onClick={this.logOut}><i className='globe icon'></i> Log Out</div>
-                <div className='item'><i className='settings icon'></i> Account Settings</div>
               </div>
             </div>
           </div>
@@ -74,6 +88,19 @@ const TopBar = React.createClass({
         </div>
       </div>
     );
+  },
+
+  _onChange() {
+    const newState = PullProgressStore.getState();
+    const updatingDatabase = newState.isPullingMain || newState.isPullingBank;
+    this.setState({ updatingDatabase });
+    if (newState.isPullingMain && newState.progressMain && newState.progressMain.completed) {
+      CFFActions.resetMainPullProgress();
+      CFFActions.getMain.defer();
+    } else if(newState.isPullingMain) {
+      setTimeout(CFFActions.getMainPullProgress, 200);
+    }
+    this.setState({ updatingDatabase });
   }
 
 });
