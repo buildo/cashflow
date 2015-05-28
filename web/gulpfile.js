@@ -40,7 +40,7 @@ var PATHS = {
 
 var handleErrors = function(err) {
     notify.onError({
-      message: "<%= error.message %>"
+      message: "<%= error.message %> <%= error.filename %>"
     }).apply(this, arguments);
 
     this.emit('end');
@@ -75,7 +75,8 @@ gulp.task('jshint', function() {
     }))
     .pipe(jshint.reporter('fail', {
       verbose : true
-    }));
+    }))
+    .on('error', handleErrors);
 });
 
 gulp.task('js', ['jshint'], function() {
@@ -87,6 +88,27 @@ gulp.task('js', ['jshint'], function() {
     watchify.args.debug = true;
 
     return browserify(filename, watchify.args)
+      .transform(reactify)
+      .transform(es6ify.configure(/.jsx?/))
+      .bundle();
+  });
+
+  return gulp.src(PATHS.browserifyEntry)
+    .pipe(browserified)
+    .on('error', handleErrors)
+    .pipe(uglify())
+    .pipe(gulp.dest(PATHS.dist));
+});
+
+gulp.task('js-watchify', ['jshint'], function() {
+  var browserified = transform(function(filename) {
+    es6ify.traceurOverrides = {
+      experimental: true
+    };
+
+    watchify.args.debug = true;
+
+    return watchify(browserify(filename, watchify.args))
       .transform(reactify)
       .transform(es6ify.configure(/.jsx?/))
       .bundle();
@@ -147,8 +169,18 @@ gulp.task('build', [
   'i18n'
 ]);
 
+gulp.task('build-watchify', [
+  'js-watchify',
+  'vendor-css',
+  'scss',
+  'html',
+  'assets',
+  'themes',
+  'i18n'
+]);
+
 gulp.task('watch-all', function () {
-  gulp.watch([PATHS.js], ['js']);
+  gulp.watch([PATHS.js], ['js-watchify']);
   gulp.watch([PATHS.assets], ['assets']);
   gulp.watch([PATHS.scss], ['scss']);
   gulp.watch([PATHS.index], ['html']);
@@ -157,5 +189,5 @@ gulp.task('watch-all', function () {
 });
 
 gulp.task('default', function() {
-  runSequence('clean', 'build', 'server', 'watch-all');
+  runSequence('clean', 'build-watchify', 'server', 'watch-all');
 });
