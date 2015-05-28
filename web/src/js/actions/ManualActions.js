@@ -2,6 +2,7 @@
 
 const alt = require('../alt');
 const API = require('../utils/api.js');
+const MatchActions = require('./MatchActions');
 
 class ManualActions {
 
@@ -31,6 +32,7 @@ class ManualActions {
   }
 
   saveManualLineSuccess(line) {
+    MatchActions.getMatches.defer();
     this.dispatch(line);
   }
 
@@ -45,6 +47,7 @@ class ManualActions {
   }
 
   createManualLineSuccess(res) {
+    MatchActions.getMatches.defer();
     this.dispatch(res.data.data.newLine);
   }
 
@@ -58,6 +61,7 @@ class ManualActions {
   }
 
   deleteManualLineSuccess(lineId) {
+    MatchActions.getMatches.defer();
     this.dispatch(lineId);
   }
 
