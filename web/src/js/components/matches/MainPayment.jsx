@@ -14,7 +14,7 @@ const MainPayment = React.createClass({
   render: function() {
     const mainPayment = this.props.mainPayment;
     const isInvoice = mainPayment.info.flowDirection === 'in';
-    const currency = utils.getCurrency(mainPayment.info.currency.name);
+    const currency = utils.getPaymentCurrency(mainPayment);
 
     return (
       <div>

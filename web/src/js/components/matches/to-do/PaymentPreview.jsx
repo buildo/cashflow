@@ -18,7 +18,7 @@ const DataPayment = React.createClass({
     const payment = this.props.payment;
     const isSelected = this.props.isSelected;
     const isInvoice = this.props.flowDirection === 'in';
-    const currency = utils.getCurrency(payment.info.currency.name);
+    const currency = utils.getPaymentCurrency(payment);
 
     const divClasses = isSelected ? 'ui segment green selectable data-payment' : 'ui segment selectable data-payment';
 

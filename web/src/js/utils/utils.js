@@ -27,6 +27,8 @@ const getCurrency = (currencyName) => {
   return currencies[currencyName];
 };
 
+const getPaymentCurrency = (payment) => getCurrency(payment.info.currency ? payment.info.currency.name : 'EUR');
+
 // const getValueInEuro = (payment) {
 //   return payment.grossAmount / (payment.info.)
 // }
@@ -45,5 +47,6 @@ module.exports = {
   sortPaymentsByDate: sortPaymentsByDate,
   sortByMatchesNumber: sortByMatchesNumber,
   getCurrency: getCurrency,
+  getPaymentCurrency: getPaymentCurrency,
   shiftDate: shiftDate
 };
