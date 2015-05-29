@@ -6,7 +6,7 @@ LAST_COMMIT=$(git rev-parse HEAD)
 
 cp config.js ../web/.
 (cd ../web; npm install; cd semantic; gulp build; cd ..; gulp build)
-(cd ../api; npm update)
+(cd ../api; npm install)
 
 (cd ..;
   docker build -t quay.io/buildo/cashflow:$LAST_COMMIT .;
