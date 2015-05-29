@@ -62,6 +62,26 @@ const ManualMain = React.createClass({
       sendError(_id, '"payments" missing or not an array');
       return false;
     }
+
+    if (line.payments.find(p => p.id && typeof p.id !== 'string')) {
+      sendError(_id, 'payments IDs must be strings (or undefined if only one payment');
+      return false;
+    }
+
+    const uniquePaymentIDs = line.payments.reduce((acc, p) => {
+        if (!acc || acc[p.id]) {
+          return false;
+        }
+        acc['' + p.id] = '' + p.id;
+      },
+      {}
+    );
+
+    if (!uniquePaymentIDs) {
+      sendError(_id, 'payments must have unique IDs (or undefined if only one payment)');
+      return false;
+    }
+
     return true;
   },
 
