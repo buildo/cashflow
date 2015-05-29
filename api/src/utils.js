@@ -66,7 +66,7 @@ var getManualPaymentsFromDocumentLines = function (manualDocLines) {
 
   return manualPayments.map(function(p) {
     p.manual = true;
-    p.id = p.info.lineId;
+    p.id = p.info.lineId + (p.id || '');
     return p;
   });
 
