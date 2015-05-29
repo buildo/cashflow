@@ -14,7 +14,7 @@ class ManualCFFDataStore extends DataStore {
     super(ManualCFFDataStore);
     this.bindActions(CFFActions);
     this.bindActions(ManualActions);
-    this.bindAction(MatchActions.commitMatchesSuccess, this.update);
+    this.bindAction(MatchActions.commitMatchesSuccess, this.refresh);
     this.newLine = {
       loading: false,
       show: false,
@@ -110,7 +110,7 @@ class ManualCFFDataStore extends DataStore {
     this.update(lineId, {error: value});
   }
 
-  update() {
+  refresh() {
     this.outdated = true;
   }
 
