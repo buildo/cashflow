@@ -73,6 +73,7 @@ const ManualMain = React.createClass({
           return false;
         }
         acc['' + p.id] = '' + p.id;
+        return acc;
       },
       {}
     );
