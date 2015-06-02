@@ -264,36 +264,35 @@ app.post('/cffs/bank/pull', function *() {
     });
   });
 
+  var error;
+
   reports.forEach(function(report) {
     co(function *() {
       switch (report.status) {
         case 'success':
-          // retrieve stored lines
-
-          // var closestDateOldLines;
-          var oldLines = yield db.cffs.find({userId: user._id, type: 'bank', bankId: report.bankId}).toArray();
-          var oldLinesIDs = oldLines.map(function(line) {return line.id;}).join('|');
-          // if (oldLines.length > 0) {
-          //   closestDateOldLines = oldLines.map(function(lineDoc){return lineDoc.line.payments[0].date;})
-          //     .reduce(function(acc, date){return date > acc ? date : acc;});
-          // }
           var cff = report.result.bank.cff;
-          // var filteredNewLines = cff.lines.filter(function(line){
-          //   var date = line.payments[0].date;
-          //   return !closestDateOldLines || date > closestDateOldLines || date === utils.getTodayFormatted();
-          // });
-          // var filteredOldLines =  closestDateOldLines !== utils.getTodayFormatted() ? [] :
-          //   oldLines.filter(function(lineDoc) {return lineDoc.line.payments[0].date === closestDateOldLines;});
-          // // remove today lines (avoid conflicts)
-          // yield filteredOldLines.map(function(lineDoc) {
-          //   return {
-          //     remove: db.cffs.remove(lineDoc)
-          //   };
-          // });
 
-          var filteredNewLines = cff.lines.filter(function(line) {return oldLines.indexOf(line.id) === -1});
-          // save new lines
-          yield filteredNewLines.map(function(line) {
+          // retrieve stored lines
+          var oldLines = yield db.cffs.find({userId: user._id, type: 'bank', bankId: report.bankId}).toArray();
+
+          // *** SAFETY CHECK: old lines should exist in new cff (if date is recent enough)
+          var oldestDate = cff.lines.map(function(line){return line.payments[0].date;})
+              .reduce(function(acc, date){return date < acc ? date : acc;});
+          var newLinesIDs = cff.lines.map(function(line) {return line.id;}).join('|');
+          var oldLinesNoLongerExisting = oldLines.filter(function(docLine) {
+            return docLine.line.payments[0].date >= oldestDate && newLinesIDs.indexOf(docLine.line.id) === -1;
+          });
+          if (oldLinesNoLongerExisting.length > 0) {
+            console.log('Warning: there might be duplicates in ' + report.bankId + '. New lines won\'t be saved in database');
+            error = {number: 400, msg: 'Warning: there might be duplicates in ' + report.bankId + '. New lines won\'t be saved in database'};
+            break;
+          }
+          // *** END SAFETY CHECK
+
+          // (DEPRECATED: only new lines) var filteredNewLines = cff.lines.filter(function(line) {return oldLinesIDs.indexOf(line.id) === -1});
+
+          // save (or overwrite) new lines
+          yield cff.lines.map(function(line) {
             line.sourceId = cff.sourceId;
             line.sourceDescription = cff.sourceDescription;
             return {
@@ -303,7 +302,7 @@ app.post('/cffs/bank/pull', function *() {
           break;
 
         case utils.unknownError:
-          this.throw(400, 'reached maximum number of attempts (' + report.attempts + ')');
+          error = {number: 400, msg: 'reached maximum number of attempts (' + report.attempts + ')'};
           break;
 
         case utils.captchaError:
@@ -317,14 +316,18 @@ app.post('/cffs/bank/pull', function *() {
 
         case utils.passwordError:
           yield db.credentials.remove({userId: user._id, type: 'bank', bankId: report.bankId});
-          this.throw(400, report.result.bank.status.message);
+          error = {number: 400, msg: report.result.bank.status.message};
           break;
 
         default:
-          this.throw(400, report.result.bank.status.message);
+          error = {number: 400, msg: report.result.bank.status.message};
       }
     });
   });
+
+  if (error) {
+    this.throw(error.number, error.msg);
+  }
 });
 
 app.get('/cffs/manual', function *() {
