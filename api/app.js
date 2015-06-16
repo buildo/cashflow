@@ -231,7 +231,7 @@ app.post('/cffs/bank/pull', function *() {
   // fai partire scrapers, aggiorna.
   var bankCredentialsArray = yield db.credentials.find({userId: user._id, type: 'bank'}).toArray();
   if (bankCredentialsArray.length === 0) {
-    this.throw(400, 'bank credentials not found');
+    this.throw(400, 'BPER and BPER-CREDIT-CARD credentials are missing');
   }
 
   var bperCredentials = yield db.credentials.findOne({userId: user._id, type: 'bank', bankId: 'bper'});
@@ -239,7 +239,10 @@ app.post('/cffs/bank/pull', function *() {
     this.throw(404, 'BPER credentials are missing');
   }
 
-
+  var bperCreditCardCredentials = yield db.credentials.findOne({userId: user._id, type: 'bank', bankId: 'bper-credit-card'});
+  if (!bperCreditCardCredentials) {
+    this.throw(404, 'BPER-CREDIT-CARD credentials are missing');
+  }
 
   var reports = yield bankCredentialsArray.map(function(bankCredentials) {
     return co(function *() {
