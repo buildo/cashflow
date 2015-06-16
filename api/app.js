@@ -279,7 +279,7 @@ app.post('/cffs/bank/pull', function *() {
           // *** SAFETY CHECK: old lines should exist in new cff (if date is recent enough)
           var oldestDate = cff.lines.map(function(line){return line.payments[0].date;})
               .reduce(function(acc, date){return date < acc ? date : acc;});
-          var newLinesIDs = cff.lines.map(function(line) {return line.id;}).join('|');
+          var newLinesIDs = cff.lines.map(function(line) {return line.id;});
           var oldLinesNoLongerExisting = oldLines.filter(function(docLine) {
             return docLine.line.payments[0].date >= oldestDate && newLinesIDs.indexOf(docLine.line.id) === -1;
           });
