@@ -2,7 +2,7 @@
 
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectID;
-var assert = require('assert');
+// var assert = require('assert');
 var comongo = require('co-mongo');
 var co = require('co');
 var koa = require('koa');
@@ -17,7 +17,6 @@ var jsendify = require('./src/jsendify.js');
 var utils = require('./src/utils.js');
 var saveOnFattureInCloud = require('cff-manager-assistant').saveOnFattureInCloud;
 var getMatches = require('cff-manager-assistant').getMatches;
-var bperCredentialsJSON = require('./bperCredentials.json');
 var config = require('./config.json');
 var db;
 
@@ -236,9 +235,8 @@ app.post('/cffs/bank/pull', function *() {
   }
 
   var bperCredentials = yield db.credentials.findOne({userId: user._id, type: 'bank', bankId: 'bper'});
-  assert(bperCredentials);
-  if (bperCredentials && (bperCredentials.credentials.password !== bperCredentialsJSON.password || bperCredentials.credentials.user !== bperCredentialsJSON.user)) {
-    this.throw(400, 'incorrect password');
+  if (!bperCredentials) {
+    this.throw(404, 'BPER credentials are missing');
   }
 
 
