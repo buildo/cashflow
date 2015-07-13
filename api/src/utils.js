@@ -108,5 +108,5 @@ module.exports = {
   passwordError: 'password',
   loginError: 'login',
   unknownError: 'unknown',
-  maxAttempts: 2
+  maxAttempts: 1
 };

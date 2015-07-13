@@ -279,12 +279,18 @@ app.post('/cffs/bank/pull', function *() {
           // *** SAFETY CHECK: old lines should exist in new cff (if date is recent enough)
           var oldestDate = cff.lines.map(function(line){return line.payments[0].date;})
               .reduce(function(acc, date){return date < acc ? date : acc;});
+          if (oldestDate < '2015-06-15') {
+            oldestDate = '2015-06-15';
+          }
           var newLinesIDs = cff.lines.map(function(line) {return line.id;});
           var oldLinesNoLongerExisting = oldLines.filter(function(docLine) {
             return docLine.line.payments[0].date >= oldestDate && newLinesIDs.indexOf(docLine.line.id) === -1;
           });
           if (oldLinesNoLongerExisting.length > 0) {
             console.log('Warning: there might be duplicates in ' + report.bankId + '. New lines won\'t be saved in database');
+            oldLinesNoLongerExisting.forEach(function(line) {
+              console.log(line.line);
+            });
             error = {number: 400, msg: 'Warning: there might be duplicates in ' + report.bankId + '. New lines won\'t be saved in database'};
             break;
           }
